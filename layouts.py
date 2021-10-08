@@ -967,6 +967,7 @@ class main_layout:
                 return m
         return monitors[0]
         
+    
     def layout(self):
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
