@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Sep  2 23:47:40 2021
+
+@author: andre
+"""
+
+import PySimpleGUI as sg
+from docx import Document
+
+def lines(inline, dict_sub):
+    for i in range(len(inline)):
+        paragr = inline[i].text
+        for text in dict_sub.keys():
+            if paragr.find(text) != -1:
+                texto = paragr.replace(text, dict_sub[text])
+                inline[i].text = texto
+
+def update_docx(name, dict_sub):
+    if name.find('.docx') == -1:
+        sg.popup_error('O arquivo não é um formato docx')
+    else:
+        document = Document(name)
+        
+        #atualizando paragrafos
+        for paragraph in document.paragraphs:
+            lines(paragraph.runs, dict_sub)
+            
+        #atualizar tabelas
+        for table in document.tables:
+            for i, line in enumerate(table.rows):
+                for cell in line.cells:
+                    for paragraph in cell.paragraphs:
+                        lines(paragraph.runs, dict_sub)
+            
+        document.save('testttt2.docx')
+        
+        
+        
+nomes = {'ACADÊMICO': 'to nem ai', 'serem': 'ja foram', '27':'12345'}
+update_docx('testttt.dss', nomes)
