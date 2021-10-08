@@ -966,8 +966,7 @@ class main_layout:
             if m.x <= x <= m.width + m.x and m.y <= y <= m.height + m.y:
                 return m
         return monitors[0]
-        
-    
+            
     def layout(self):
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
