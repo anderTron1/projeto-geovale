@@ -22,7 +22,8 @@ class Database:
         
         self.id_register_spouse = 'id_register_spouse'
         self.register_spouse = 'register_spouse'
-        self.id_to_table_register_spouse = 'id_to_register_people'
+        
+        self.name_id_to_table_register = 'id_to_register_people'
         
         self.register_residents = 'register_residents'
         self.id_register_residents = 'id_register_residents'
@@ -137,11 +138,12 @@ class Database:
         
 #data = Database()
 #data.insert_register()
+'''
 valor = 'teste'
 tes = 'ola'
 print('{0} = {1}, '.format(valor, '"'+tes+'"'))
 
-'''
+
 val = {'id_register_people':'Andre luiz', 'name':'Pires', 'sex':1}
 print('{}'.format(', '.join(['"' +str(_)+'"' for _ in val.values()])))
 

@@ -176,7 +176,6 @@ class button_search:
         
         dados = [i for i in range(NUM_ROWS)]
         table = ElementsAdditional.Table(sg, headings, DEFAULT_KEY_TABLE_SEARCH_REGISTRATION, dados = self._databases_db(), col_width=15)
-        
         return table
     
     def _layout(self):
@@ -218,8 +217,6 @@ class register_personal_data:
     
     def __init__(self):
         self._marital_status = 'Casado'
-        #self._style = sg.ttk.Style()
-        #self._style.configure('TCombobox', fieldbackground='red')
         
     def load_window_layout(self):
         listEstadoCivil = [self._marital_status, 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo']
@@ -370,10 +367,10 @@ class register_personal_data:
         
         if velue[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == estadCivil and window.Element(DEFAULT_KEY_BTN_NEW).TKButton['state'] == 'disabled':# and velue[DEFAULT_KEY_NAME_SPOUSE] != '':# and window.Element(DEFAULT_KEY_BTN_SAVE).TKButton['state'] == 'normal':
             if window.Element(DEFAULT_KEY_NAME_SPOUSE).TKEntry['state'] == 'readonly':
-                self.disable_objts(key_to_disable,window, False)
-                
+                self.disable_objts(key_to_disable,window, False, False)
+                                
         elif  window.Element(DEFAULT_KEY_NAME_SPOUSE).TKEntry['state'] == 'normal':
-                self.disable_objts(key_to_disable,window, True)
+            self.disable_objts(key_to_disable,window, True)
 
     def _change_fields_color(self, window, key, color):
         if window.Element(key).Type == 'input':
@@ -558,8 +555,9 @@ class register_personal_data:
             DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE :DEFAULT_KEY_COMB_ANOTHER_PROPERTY
             }
         
-        if window.Element(DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY).Widget['state'] == 'disable':
-            for key_disabled, keys_itens in dict_key_Comb.items():
+        #print(window.Element(DEFAULT_KEY_INP_WHERE).Widget['state'])
+        #if window.Element(DEFAULT_KEY_INP_WHERE).Widget['state'] == 'readonly':
+        for key_disabled, keys_itens in dict_key_Comb.items():
                 if value[keys_itens] == KEY_YES:
                     window.Element(key_disabled).update(disabled=False)
                 elif value[keys_itens] == KEY_NOT or value[keys_itens] == '':
@@ -582,7 +580,7 @@ class register_personal_data:
             
      
     def _select_rows_table_residents(self, window):
-        if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows) > 0:
+        if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()) > 0:
             rows = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0]
             dados = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values[int(rows)]
                 
@@ -603,11 +601,7 @@ class register_personal_data:
         
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).update(values=data, num_rows=20,select_rows=[indice_table])
     
-    def _save_record_regist_resid(self, window, value, keys, alternating_row_color='DimGray', background_color='Gray'):
-        datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
-        count_rows = len(datas)
-        list_record = [value[key] for key in keys]
-                
+    def __save_regist_table(self, window, count_rows, list_record, alternating_row_color, background_color):
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.tag_configure('oddrow', background=alternating_row_color)
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.tag_configure('evenrow', background=background_color)
         if count_rows % 2 == 0:
@@ -617,6 +611,34 @@ class register_personal_data:
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values.append(list_record)
                 
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).update(select_rows=[int(id)-1])
+        
+    def delete_table(self, window, key, id = None):
+        if id == None:
+            rows = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()
+            if len(rows) > 0:
+                for row in rows:
+                    window.Element(key).TKTreeview.delete(row)
+        else:
+            if id > 0:
+                window.Element(key).TKTreeview.delete(id)
+        
+    
+    def save_record_regist_resid(self, window, value, keys, alternating_row_color='DimGray', background_color='Gray'):
+        datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
+        count_rows = len(datas)
+        list_record = [value[key] for key in keys]
+                
+        self.__save_regist_table(window, count_rows, list_record, alternating_row_color, background_color)
+    
+    def save_regist_table(self, window, datas, alternating_row_color='DimGray', background_color='Gray'):
+        #list_record = [key for key in datas]
+        elem = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
+        count_rows = len(elem)
+        
+        print(datas)
+        print(count_rows)
+        
+        self.__save_regist_table(window, count_rows, datas, alternating_row_color, background_color)
     
     def key_to_disable_regist(self):
         key_to_disable_regist = [DEFAULT_KEY_TXT_NOME_REGIST_RESID,
@@ -631,7 +653,7 @@ class register_personal_data:
         dados = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
                 
         if event == DEFAULT_KEY_TABLE_RESIDENTS:
-            if len(dados) > 0:
+            if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()) > 0:
                 self._select_rows_table_residents(window)
                 self.disable_objts(self.key_to_disable_regist(), window,True,closeValue=False)
                 self.event_buttons_residents(window, False,True, True, False, False)
@@ -652,7 +674,7 @@ class register_personal_data:
                 self._edit_table(window, valuer, dados, self.key_to_disable_regist(), window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0])
                 
             elif window.Element(DEFAULT_KEY_BTN_NEW_REGIST_RESID).Disabled == False:
-                self._save_record_regist_resid(window, valuer,self.key_to_disable_regist()) 
+                self.save_record_regist_resid(window, valuer,self.key_to_disable_regist()) 
 
             #update valuer to family income
             total_income = [sum(int(i[5]) for i in dados)][0]
@@ -666,6 +688,8 @@ class register_personal_data:
             self.event_buttons_residents(window, True, False, False, False, True)
                 
         if event == DEFAULT_KEY_BTN_DEL_REGIST_RESID:
+            id = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()[0]
+            self.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS, id)
             self.disable_objts(self.key_to_disable_regist(),window,True,closeValue=False)
             
             
@@ -730,13 +754,11 @@ class register_personal_data:
             result = ElementsAdditional.valid_titulo_eleitor(sg, velue[DEFAULT_KEY_VOTER_TITLE_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_VOTER_TITLE_SPOUSE, 'Número do Titulo de Eleitor incorreto!')
 
-           
     def exec_layout(self, window, event, valuer):
        self.event_inputs(sg, window, event, valuer)
        self.event_other_infor(window, valuer)
        self.disable_input_conjuge(window, valuer, self._marital_status)
        self._event_table_regist_resid(window, event, valuer)
-                
 
 
 class registration:
@@ -758,19 +780,29 @@ class registration:
             
         return layout
     
-    def _loard_records_into_fields(self,window, name_table, keys_fields, name_id_table, id_register):
-        fileds_and_field_db = self._conn._take_fields_records(name_table, keys_fields)      
-        datas = self._conn.select_register(fileds_and_field_db.keys(), name_table, name_id_table, id_register)[0]
+    def _loard_records_into_fields(self,window, name_table, keys_fields, name_id_table, id_register, is_table = False, key_table = None, valuer=None):
+        fileds_and_field_db = self._conn._take_fields_records(name_table, keys_fields)
+        datas = None
+        
+        if is_table:
+            datas = self._conn.select_register(fileds_and_field_db.keys(), name_table, name_id_table, id_register)
+        else:
+            datas = self._conn.select_register(fileds_and_field_db.keys(), name_table, name_id_table, id_register)[0]
         datas = np.array(datas)
-
-        for cont, key in enumerate(fileds_and_field_db.values()):
-            if datas[cont] != None:
-                if window.Element(key).Type == 'input':
-                    window.Element(key).Update(datas[cont])
-                elif window.Element(key).Type == 'combo':
-                    window.Element(key).TKCombo.set(datas[cont])
-                elif window.Element(key).Type == 'spind':
-                    window.Element(key).TKStringVar.set(datas[cont])
+        
+        if key_table == None:
+            for cont, key in enumerate(fileds_and_field_db.values()):
+                if datas[cont] != None:
+                    if window.Element(key).Type == 'input':
+                        window.Element(key).Update(datas[cont])
+                    elif window.Element(key).Type == 'combo':
+                        window.Element(key).TKCombo.set(datas[cont])
+                    elif window.Element(key).Type == 'spind':
+                        window.Element(key).TKStringVar.set(datas[cont])
+        else:
+            for row in datas:
+                val = [i for i in row]
+                self._class_register.save_regist_table(window, val)
         if len(datas) > 0:
             return True
         return False
@@ -830,12 +862,13 @@ class registration:
             self._activate_registration_buttons(window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True)
             self._activate_search_buttons(window, buttons=True)
             #event buttons registration residents
-            self._class_register.event_buttons_residents(window, False, True, True, True, True)            
+            self._class_register.event_buttons_residents(window, False, True, True, True, True)
+            
+            self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
             
         elif event == DEFAULT_KEY_BTN_CANCEL:
             self._btn_edit_clicked = False
-            self._class_register.disable_objts(key_to_update,window, True,False)
-            
+                        
             if value[DEFAULT_KEY_NOME_PERSONAL_DATA] != '':
                 self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
             else:
@@ -846,7 +879,7 @@ class registration:
             self._class_register.event_buttons_residents(window, True, True, True, True, False)
             
             #disable functions to register residents tab
-            self._class_register.disable_objts(self._class_register.key_to_disable_regist(), window,True,closeValue=True)
+            self._class_register.disable_objts(self._class_register.key_to_disable_regist(), window,True,True)
             self._class_register.event_buttons_residents(window, True, True, True, True, True)
             
             for item in window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children():
@@ -854,6 +887,9 @@ class registration:
                 
             for key in key_to_update:
                 self._class_register._change_fields_color(window, key, "white")
+                
+            self._class_register.disable_objts(key_to_update, window, True,False)
+            self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True, False)
             
         elif event == DEFAULT_KEY_BTN_SAVE:
             resultFields = self._class_register.required_fields(window, event,value)
@@ -866,24 +902,29 @@ class registration:
                 keys_numeric_fields = [DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, DEFAULT_KEY_TEL_PERSONAL_DATA,DEFAULT_KEY_CEL_PERSONAL_DATA,
                                            DEFAULT_KEY_RG_PERSONAL_DATA, DEFAULT_KEY_CPF_PERSONAL_DATA]
                 keys_numeric = [DEFAULT_KEY_BIRTHDATE_SPOUSE, DEFAULT_KEY_CEL_SPOUSE,DEFAULT_KEY_TEL_SPOUSE, DEFAULT_KEY_RG_SPOUSE,DEFAULT_KEY_CPF_SPOUSE]
+                register_exist_db = False
                 
                 if self._btn_edit_clicked == False: #Save register
                     
-                    self._id_register_db = self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people)
-                
-                    if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
-                        self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric) , self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
+                    register_exist_db = self._conn.query_record(self._conn.register_people, 'cpf', re.sub('[^0-9]', '', value[DEFAULT_KEY_CPF_PERSONAL_DATA]))
+                    if register_exist_db != True:
+                        self._id_register_db = self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people)
                     
-                    if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
-                        datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
+                        if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
+                            self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric) , self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
                         
-                        for register in datas:
-                            self._conn.insert_register(register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
-                    
+                        if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
+                            datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
+                            
+                            for register in datas:
+                                self._conn.insert_register(register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
+                    else:
+                        sg.popup('ERRO!\n  cadastro do titular do CPF: {0} já existente na base de dados.'.format(value[DEFAULT_KEY_CPF_PERSONAL_DATA]), keep_on_top=True)
+                        
                 else: #save edition register
                     self._conn.update_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._id_register_db)
                     
-                    register_exist = self._conn.query_record(self._conn.register_spouse, self._conn.id_to_table_register_spouse, self._id_register_db)
+                    register_exist = self._conn.query_record(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                     
                     if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
                         if register_exist:
@@ -896,14 +937,14 @@ class registration:
                     #if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
                     #    datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
                         
+                if register_exist_db == True:
+                    self._class_register.disable_objts(key_to_update, window, True,False)
+                    self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True, False)
                     
-                self._class_register.disable_objts(key_to_update, window, True,False)
-                self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True, False)
-                
-                self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
-                self._activate_search_buttons(window, buttons=False)
-                #event buttons registration residents
-                self._class_register.event_buttons_residents(window, False, True, True, True, False)
+                    self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
+                    self._activate_search_buttons(window, buttons=False)
+                    #event buttons registration residents
+                    self._class_register.event_buttons_residents(window, False, True, True, True, False)
             
         elif event == DEFAULT_KEY_BTN_EDIT:
             self._btn_edit_clicked = True
@@ -914,30 +955,44 @@ class registration:
             self._class_register.event_buttons_residents(window, False, True, True, True, True)
         
         elif event == DEFAULT_KEY_BTN_DELETE:  
+            
+            self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
+            
             self._class_register.disable_objts(key_to_update, window, True,True)
             self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
             self._activate_search_buttons(window, buttons=False)
             self._class_register.event_buttons_residents(window, True, True, True, True, True)
         
         if event == DEFAULT_KEY_BTN_SEARCH:
-            self._class_register.disable_objts(key_to_update, window, True,True)
-            self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True)
-            
             search = button_search(sg, self._conn)
             self._window_button_search, self._id_register_db = search.window_button_search()
-                        
-            register_ok = self._loard_records_into_fields(window, self._conn.register_people, self._class_register.keys_fields_tab(), self._conn.id_register_people, self._id_register_db)
-        
-            register_spouse_exist = self._conn.query_record(self._conn.register_spouse, self._conn.id_to_table_register_spouse, self._id_register_db)
             
-            if register_spouse_exist is True:
-                self._loard_records_into_fields(window, self._conn.register_spouse, self._class_register.keys_fields_spouse(), self._conn.id_to_table_register_spouse, self._id_register_db)
-        
-            if register_ok:
-                self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
+            if self._window_button_search != None or self._id_register_db != None:
+                #event to residents
+                self._class_register.disable_objts(self._class_register.key_to_disable_regist(), window,True,closeValue=True)
+                self._class_register.event_buttons_residents(window, True, True, True, True, True)
+                self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
+                
+                self._class_register.disable_objts(key_to_update, window, True,True)
+                self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True)
+            
+                register_ok = self._loard_records_into_fields(window, self._conn.register_people, self._class_register.keys_fields_tab(), self._conn.id_register_people, self._id_register_db)
+                register_spouse_exist = self._conn.query_record(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
+                register_residents_exist = self._conn.query_record(self._conn.register_residents, self._conn.name_id_to_table_register, self._id_register_db)
+                
+                if register_spouse_exist is True:
+                    self._loard_records_into_fields(window, self._conn.register_spouse, self._class_register.keys_fields_spouse(), self._conn.name_id_to_table_register, self._id_register_db)
+            
+                if register_residents_exist is True:
+                    self._loard_records_into_fields(window, self._conn.register_residents, self._class_register.key_to_disable_regist(),  self._conn.name_id_to_table_register, 
+                                                    self._id_register_db, is_table=True, key_table=DEFAULT_KEY_TABLE_RESIDENTS, valuer=value)
+            
+                if register_ok:
+                    self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
             
     def exec_classes(self):
         window_regitration = sg.Window('Cadastro', self._load_layout(),icon=r'image/iconLogo.ico',keep_on_top=True, modal=True)
+        event, value = None, None
         while(True):
             event, value = window_regitration.read(timeout=100)  
 
@@ -949,7 +1004,7 @@ class registration:
             
         if self._window_button_search != None:
             self._window_button_search.close()
-            
+        
         window_regitration.close()
         
         
