@@ -9,10 +9,10 @@ import sqlite3
 import os.path as path
 import collections
 
-patch_file = 'database/Database.sqlite3'
+patch_file = 'database/sqlite_database/Database.sqlite3'
 
 class Database:
-    def __init__(self, path_file = 'database/Database.sqlite3'):
+    def __init__(self, path_file = patch_file):
         self._conection = None
         self._cur = None
         self._conected = False

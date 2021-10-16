@@ -1079,7 +1079,7 @@ class Import_contract:
         
     def __init__(self):
         self.elem = ElementsAdditional()
-        self.path_docs = 'imported_documents'
+        self.path_docs = 'database/imported_documents'
         self.rows_table = None
         super()
         
@@ -1096,12 +1096,14 @@ class Import_contract:
     
     def _delete_regist(self, window, key, id):
         if id > 0:
-            window.Element(key).TKTreeview.delete(id)
-            
-            name =self._selected_element_table(window)
-            arq = self.path_docs + '/' + name.replace('_',' ')
-            os.remove(arq)
-            print('Deletado')
+            confirm = sg.popup_ok_cancel('Realmente deseja excluir esse arquivo?', keep_on_top=True)
+            if confirm == 'OK':
+                window.Element(key).TKTreeview.delete(id)
+                
+                name =self._selected_element_table(window)
+                arq = self.path_docs + '/' + name[0]
+                os.remove(arq)
+                sg.popup('Arquivo deletado', keep_on_top=True)
     
     def layout(self):
         layout = [
@@ -1123,21 +1125,28 @@ class Import_contract:
         print('Iniciando...')
         if not self.path_exist(self.path_docs):
             os.makedirs(self.path_docs)      
-            
-        val = shutil.copy(pathFile, self.path_docs)
         
         datas = self.files_to_table(self.path_docs)
-        count_rows = len(datas)
-        elem = datas[count_rows-1]
-        window.Element(key).TKTreeview.tag_configure('oddrow', background=alternating_row_color)
-        window.Element(key).TKTreeview.tag_configure('evenrow', background=background_color)
-        if count_rows % 2 == 0:
-            id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('oddrow'))
+        exist = False
+        for row in datas:
+            if pathFile.find(row[0]) != -1:
+                exist = True
+        if not exist:
+            file = shutil.copy(pathFile, self.path_docs)
+            
+            count_rows = len(datas)            
+            elem = [file[file.rindex('/')+1:len(file)]]
+            window.Element(key).TKTreeview.tag_configure('oddrow', background=alternating_row_color)
+            window.Element(key).TKTreeview.tag_configure('evenrow', background=background_color)
+            if count_rows % 2 == 0:
+                id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('oddrow'))
+            else:
+                id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('evenrow'))
+            window.Element(key).Values.append(elem)
+                    
+            window.Element(key).update(select_rows=[int(id)-1])
         else:
-            id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('evenrow'))
-        window.Element(key).Values.append(elem)
-                
-        window.Element(key).update(select_rows=[int(id)-1])
+            sg.popup('Contrato já existe na base de dados!', keep_on_top=True)
     
     def files_to_table(self, path):
         rows_table = None
@@ -1146,11 +1155,12 @@ class Import_contract:
                rows_table = files
                
            for cont in range(len(rows_table)):
-                   rows_table[cont] = rows_table[cont].replace(' ', '_')
+                   rows_table[cont] = [str(rows_table[cont])]
                    
-        if len(rows_table) > 0:
-            return rows_table
-        return None
+        if rows_table == None:
+            return None
+        return rows_table
+        
     
     def _selected_element_table(self, window):
         rows = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).SelectedRows[0]
@@ -1176,7 +1186,7 @@ class Import_contract:
             
             if event == DEFAULT_KEY_BTN_OPEN:
                 name =self._selected_element_table(window_input_layout)
-                arq = self.path_docs + '/' + name.replace('_', ' ')
+                arq = self.path_docs + '/' + name[0]
                 #os.startfile(arq)
                 #subprocess.run("'"+arq+"'", shell=True)
                 os.system('libreoffice --writer '+ "'"+arq+"'")
