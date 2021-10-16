@@ -77,7 +77,7 @@ class Database:
             return id[0]
         else:
             sql = "INSERT INTO {0} ({1}, {3}) VALUES ({2},{4});".format(name_table, ', '.join([str(_) for _ in dic_datas.keys()]), ', '.join(['"' +str(_)+'"' for _ in dic_datas.values()]),
-                                                                       self.id_to_table_register_spouse, insert_id)
+                                                                       self.name_id_to_table_register, insert_id)
             self._cur.execute(sql)
             self._conection.commit()
 
@@ -100,7 +100,7 @@ class Database:
                 
         return datas_db
     
-    def update_register(self, registers, name_table, name_id_table, id_register):
+    def update_register(self, registers, name_table, name_id_table, id_register):        
         dic_datas = self._take_fields_records(name_table, registers)
         sql = None
         
@@ -116,11 +116,13 @@ class Database:
         
         sql = f'UPDATE {name_table} SET {valuers} WHERE {name_id_table} = {id_register};'
         
-        
         self._cur.execute(sql)
+        self._conection.commit()
         
-    def delete_register(self, sg, register):
-        super
+    def delete_register(self, name_table, name_id_table, id_register):
+        sql = f'DELETE FROM {name_table} WHERE {name_id_table} = {id_register}'
+        self._cur.execute(sql)
+        self._conection.commit()
 
     def query_record(self, name_table, name_id_table, id_register):
         sql = f'SELECT COUNT(*) FROM {name_table} WHERE {name_id_table} = {id_register};'
