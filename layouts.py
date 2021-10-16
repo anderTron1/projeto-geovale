@@ -1070,8 +1070,13 @@ import os
 import shutil
 import subprocess
 
+DEFAULT_KEY_BTN_OPEN = '-ABRIR-'
+DEFAULT_KEY_BTN_DELET = '-DELETE-'
+DEFAULT_KEY_INP_PATH = '-CAMINHO_ARQUIVO-'
+DEFAULT_KEY_BTN_IMPORT = '-BTN_IMPORTAR-'
+
 class Import_contract:
-    
+        
     def __init__(self):
         self.elem = ElementsAdditional()
         self.path_docs = 'imported_documents'
@@ -1088,14 +1093,23 @@ class Import_contract:
         else:
             table = self.elem.Table(sg, headings, DEFAULT_KEY_TABLE_INPORT_CONTRACT, col_width=70)
         return table
-        
+    
+    def _delete_regist(self, window, key, id):
+        if id > 0:
+            window.Element(key).TKTreeview.delete(id)
+            
+            name =self._selected_element_table(window)
+            arq = self.path_docs + '/' + name.replace('_',' ')
+            os.remove(arq)
+            print('Deletado')
+    
     def layout(self):
         layout = [
                     [sg.T('Contrato'), sg.Input(), sg.Button('Selecionar')],
                     [self._table_search()],
-                    [sg.Button('Abrir', key='-ABRIR-'), sg.Button('Excluir')],
-                    [sg.Input(key='input', disabled=True, size=55), sg.Button('Importar', key='-BTN_IMPUT-')],
-                    [sg.FileBrowse(button_text= 'Importar Contrato', target='input',tooltip='Importar novo contrato para o sistema', file_types=(('Arquivo no Formato', "*.docx"),))]
+                    [sg.Button('Abrir', key=DEFAULT_KEY_BTN_OPEN), sg.Button('Excluir', key=DEFAULT_KEY_BTN_DELET)],
+                    [sg.Input(key=DEFAULT_KEY_INP_PATH, disabled=True, size=55), sg.Button('Importar', key=DEFAULT_KEY_BTN_IMPORT)],
+                    [sg.FileBrowse(button_text= 'Importar Contrato', target=DEFAULT_KEY_INP_PATH,tooltip='Importar novo contrato para o sistema', file_types=(('Arquivo no Formato', "*.docx"),))]
                 ]
         return layout
     
@@ -1105,14 +1119,25 @@ class Import_contract:
         else:
             return True
             
-    def import_file(self, pathFile):
+    def import_file(self,window, event, key, pathFile, alternating_row_color='DimGray', background_color='Gray'):
         print('Iniciando...')
         if not self.path_exist(self.path_docs):
             os.makedirs(self.path_docs)      
             
         val = shutil.copy(pathFile, self.path_docs)
-        print(val)
-        print('Arquivo importado para: ', self.path_docs)
+        
+        datas = self.files_to_table(self.path_docs)
+        count_rows = len(datas)
+        elem = datas[count_rows-1]
+        window.Element(key).TKTreeview.tag_configure('oddrow', background=alternating_row_color)
+        window.Element(key).TKTreeview.tag_configure('evenrow', background=background_color)
+        if count_rows % 2 == 0:
+            id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('oddrow'))
+        else:
+            id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('evenrow'))
+        window.Element(key).Values.append(elem)
+                
+        window.Element(key).update(select_rows=[int(id)-1])
     
     def files_to_table(self, path):
         rows_table = None
@@ -1127,6 +1152,14 @@ class Import_contract:
             return rows_table
         return None
     
+    def _selected_element_table(self, window):
+        rows = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).SelectedRows[0]
+        name = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values[int(rows)]
+        
+        if len(name) > 0:
+            return name
+        return -1
+    
     def exec_classes(self):
         window_input_layout = sg.Window('Modelos de Contratos', self.layout(), keep_on_top=True, modal=True)
         while(True):
@@ -1134,19 +1167,24 @@ class Import_contract:
             
             if event == sg.WINDOW_CLOSED:
                 break
-            if event == '-BTN_IMPUT-':
-                if value['input'] != '':
-                    self.import_file(value['input'])
+            if event == DEFAULT_KEY_BTN_IMPORT:
+                if value[DEFAULT_KEY_INP_PATH] != '':
+                    self.import_file(window_input_layout, event,  DEFAULT_KEY_TABLE_INPORT_CONTRACT, value[DEFAULT_KEY_INP_PATH])
+                    
                 else:
                     sg.popup('Por favor, selecione um arquivo para importar', keep_on_top=True)
             
-            if event == '-ABRIR-':
-                rows = window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).SelectedRows[0]
-                name = window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values[int(rows)]
+            if event == DEFAULT_KEY_BTN_OPEN:
+                name =self._selected_element_table(window_input_layout)
                 arq = self.path_docs + '/' + name.replace('_', ' ')
                 #os.startfile(arq)
                 #subprocess.run("'"+arq+"'", shell=True)
                 os.system('libreoffice --writer '+ "'"+arq+"'")
+                
+            if event == DEFAULT_KEY_BTN_DELET:
+                id = window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()[0]
+                self._delete_regist(window_input_layout, DEFAULT_KEY_TABLE_INPORT_CONTRACT, int(id))
+                
         window_input_layout.close()
         
 class main_layout: 
