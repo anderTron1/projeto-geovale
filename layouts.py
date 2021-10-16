@@ -1068,6 +1068,7 @@ class registration:
      
 import os
 import shutil
+import subprocess
 
 class Import_contract:
     
@@ -1092,7 +1093,7 @@ class Import_contract:
         layout = [
                     [sg.T('Contrato'), sg.Input(), sg.Button('Selecionar')],
                     [self._table_search()],
-                    [sg.Button('Abrir'), sg.Button('Excluir')],
+                    [sg.Button('Abrir', key='-ABRIR-'), sg.Button('Excluir')],
                     [sg.Input(key='input', disabled=True, size=55), sg.Button('Importar', key='-BTN_IMPUT-')],
                     [sg.FileBrowse(button_text= 'Importar Contrato', target='input',tooltip='Importar novo contrato para o sistema', file_types=(('Arquivo no Formato', "*.docx"),))]
                 ]
@@ -1138,7 +1139,14 @@ class Import_contract:
                     self.import_file(value['input'])
                 else:
                     sg.popup('Por favor, selecione um arquivo para importar', keep_on_top=True)
-                
+            
+            if event == '-ABRIR-':
+                rows = window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).SelectedRows[0]
+                name = window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values[int(rows)]
+                arq = self.path_docs + '/' + name.replace('_', ' ')
+                #os.startfile(arq)
+                #subprocess.run("'"+arq+"'", shell=True)
+                os.system('libreoffice --writer '+ "'"+arq+"'")
         window_input_layout.close()
         
 class main_layout: 
