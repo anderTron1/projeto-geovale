@@ -1072,6 +1072,7 @@ import subprocess
 
 DEFAULT_KEY_BTN_OPEN = '-ABRIR-'
 DEFAULT_KEY_BTN_DELET = '-DELETE-'
+DEFAULT_KEY_BTN_SELECT = '-SELECIONAR-'
 DEFAULT_KEY_INP_PATH = '-CAMINHO_ARQUIVO-'
 DEFAULT_KEY_BTN_IMPORT = '-BTN_IMPORTAR-'
 
@@ -1081,33 +1082,36 @@ class Import_contract:
         self.elem = ElementsAdditional()
         self.path_docs = 'database/imported_documents'
         self.rows_table = None
-        super()
         
     def _table_search(self):
         headings = ['Contratos salvos']
         self.rows_table = self.files_to_table(self.path_docs)
+        table = None
         if self.rows_table != None:
-            print(self.rows_table)
-            sg.Table
+
             table = self.elem.Table(sg, headings, DEFAULT_KEY_TABLE_INPORT_CONTRACT,  dados=self.rows_table, col_width=70, justification='left')
         else:
             table = self.elem.Table(sg, headings, DEFAULT_KEY_TABLE_INPORT_CONTRACT, col_width=70)
         return table
     
-    def _delete_regist(self, window, key, id):
-        if id > 0:
+    def _delete_regist(self, window, key, element_table, id_selection):
+        if id_selection != -1:
+            name = element_table
             confirm = sg.popup_ok_cancel('Realmente deseja excluir esse arquivo?', keep_on_top=True)
             if confirm == 'OK':
-                window.Element(key).TKTreeview.delete(id)
-                
-                name =self._selected_element_table(window)
+                window.Element(key).TKTreeview.delete(id_selection)
+            
                 arq = self.path_docs + '/' + name[0]
+                #del(self.rows_table[id_selection])
                 os.remove(arq)
                 sg.popup('Arquivo deletado', keep_on_top=True)
     
+    def _search_register(self):
+        print(self.rows_table)
+    
     def layout(self):
         layout = [
-                    [sg.T('Contrato'), sg.Input(), sg.Button('Selecionar')],
+                    [sg.T('Contrato'), sg.Input(), sg.Button('Selecionar', key=DEFAULT_KEY_BTN_SELECT)],
                     [self._table_search()],
                     [sg.Button('Abrir', key=DEFAULT_KEY_BTN_OPEN), sg.Button('Excluir', key=DEFAULT_KEY_BTN_DELET)],
                     [sg.Input(key=DEFAULT_KEY_INP_PATH, disabled=True, size=55), sg.Button('Importar', key=DEFAULT_KEY_BTN_IMPORT)],
@@ -1122,7 +1126,6 @@ class Import_contract:
             return True
             
     def import_file(self,window, event, key, pathFile, alternating_row_color='DimGray', background_color='Gray'):
-        print('Iniciando...')
         if not self.path_exist(self.path_docs):
             os.makedirs(self.path_docs)      
         
@@ -1134,14 +1137,15 @@ class Import_contract:
         if not exist:
             file = shutil.copy(pathFile, self.path_docs)
             
-            count_rows = len(datas)            
+            count_rows  = len(window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values)
             elem = [file[file.rindex('/')+1:len(file)]]
+            
             window.Element(key).TKTreeview.tag_configure('oddrow', background=alternating_row_color)
             window.Element(key).TKTreeview.tag_configure('evenrow', background=background_color)
             if count_rows % 2 == 0:
-                id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('oddrow'))
-            else:
                 id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('evenrow'))
+            else:
+                id = window.Element(key).TKTreeview.insert(parent='',index='end',iid=count_rows+1, values=elem, tags=('oddrow'))
             window.Element(key).Values.append(elem)
                     
             window.Element(key).update(select_rows=[int(id)-1])
@@ -1163,12 +1167,16 @@ class Import_contract:
         
     
     def _selected_element_table(self, window):
-        rows = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).SelectedRows[0]
-        name = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values[int(rows)]
-        
-        if len(name) > 0:
-            return name
-        return -1
+        if len(window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()) > 0:
+            id_table_select = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()[0]
+            print('SelectRows: ', window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()[0])
+            print('Rows: ',id_table_select)
+            print('Values: ',window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values)
+            name = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values[int(id_table_select)-1]
+            print('Selection: ', id_table_select)
+            if len(name) > 0:
+                return name, int(id_table_select)
+            return -1
     
     def exec_classes(self):
         window_input_layout = sg.Window('Modelos de Contratos', self.layout(), keep_on_top=True, modal=True)
@@ -1184,16 +1192,17 @@ class Import_contract:
                 else:
                     sg.popup('Por favor, selecione um arquivo para importar', keep_on_top=True)
             
+            if event == DEFAULT_KEY_BTN_SELECT:
+                self._search_register()
+            
             if event == DEFAULT_KEY_BTN_OPEN:
-                name =self._selected_element_table(window_input_layout)
+                name, _ =self._selected_element_table(window_input_layout)
                 arq = self.path_docs + '/' + name[0]
-                #os.startfile(arq)
-                #subprocess.run("'"+arq+"'", shell=True)
                 os.system('libreoffice --writer '+ "'"+arq+"'")
                 
             if event == DEFAULT_KEY_BTN_DELET:
-                id = window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()[0]
-                self._delete_regist(window_input_layout, DEFAULT_KEY_TABLE_INPORT_CONTRACT, int(id))
+                element_selection, id_selection_table = self._selected_element_table(window_input_layout)
+                self._delete_regist(window_input_layout, DEFAULT_KEY_TABLE_INPORT_CONTRACT, element_selection, id_selection_table)
                 
         window_input_layout.close()
         
