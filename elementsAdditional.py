@@ -16,7 +16,7 @@ class ElementsAdditional:
         headings = headings
                 
         table = [sg.Table(values=dados, headings=headings,max_col_width=25,
-                          auto_size_columns=False, display_row_numbers=False, row_height=10,
+                          auto_size_columns=False, display_row_numbers=False, row_height=15,
                           enable_events=True, bind_return_key=True, def_col_width=col_width,
                           justification=justification, num_rows=num_rows, alternating_row_color='DimGray', key=key,
                           background_color='Gray',)]

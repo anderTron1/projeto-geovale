@@ -5,13 +5,15 @@ Created on Sun Oct 17 13:57:29 2021
 
 @author: andre
 """
-from elementsAdditional import ElementsAdditional
+
 
 import PySimpleGUI as sg
 import numpy as np
 
 import re
 
+from elementsAdditional import ElementsAdditional
+from Layouts.search_register_person import Search_register_person
 
 #sg.ChangeLookAndFeel('DarkTeal10')
 
@@ -129,6 +131,9 @@ DEFAULT_KEY_ROOMS = '-ROOMS-'
 DEFAULT_KEY_BATHROOMS = '-BATHROOMS-'
 
 #-------------------------key registration residents--------------------
+DEFAULT_KEY_TABLE_RESIDENTS = '-RESIDENTS-'
+
+DEFAULT_KEY_INPUT_ID_REGIST_RESID = '-ID_CADASTRO_MORADORES-'
 DEFAULT_KEY_TXT_NOME_REGIST_RESID = '-NOME_CADASTRO_MORADORES-'
 DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID = '-PARENTESCO_CADASTRO_MORADORES-'
 DEFAULT_KEY_COMB_SEX_REGIST_RESID = '-SEXO_CADASTRO_MORADORES-'
@@ -145,93 +150,9 @@ DEFAULT_KEY_BTN_SAVE_REGIST_RESID = '-BTN_SALVAR_CADASTRO_MORADORES-'
 DEFAULT_KEY_BTN_EDIT_REGIST_RESID = '-BTN_EDITAR_CADASTRO_MORADORES-'
 DEFAULT_KEY_BTN_DEL_REGIST_RESID = '-BTN_EXCLUIR_CADASTRO_MORADORES-'
 
-#--------------------------KEY TABLES-------------------------------------
-DEFAULT_KEY_TABLE_RESIDENTS = '-RESIDENTS-'
-DEFAULT_KEY_TABLE_SEARCH_REGISTRATION = '-SEARCH_REGISTRATION-'
-
-DEFAULT_KEY_BTN_SEARCH = '-BTN_SEARCH-'
-DEFAULT_KEY_TXT_SEARCH_REGISTRATION_CPF = '-SEARCH_REGISTRATION_CPF-'
-DEFAULT_KEY_TXT_SEARCH_REGISTRATION_NAME = '-SEARCH_REGISTRATION_NAME-'
-
-
 def rangeArray(init, size):
     return [num for num in range(init, size)]
 
-class button_search:
-
-    
-    def __init__(self, sg, conectionDB=None):
-        self._conn = conectionDB
-        self.elem = ElementsAdditional()
-        self._datas = None
-        self._id_to_name = 0
-        self._window = self._layout()
-        
-    
-    def _databases_db(self):
-        return self._conn.select_register([self._conn.id_register_people,'name', 'cpf'], self._conn.register_people, self._conn.id_register_people)
-    
-    def _table_search(self):
-        headings = ['ID','Nome', 'CPF']
-        self._datas = self._databases_db()
-        table = self.elem.Table(sg, headings, DEFAULT_KEY_TABLE_SEARCH_REGISTRATION, dados = self._datas , col_width=15)
-        return table
-    
-    def _layout(self):
-        self._search = [[sg.T('Nome:', size=(5,1)), sg.Input(size=(25), key=DEFAULT_KEY_TXT_SEARCH_REGISTRATION_NAME)],
-                  [sg.T('CPF:', size=(5,1)), sg.Input(size=(25), key=DEFAULT_KEY_TXT_SEARCH_REGISTRATION_CPF)],
-                  [sg.Button('Procurar', key=DEFAULT_KEY_BTN_SEARCH)]
-                  ]
-        
-        layout = [[sg.Frame('Procurar cliente por:', self._search)], [self._table_search()]]
-        windows = sg.Window('Procurar cliente', layout, element_justification='center', default_element_size=(40,1), keep_on_top=True, modal=True)
-        return windows
-    
-    def _search_event(self, id_table, key, window, value, is_cpf = False):
-        not_found = False
-        id_to = 0
-        for cont in range(len(self._datas)):
-            if str(self._datas[cont][id_table]) == value[key]:
-                if is_cpf != True:
-                    id_to += cont+1
-                else:
-                    self._id_to_name += cont+1
-                not_found = True
-                break
-        if not_found:
-            window.Element(DEFAULT_KEY_TABLE_SEARCH_REGISTRATION).TKTreeview.selection_set(id_to)
-        else:
-            sg.popup(f'ERRO!\nO registro {value[key]} não foi encontrado', keep_on_top=True)
-
-    def _event_btn(self, window, event, value):
-        if event == DEFAULT_KEY_BTN_SEARCH:
-            if value[DEFAULT_KEY_TXT_SEARCH_REGISTRATION_NAME] != '':
-                self._search_event(1,DEFAULT_KEY_TXT_SEARCH_REGISTRATION_NAME, window, value)
-            elif value[DEFAULT_KEY_TXT_SEARCH_REGISTRATION_CPF] != '':
-                self._search_event(2,DEFAULT_KEY_TXT_SEARCH_REGISTRATION_CPF, window, value)
-    
-    def window_button_search(self):
-        closed = False
-        id = None
-        while True:
-            event, value = self._window.read(timeout=100)
-            
-            if event == sg.WIN_CLOSED:
-                closed = True
-                break
-            
-            self._window[DEFAULT_KEY_TABLE_SEARCH_REGISTRATION].bind('<Double-Button-1>', '_dublo')
-            if event == DEFAULT_KEY_TABLE_SEARCH_REGISTRATION + '_dublo':
-                rows = self._window.Element(DEFAULT_KEY_TABLE_SEARCH_REGISTRATION).SelectedRows[0]
-                id = self._window.Element(DEFAULT_KEY_TABLE_SEARCH_REGISTRATION).Values[int(rows)][0]
-                closed = True
-                break
-            self._event_btn(self._window, event, value)
-            
-        if closed is True:
-            self._window.close()
-            return None, id
-        return self._window, None
 #############################################################################
 #                                                                           #
 #                           FIST RECORD TAB class                           #
@@ -345,10 +266,11 @@ class register_personal_data:
             [sg.Frame('Condições do Imóvel', frameCondImoveis)]
             ]
 
-        headings = ['Nome:', 'Paren.', 'Sexo', 'Est. Civil', 'Ocupação', 'Renda']
+        headings = ['id','Nome:', 'Paren.', 'Sexo', 'Est. Civil', 'Ocupação', 'Renda']
         table = self.elemAdditional.Table(sg, headings, DEFAULT_KEY_TABLE_RESIDENTS, col_width=12)
         tab_residents = [
             [sg.Frame('Informações', [
+                [sg.T('ID:', size=(15,1)), sg.Input(size=(20,1), key=DEFAULT_KEY_INPUT_ID_REGIST_RESID, disabled=True)],
                 [sg.T('Nome:', size=(15,1)), sg.Input(size=(25,1), disabled=True, key=DEFAULT_KEY_TXT_NOME_REGIST_RESID)],
                 [sg.T('Parentesco',size=(15,1)), sg.Spin(rangeArray(1, 120), disabled=True,initial_value='', key=DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID), sg.T('Sexo'), 
                  sg.Combo(['M', 'F'], disabled=True, key=DEFAULT_KEY_COMB_SEX_REGIST_RESID)],
@@ -431,7 +353,8 @@ class register_personal_data:
         return keys
 
     def key_to_disable_regist(self):
-        key_to_disable_regist = [DEFAULT_KEY_TXT_NOME_REGIST_RESID,
+        key_to_disable_regist = [DEFAULT_KEY_INPUT_ID_REGIST_RESID,
+                                 DEFAULT_KEY_TXT_NOME_REGIST_RESID,
                                          DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID,
                                          DEFAULT_KEY_COMB_SEX_REGIST_RESID,
                                          DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID,
@@ -607,22 +530,22 @@ class register_personal_data:
         if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()) > 0:
             rows = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0]
             dados = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values[int(rows)]
-                
-            window.Element(DEFAULT_KEY_TXT_NOME_REGIST_RESID).update(dados[0])
-            window.Element(DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID).update(dados[4])
-            window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(dados[5])
             
-            select_sex = window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).Values.index(dados[2])
+            window.Element(DEFAULT_KEY_INPUT_ID_REGIST_RESID).update(dados[0])
+            window.Element(DEFAULT_KEY_TXT_NOME_REGIST_RESID).update(dados[1])
+            window.Element(DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID).update(dados[5])
+            window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(dados[6])
+            
+            select_sex = window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).Values.index(dados[3])
             window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).update(set_to_index=select_sex)
             
-            window.Element(DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID).update(value=dados[1])
+            window.Element(DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID).update(value=dados[2])
                 
-            select_marital_status = window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).Values.index(dados[3])
+            select_marital_status = window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).Values.index(dados[4])
             window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).update(set_to_index = select_marital_status)
             
     def _edit_table(self, window, value, data, keys, indice_table):
         data_new = data[indice_table] = [value[keys[indice]] for indice in range(len(keys))]
-        print(self.update_register_txt_income(window))
         data_new.append(self.update_register_txt_income(window))
         
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).update(values=data, num_rows=20,select_rows=[indice_table])
@@ -670,8 +593,7 @@ class register_personal_data:
         if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()) > 0:
             datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
             #update valuer to family income
-            
-            total_income = [sum(float(str(i[5]).replace(',', '.')) for i in datas)][0]
+            total_income = [sum(float(str(i[6]).replace(',', '.')) for i in datas)][0]
             
             income = self.elemAdditional.money_validation(sg,str(total_income))
             
@@ -707,8 +629,17 @@ class register_personal_data:
             if element_nane == False:
                 if window.Element(DEFAULT_KEY_BTN_EDIT_REGIST_RESID).Disabled == False:
                     regist = self._edit_table(window, valuer, dados, self.key_to_disable_regist(), window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0])
-                    self.datas_register_residents_edit.append(regist)
                     
+                    regist_exist = False
+                    for cont in range(len(self.datas_register_residents_edit)):
+                        indix_column_table_id = 0
+                        if self.datas_register_residents_edit[cont][indix_column_table_id] == regist[indix_column_table_id]:
+                            self.datas_register_residents_edit[cont] = regist
+                            regist_exist = True
+                            
+                    if regist_exist == False:
+                        self.datas_register_residents_edit.append(regist)
+                        
                 elif window.Element(DEFAULT_KEY_BTN_NEW_REGIST_RESID).Disabled == False:
                     regist = self.save_record_regist_resid(window, valuer,self.key_to_disable_regist()) 
                     self.datas_register_residents_new.append(regist)
@@ -823,9 +754,9 @@ class Registration:
         
         if is_table:
             keys_new = []
+            keys_new.append(self._conn.id_register_residents)
             for k in fileds_and_field_db.keys():
                 keys_new.append(k)
-            keys_new.append(self._conn.id_register_residents)
             
             self._class_register.datas_register_residents = self._conn.select_register(keys_new, name_table, name_id_table, id_register)
         else:
@@ -862,41 +793,7 @@ class Registration:
         window.Element(DEFAULT_KEY_BTN_SEARCH).update(disabled=buttons)
     
     def _input_event_buttons(self, window, event, value):
-        '''key_to_update = [DEFAULT_KEY_NOME_PERSONAL_DATA, DEFAULT_KEY_SEX_PERSONAL_DATA,
-                         DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, DEFAULT_KEY_AGE_PERSONAL_DATA,
-                         DEFAULT_KEY_NATURALNESS_PERSONAL_DATA, DEFAULT_KEY_UF_PERSONAL_DATA,
-                         DEFAULT_KEY_TEL_PERSONAL_DATA, DEFAULT_KEY_CEL_PERSONAL_DATA,
-                         DEFAULT_KEY_EMAIL_PERSONAL_DATA, DEFAULT_KEY_ADDRESS_PERSONAL_DATA,
-                         DEFAULT_KEY_DISTRICT_PERSONAL_DATA, DEFAULT_KEY_RG_PERSONAL_DATA,
-                         DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA, DEFAULT_KEY_ISSUING_BODY_PERSONAL_DATA,
-                         DEFAULT_KEY_CPF_PERSONAL_DATA, DEFAULT_KEY_CNH_PERSONAL_DATA, 
-                         DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA, DEFAULT_KEY_CONSIDER_PERSONAL_DATA,
-                         DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA, DEFAULT_KEY_SCHOOLING_PERSONAL_DATA,
-                         #-----------------------key tab other_information------------------------------
-                         DEFAULT_KEY_COMB_WORKS, DEFAULT_KEY_INP_WHERE,DEFAULT_KEY_TXT_PROFESSION,
-                         DEFAULT_KEY_COMB_RETIREE, DEFAULT_KEY_BENEF_CAMB_SOCI_PROG,
-                         DEFAULT_KEY_INCOME_COMB_INCOME, DEFAULT_KEY_COMB_HAVE_CHILDREM, 
-                         DEFAULT_KEY_HOW_MANY_CHILDREM,DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY,
-                         DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY, DEFAULT_KEY_COMB_RURAL_URBAN_BENEFICIARY,
-                         DEFAULT_KEY__COMB_OWNS_CAR,DEFAULT_KEY_OWNS_CAR_HOW_MANY, 
-                         DEFAULT_KEY__COMB_HAS_MOTORCICLE, DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY,
-                         DEFAULT_KEY_COMB__HAVE_FRIDGE, DEFAULT_KEY_HAVE_FRIDGE_HOW_MANY,
-                         DEFAULT_KEY_COMB__HAVE_TELEVI,DEFAULT_KEY_HAVE_TELEVI_HOW_MANY,
-                         DEFAULT_KEY_COMB__HAVE_COMPUTER, DEFAULT_KEY_HAVE_COMPUTER_HOW_MANY,
-                         DEFAULT_KEY_COMB__HAVE_INTERNET, 
-                         DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI,DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER, 
-                         DEFAULT_KEY_COMB_ONLY_OWNER, DEFAULT_KEY_TXT_ANOTHER_OWNER, DEFAULT_KEY_TXT_STILL_TIME,
-                         DEFAULT_KEY_COMB_ANOTHER_PROPERTY, DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY,
-                         DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE, DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC,
-                         DEFAULT_KEY_PROPERTY_USED_FOR, DEFAULT_KEY_TXT_FRONT, 
-                         DEFAULT_KEY_TXT_RIGHT, DEFAULT_KEY_TXT_LEFT, 
-                         DEFAULT_KEY_TXT_FUNDS, DEFAULT_KEY_COMB_TYPE, 
-                         DEFAULT_KEY_COMB_IS_WALLED, DEFAULT_KEY_COMB_BATCH_POSITION, 
-                         DEFAULT_KEY_COMB_STATE_BUILDINGS, DEFAULT_KEY_COMB_BUILDING_TYPE, DEFAULT_KEY_COMB_IS_BEDRIDDEN,
-                         DEFAULT_KEY_NUMB_FLOORS, DEFAULT_KEY_ROOMS,
-                         DEFAULT_KEY_BATHROOMS
-                         ]'''
-        
+
         if event == DEFAULT_KEY_BTN_NEW:
             self._class_register.disable_objts(self._class_register.keys_fields_tab(),window, False, True)
             self._activate_registration_buttons(window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True)
@@ -971,7 +868,7 @@ class Registration:
                             self._conn.update_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric), self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                         else:
                             self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric) , self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
-                        #self._conn.commit()
+
                         
                     if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
                         #when a new record is inserted into the table
@@ -982,8 +879,11 @@ class Registration:
                             
                         #when a record is edited, it will save only the record that was edited.
                         if(len(self._class_register.datas_register_residents_edit)) > 0:
+                            
                             for register in self._class_register.datas_register_residents_edit:
-                                self._conn.update_register(register[:6], self._conn.register_residents, self._conn.id_register_residents, register[6:7][0])
+                                index_column_name_table = 1
+                                index_column_income_table = 7
+                                self._conn.update_register(register[index_column_name_table:index_column_income_table], self._conn.register_residents, self._conn.id_register_residents, register[0:1][0])
                             self._class_register.datas_register_residents_edit = []
                                 
                 if register_exist_db == True:
@@ -1019,7 +919,7 @@ class Registration:
                 self._class_register.event_buttons_residents(window, True, True, True, True, True)
         
         if event == DEFAULT_KEY_BTN_SEARCH:
-            search = button_search(sg, self._conn)
+            search = Search_register_person(sg, self._conn)
             self._window_button_search, self._id_register_db = search.window_button_search()
             
             if self._window_button_search != None or self._id_register_db != None:
