@@ -3,7 +3,7 @@
 """
 Created on Sun Oct 17 13:47:57 2021
 
-@author: andre
+@author: André Luiz Pires Guimarães
 """
 
 

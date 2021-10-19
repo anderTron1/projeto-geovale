@@ -3,7 +3,7 @@
 """
 Created on Sun Sep  5 17:17:50 2021
 
-@author: andre
+@author: André Luiz Pires Guimarães
 """
 import re
 
@@ -12,7 +12,7 @@ class ElementsAdditional:
     def __init__(self):
         super()
     
-    def Table(self,sg, headings, key,  dados=[], col_width=10,num_rows=20, justification='right'):
+    def Table(self,sg, headings, key,  dados=[], col_width=10,num_rows=10, justification='right'):
         headings = headings
                 
         table = [sg.Table(values=dados, headings=headings,max_col_width=25,
@@ -110,10 +110,3 @@ class ElementsAdditional:
         
         num = re.sub('[^0-9]','', num)
         return num
-        
-def ListPerson():
-    headings = ['Nome:', 'CPF']
-    NUM_ROWS = 5
-    
-    dados = [i for i in range(NUM_ROWS)]
-    

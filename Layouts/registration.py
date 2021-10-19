@@ -3,7 +3,7 @@
 """
 Created on Sun Oct 17 13:57:29 2021
 
-@author: andre
+@author: André Luiz Pires Guimarães
 """
 
 
@@ -184,7 +184,7 @@ class register_personal_data:
              sg.T('CPF:',), sg.Input(size=(15,1), key=DEFAULT_KEY_CPF_SPOUSE),
              sg.T('CNH'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_SPOUSE)],
             [sg.T('Titulo de Eleitor:'), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
-            [sg.T('Escolaridade'), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
+            [sg.T('Escolaridade:', size=(18)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
                                              'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE)]   
             ]
 
@@ -197,42 +197,42 @@ class register_personal_data:
             [sg.Text('Tel.:'), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_TEL_PERSONAL_DATA)], 
             [sg.Text('Cel.:'), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_CEL_PERSONAL_DATA)],
             [sg.HorizontalSeparator()],
-            [sg.Text('Email:'), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_EMAIL_PERSONAL_DATA)],
-            [sg.Text('Endereço:'), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_ADDRESS_PERSONAL_DATA),
+            [sg.Text('Email:', size=(10)), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_EMAIL_PERSONAL_DATA)],
+            [sg.Text('Endereço:', size=(10)), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_ADDRESS_PERSONAL_DATA),
              sg.Text('Bairro:'), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_DISTRICT_PERSONAL_DATA), sg.Text('Nº:'), sg.Input(size=(5,), disabled=True, key=DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA)],
-            [sg.Text('RG:'), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_RG_PERSONAL_DATA), sg.Text('Órgão Emissor:'), sg.Input(size=(5,1), disabled=True, key=DEFAULT_KEY_ISSUING_BODY_PERSONAL_DATA), 
-             sg.Text('CPF:'), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_CPF_PERSONAL_DATA),
-             sg.Text('CNH:'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_PERSONAL_DATA)], 
+            [sg.Text('RG:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_RG_PERSONAL_DATA), sg.Text('Órgão Emissor:'), sg.Input(size=(5,1), disabled=True, key=DEFAULT_KEY_ISSUING_BODY_PERSONAL_DATA)], 
+            [sg.Text('CPF:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_CPF_PERSONAL_DATA)],
+            [sg.Text('CNH:', size=(10)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_PERSONAL_DATA)], 
             [sg.Text('Titulo de Eleitor:'), sg.Input(size=(20,1), disabled=True, key=DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA),
              sg.T('Considera-se'),sg.Combo(['Branco','Negro', 'Pardo', 'Amarelo', 'Indígena'], key=DEFAULT_KEY_CONSIDER_PERSONAL_DATA), sg.T('Estado Civil:'), 
              sg.Combo(listEstadoCivil, key=DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA)],
-            [sg.T('Escolaridade'), sg.Combo(schooling_list, key=DEFAULT_KEY_SCHOOLING_PERSONAL_DATA)],
+            [sg.T('Escolaridade', size=(18)), sg.Combo(schooling_list, key=DEFAULT_KEY_SCHOOLING_PERSONAL_DATA)],
             [sg.Frame('Dados do Cônjuge', spouse_frame)]
             ]
 
         frameConfImovel = [
-            [sg.T('Frente:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_FRONT),
-             sg.T('Direita:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_RIGHT)],
-            [sg.T('Esquerda:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_LEFT),
-             sg.T('Fundos:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_FUNDS)],
+            [sg.T('Frente:', size=(10)), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_FRONT),
+             sg.T('Direita:', size=(10)), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_RIGHT)],
+            [sg.T('Esquerda:', size=(10)), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_LEFT),
+             sg.T('Fundos:', size=(10)), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_FUNDS)],
             ]
 
         frameCondImoveis = [
-            [sg.T('Tem outro dono?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_ONLY_OWNER), sg.T('Nome do outro Dono:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_OWNER)],
+            [sg.T('Tem outro dono?', size=(32)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_ONLY_OWNER), sg.T('Nome do outro Dono:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_OWNER)],
             [sg.T('A quanto tempo spossui o Imóvel?'), sg.Input(size=(15,1), disabled=True,  key=DEFAULT_KEY_TXT_STILL_TIME)],
-            [sg.T('Possui Outro Imóvel?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_ANOTHER_PROPERTY), sg.T('Quantos?'),
+            [sg.T('Possui Outro Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_ANOTHER_PROPERTY), sg.T('Quantos?'),
              sg.Spin(rangeArray(1, 11), disabled=True,  key=DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY, initial_value=('')), sg.T('Onde?'), sg.Input(size=(20,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE)],
-            [sg.T('Tem Edificação no Imóvel?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC), sg.T('Utiliza o imóvel para:'), 
+            [sg.T('Tem Edificação no Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC), sg.T('Utiliza o imóvel para:'), 
              sg.Combo(['Moradia', 'Comércio'], key=DEFAULT_KEY_PROPERTY_USED_FOR)],
             [sg.Frame('Confrontantes do imóvel, Vizinhos, Nº:', frameConfImovel)],
             
-            [sg.T('Tipo do Imóvel:'), sg.Combo(['Casa', 'Sobrado', 'Apartamento', 'Ponto de comércio'], key=DEFAULT_KEY_COMB_TYPE), 
-             sg.T('É murado?'), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY_COMB_IS_WALLED),
+            [sg.T('Tipo do Imóvel:', size=(25)), sg.Combo(['Casa', 'Sobrado', 'Apartamento', 'Ponto de comércio'], key=DEFAULT_KEY_COMB_TYPE), 
+             sg.T('É murado?', size=(11)), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY_COMB_IS_WALLED),
              sg.T('Posição no lote:'), sg.Combo(['Frente', 'Fundos', 'Centro'],  key=DEFAULT_KEY_COMB_BATCH_POSITION)], 
-            [sg.T('Estado das edificações:'), sg.Combo(['Muito bom', 'Bom', 'Regular', 'Ruim', 'Péssimo'],  key=DEFAULT_KEY_COMB_STATE_BUILDINGS),
-             sg.T('Tipo de construção:'), sg.Combo(['Alvenaria', 'Madeira', 'Estuque', 'Mista', 'Outros'], key=DEFAULT_KEY_COMB_BUILDING_TYPE)], 
-            [sg.T('Tem Acabamento?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_IS_BEDRIDDEN),
-             sg.T('Numero de pavimentos?'), sg.Spin(rangeArray(1, 11), initial_value='', disabled=True, key=DEFAULT_KEY_NUMB_FLOORS),
+            [sg.T('Estado das edificações:', size=(25)), sg.Combo(['Muito bom', 'Bom', 'Regular', 'Ruim', 'Péssimo'],  key=DEFAULT_KEY_COMB_STATE_BUILDINGS),
+             sg.T('Tipo de construção:', size=(19)), sg.Combo(['Alvenaria', 'Madeira', 'Estuque', 'Mista', 'Outros'], key=DEFAULT_KEY_COMB_BUILDING_TYPE)], 
+            [sg.T('Tem Acabamento?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_IS_BEDRIDDEN),
+             sg.T('Numero de pavimentos?', size=(25)), sg.Spin(rangeArray(1, 11), initial_value='', disabled=True, key=DEFAULT_KEY_NUMB_FLOORS),
              sg.T('Cômodos?'),sg.Spin(rangeArray(1, 11),  initial_value='', disabled=True, key=DEFAULT_KEY_ROOMS),sg.T('e Banheiros?'), sg.Spin(rangeArray(1, 11), initial_value='', disabled=True, key=DEFAULT_KEY_BATHROOMS)]
             ]
 
@@ -243,27 +243,27 @@ class register_personal_data:
              sg.T('Renda:'), sg.Combo(['Até 1 Salário Mínimo', 'De 1 a 3 Salários mínimos', 'De 3 a 5 Salários Mínimos', 'Mais de 5 Salários mínimos'],  key=DEFAULT_KEY_INCOME_COMB_INCOME),
              sg.T('Tem Filhos?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_CHILDREM), 
              sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,20)), disabled=True, key=DEFAULT_KEY_HOW_MANY_CHILDREM, initial_value=(''))],
-            [sg.T('Mora Algum deficiente ou idoso?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY), 
-             sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,10)), disabled=True,  key=DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY, initial_value=''),
-             sg.T('É beneficiário Concessionário de alguma imóvel Urbano ou Rural?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_RURAL_URBAN_BENEFICIARY)],
+            [sg.T('Mora Algum deficiente ou idoso?', size=(38)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY), 
+             sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,10)), disabled=True,  key=DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY, initial_value='')],
+            [sg.T('É beneficiário Concessionário de alguma imóvel Urbano ou Rural?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_RURAL_URBAN_BENEFICIARY)],
             [sg.HorizontalSeparator()],
             
-            [sg.T('Possui Automóvel?'), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY__COMB_OWNS_CAR), sg.T('Quantas'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_OWNS_CAR_HOW_MANY, initial_value=('')),
-             sg.T('Possui Motos?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY__COMB_HAS_MOTORCICLE), sg.T('Quantas'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY, initial_value=(''))],
+            [sg.T('Possui Automóvel?', size=(30)), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY__COMB_OWNS_CAR), sg.T('Quantas?'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_OWNS_CAR_HOW_MANY, initial_value=('')),
+             sg.T('Possui Motos?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY__COMB_HAS_MOTORCICLE), sg.T('Quantas?'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY, initial_value=(''))],
             
-            [sg.T('Tem Geladeira em casa?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_FRIDGE), sg.T('Quantas?'), 
+            [sg.T('Tem Geladeira em casa?', size=(30)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_FRIDGE), sg.T('Quantas?'), 
              sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_HAVE_FRIDGE_HOW_MANY, initial_value=('')),
-             sg.T('Tem Televisão em casa?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_TELEVI), sg.T('Quantas '), 
+             sg.T('Tem Televisão em casa?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_TELEVI), sg.T('Quantas?'), 
              sg.Spin(rangeArray(1, 11), disabled=True, key=DEFAULT_KEY_HAVE_TELEVI_HOW_MANY, initial_value=(''))],
-            [sg.T('Tem Computador em casa?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_COMPUTER), sg.T('Quantos?'), 
+            [sg.T('Tem Computador em casa?', size=(30)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_COMPUTER), sg.T('Quantos?'), 
              sg.Spin(rangeArray(1, 11), disabled=True, key=DEFAULT_KEY_HAVE_COMPUTER_HOW_MANY, initial_value=('')),
-             sg.T('Tem acesso a internet?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_INTERNET)],
-            [sg.T('Tem acesso a Energia Elétrica?'), 
-             sg.Combo(['Sim', 'Não'],  key=DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI),
-             sg.T('Tem acesso a Água Encanada?', size=(27)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER)],
+             sg.T('Tem acesso a internet?', size=(25)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_INTERNET)],
+            [sg.T('Tem acesso a Energia Elétrica?', size=(30)), sg.Combo(['Sim', 'Não'],  key=DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI),
+             sg.T('Tem acesso a Água Encanada?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER)],
             [sg.Frame('Condições do Imóvel', frameCondImoveis)]
             ]
-
+        
+        
         headings = ['id','Nome:', 'Paren.', 'Sexo', 'Est. Civil', 'Ocupação', 'Renda']
         table = self.elemAdditional.Table(sg, headings, DEFAULT_KEY_TABLE_RESIDENTS, col_width=12)
         tab_residents = [

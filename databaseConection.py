@@ -3,11 +3,10 @@
 """
 Created on Sat Sep 25 14:15:13 2021
 
-@author: andre
+@author: André Luiz Pires Guimarães
 """
 import sqlite3
 import os.path as path
-import collections
 
 patch_file = 'database/sqlite_database/Database.sqlite3'
 
@@ -136,37 +135,3 @@ class Database:
         if register_exist == 0:
             return False
         return True
-
-        
-#data = Database()
-#data.insert_register()
-'''
-valor = 'teste'
-tes = 'ola'
-print('{0} = {1}, '.format(valor, '"'+tes+'"'))
-
-
-val = {'id_register_people':'Andre luiz', 'name':'Pires', 'sex':1}
-print('{}'.format(', '.join(['"' +str(_)+'"' for _ in val.values()])))
-
-
-valores = ['id_register_people', 'name', 'sex', 'novo']
-val = {'id_register_people':'Andre', 'name':'Pires', 'sex':1}
-
-val['novo'] = 56
-
-print(val.values())
-
-User= collections.namedtuple('User', valores)
-
-
-
-print(','.join([str(_) for _ in val]))
-
-m = User(**val)
-m.count(val)
-
-print(User._fields)
-
-for i in m:
-    print(i)'''

@@ -3,7 +3,7 @@
 """
 Created on Mon Oct 18 17:39:48 2021
 
-@author: andre
+@author: André Luiz Pires Guimarães
 """
 from elementsAdditional import ElementsAdditional
 

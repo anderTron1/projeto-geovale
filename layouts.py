@@ -3,7 +3,7 @@
 """
 Created on Fri Sep  3 00:20:07 2021
 # token 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
-@author: andre
+@author: André Luiz Pires Guimarães
 """
 
 from Layouts.import_contract import Import_contract
@@ -32,8 +32,8 @@ class main_layout:
     def layout(self):
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
-                [   ['&Menu', ['&Cadastros', '&Registros', 'E&xit']],
-                    ['C&ontratos', ['&Gerar Tegs', 'Lista Contratos', '&Importar contrato', 'G&erar contrato']],
+                [   ['&Menu', ['&Cadastros', 'E&xit']],
+                    ['C&ontratos', ['&Gerar Tegs para contratos', '&Lista de Contratos', 'G&erar contrato']],
                     ['Sobre', ['Dados desenvolvedor']]
                 ])]]#, background_color='#176d81')]]
         layout = [menu,
@@ -49,7 +49,7 @@ class main_layout:
             
             if event == 'Cadastros':
                 self._class_registration.exec_classes()
-            if event == 'Importar contrato':
+            if event == 'Lista de Contratos':
                 self._class_inport_contract.exec_classes()
             if event == sg.WINDOW_CLOSED:
                 break
@@ -61,27 +61,3 @@ if __name__ == '__main__':
     
     app = main_layout()
     app.exec_classes()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
