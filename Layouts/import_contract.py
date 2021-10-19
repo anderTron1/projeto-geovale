@@ -13,6 +13,8 @@ import PySimpleGUI as sg
 import os
 import shutil
 import subprocess
+from sys import platform
+from threading import Thread
 
 #--------------------------KEYS TABLE IMPORT CONTRACT----------------------
 DEFAULT_KEY_BTN_OPEN = '-ABRIR-'
@@ -174,8 +176,19 @@ class Import_contract:
             if event == DEFAULT_KEY_BTN_OPEN:
                 name, _ =self._selected_element_table(window_input_layout)
                 arq = self.path_docs + '/' + name[0]
-                os.system('libreoffice --writer '+ "'"+arq+"'")
                 
+                if platform == "linux" or platform == "linux2":
+                    os.system('libreoffice --writer '+ "'"+arq+"'")
+                elif platform == "win32":
+                    path = 'C:/Program Files (x86)/Microsoft Office/'
+                    path_office = None
+                    for root, dirs, files in os.walk(path, topdown=True):
+                        #print(root)
+                        if root[len(path):].find('Office') != -1:
+                            path_office = root
+                            break
+                    pid = subprocess.Popen([path_office+ "/WINWORD.EXE", arq]).pid
+                    print(pid)
             if event == DEFAULT_KEY_BTN_DELET:
                 element_selection, id_selection_table = self._selected_element_table(window_input_layout)
                 self._delete_regist(window_input_layout, DEFAULT_KEY_TABLE_INPORT_CONTRACT, element_selection, id_selection_table)
