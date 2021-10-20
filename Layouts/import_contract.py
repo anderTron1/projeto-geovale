@@ -33,10 +33,14 @@ class Import_contract:
         self.elem = ElementsAdditional()
         self.path_docs = 'database/imported_documents'
         self.rows_table = None
+        self.table_elements = dict()
         
     def _table_search(self):
         headings = ['Contratos salvos']
         self.rows_table = self.files_to_table(self.path_docs)
+        
+        for cont, elem in enumerate(self.rows_table):
+            self.table_elements[cont+1] = elem
         table = None
         if self.rows_table != None:
 
@@ -55,24 +59,21 @@ class Import_contract:
                 arq = self.path_docs + '/' + name[0]
                 #del(self.rows_table[id_selection])
                 os.remove(arq)
+                
+                print(self.table_elements)
+                for key, value in self.table_elements.items():
+                    if value[0] == name[0]:
+                        self.table_elements.pop(key)
+                        break
+                print('Depois: ',self.table_elements)
                 sg.popup('Arquivo deletado', keep_on_top=True)
     
     def _search_register(self, window, record_to_select):
-        datas = window.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).Values
-
-        print(datas)
-
-        id_table = -1
-
-        print(datas)
-        for cont, element in reversed(list(enumerate(datas))):
-            print(element, 'selec: ', record_to_select)
-            print(element[0].find(str(record_to_select)))
-            if element[0].find(str(record_to_select)) != -1:
-                id_table = cont+1
-                break
+        for key, item in self.table_elements.items():
+            if item[0].find(record_to_select) != -1:
+                return key
         
-        return id_table
+        return -1
         
     
     def layout(self):
@@ -115,6 +116,9 @@ class Import_contract:
             window.Element(key).Values.append(elem)
                     
             window.Element(key).update(select_rows=[int(id)-1])
+            
+            self.table_elements[id] = elem
+            
         else:
             sg.popup('Contrato já existe na base de dados!', keep_on_top=True)
     

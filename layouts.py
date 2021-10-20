@@ -42,7 +42,9 @@ class main_layout:
         return layout
     
     def exec_classes(self):
-        window = sg.Window('Janela Principal', self.layout(),icon=r'image/iconLogo.ico',default_button_element_size=(25,1), background_color='white', resizable=True, size=(self._current_screen.width, self._current_screen.height))
+        window = sg.Window('Janela Principal', self.layout(),icon=r'image/iconLogo.ico',
+                           default_button_element_size=(25,1), background_color='white', 
+                           resizable=True, size=(self._current_screen.width, self._current_screen.height))
         
         while(True):
             event, valuer = window.read(timeout=100)
@@ -54,7 +56,9 @@ class main_layout:
             if event == sg.WINDOW_CLOSED:
                 break
             elif event == 'Exit':
-                break
+                close = sg.popup_ok_cancel('Deseja fechar o sistema?')
+                if close == 'OK':
+                    break
         window.close()
         
 if __name__ == '__main__':
