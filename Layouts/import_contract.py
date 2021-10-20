@@ -14,7 +14,6 @@ import os
 import shutil
 import subprocess
 from sys import platform
-from threading import Thread
 
 #--------------------------KEYS TABLE IMPORT CONTRACT----------------------
 DEFAULT_KEY_BTN_OPEN = '-ABRIR-'
@@ -170,7 +169,7 @@ class Import_contract:
             print(pid)
     
     def exec_classes(self):
-        window_input_layout = sg.Window('Modelos de Contratos', self.layout(), keep_on_top=True, modal=True)
+        window_input_layout = sg.Window('Modelos de Contratos', self.layout(),icon=r'image/iconLogo.ico', keep_on_top=True, modal=True)
         while(True):
             event, value = window_input_layout.read(timeout=100)  
             

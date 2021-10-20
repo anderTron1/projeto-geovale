@@ -917,7 +917,7 @@ class Registration:
                 self._class_register.event_buttons_residents(window, True, True, True, True, True)
         
         if event == DEFAULT_KEY_BTN_SEARCH:
-            search = Search_register_person(sg, self._conn)
+            search = Search_register_person(self._conn)
             self._window_button_search, self._id_register_db = search.window_button_search()
             
             if self._window_button_search != None or self._id_register_db != None:

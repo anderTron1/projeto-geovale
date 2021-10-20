@@ -8,6 +8,7 @@ Created on Fri Sep  3 00:20:07 2021
 
 from Layouts.import_contract import Import_contract
 from Layouts.registration import Registration
+from Layouts.generate_construct import Generate_contract
 
 from databaseConection import Database
 import screeninfo
@@ -18,7 +19,8 @@ class main_layout:
         self._conn = Database()
         self._class_registration = Registration(self._conn)
         self._class_inport_contract = Import_contract()
-                
+        self._class_generate_constract = Generate_contract(self._conn)
+        
         self._current_screen = self.get_monitor_from_coord(200, 200)
         
     def get_monitor_from_coord(self, x, y):
@@ -53,6 +55,10 @@ class main_layout:
                 self._class_registration.exec_classes()
             if event == 'Lista de Contratos':
                 self._class_inport_contract.exec_classes()
+                
+            if event == 'Gerar contrato':
+                self._class_generate_constract.exec_class()
+                
             if event == sg.WINDOW_CLOSED:
                 break
             elif event == 'Exit':

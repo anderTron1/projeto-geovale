@@ -17,7 +17,7 @@ DEFAULT_KEY_TXT_SEARCH_REGISTRATION_CPF = '-SEARCH_REGISTRATION_CPF-'
 DEFAULT_KEY_TXT_SEARCH_REGISTRATION_NAME = '-SEARCH_REGISTRATION_NAME-'
 
 class Search_register_person:
-    def __init__(self, sg, conectionDB=None):
+    def __init__(self, conectionDB=None):
         self._conn = conectionDB
         self.elem = ElementsAdditional()
         self._datas = None
@@ -41,7 +41,7 @@ class Search_register_person:
                   ]
         
         layout = [[sg.Frame('Procurar cliente por:', self._search)], [self._table_search()]]
-        windows = sg.Window('Procurar cliente', layout, element_justification='center', default_element_size=(40,1), keep_on_top=True, modal=True)
+        windows = sg.Window('Procurar cliente', layout,icon=r'image/iconLogo.ico', element_justification='center', default_element_size=(40,1), keep_on_top=True, modal=True)
         return windows
     
     def _search_event(self, id_table, key, window, value, is_cpf = False):
