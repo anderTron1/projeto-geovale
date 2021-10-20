@@ -145,6 +145,25 @@ class Import_contract:
         window.Element(DEFAULT_KEY_BTN_OPEN).update(disabled=btn_open)
         window.Element(DEFAULT_KEY_BTN_DELET).update(disabled=btn_del)
         
+    def exec_file_word(self,file_path):
+        if platform == "linux" or platform == "linux2":
+            #os.system('libreoffice --writer '+ "'"+arq+"'")
+            pid = subprocess.Popen(["libreoffice", file_path]).pid
+            print(pid)
+            
+        elif platform == "win32":
+            path = 'C:/Program Files (x86)/Microsoft Office/'
+            path_office_to_exec_file_word = None
+            '''
+                search among the office versions for the folder containing the word execution file
+            '''
+            for root, dirs, files in os.walk(path, topdown=True):
+                #print(root)
+                if root[len(path):].find('Office') != -1:
+                    path_office_to_exec_file_word = root
+                    break
+            pid = subprocess.Popen([path_office_to_exec_file_word+ "/WINWORD.EXE", file_path]).pid
+            print(pid)
     
     def exec_classes(self):
         window_input_layout = sg.Window('Modelos de Contratos', self.layout(), keep_on_top=True, modal=True)
@@ -177,18 +196,8 @@ class Import_contract:
                 name, _ =self._selected_element_table(window_input_layout)
                 arq = self.path_docs + '/' + name[0]
                 
-                if platform == "linux" or platform == "linux2":
-                    os.system('libreoffice --writer '+ "'"+arq+"'")
-                elif platform == "win32":
-                    path = 'C:/Program Files (x86)/Microsoft Office/'
-                    path_office = None
-                    for root, dirs, files in os.walk(path, topdown=True):
-                        #print(root)
-                        if root[len(path):].find('Office') != -1:
-                            path_office = root
-                            break
-                    pid = subprocess.Popen([path_office+ "/WINWORD.EXE", arq]).pid
-                    print(pid)
+                self.exec_file_word(arq)
+                
             if event == DEFAULT_KEY_BTN_DELET:
                 element_selection, id_selection_table = self._selected_element_table(window_input_layout)
                 self._delete_regist(window_input_layout, DEFAULT_KEY_TABLE_INPORT_CONTRACT, element_selection, id_selection_table)
