@@ -54,16 +54,18 @@ class Generate_contract:
             
         register_database = self._conn.select_register([self._conn.id_register_people,'name', 'cpf'], self._conn.register_people, self._conn.id_register_people, self._id_register_db)
         
-        window.Element(DEFAULT_KEY_INPUT_ID).update(register_database[0][KEY_ID])
-        window.Element(DEFAULT_KEY_INPUT_NAME).update(register_database[0][KEY_NAME])
-        window.Element(DEFAULT_KEY_INPUT_CPF).update(self.elemAdditional.valid_cpf(str(register_database[0][KEY_CPF])))
-    
+        if len(register_database) > 0:
+            window.Element(DEFAULT_KEY_INPUT_ID).update(register_database[0][KEY_ID])
+            window.Element(DEFAULT_KEY_INPUT_NAME).update(register_database[0][KEY_NAME])
+            window.Element(DEFAULT_KEY_INPUT_CPF).update(self.elemAdditional.valid_cpf(str(register_database[0][KEY_CPF])))
+        
     def __contract_files(self, window):
         path = self._class_import_contract.exec_classes()
         
-        self._path_contract = path
-        window.Element(DEFAULT_KEY_INPUT_CONTRACT).update(self._path_contract[self._path_contract.rindex('/')+1:len(self._path_contract)])
-        
+        if path != -1:
+            self._path_contract = path
+            window.Element(DEFAULT_KEY_INPUT_CONTRACT).update(self._path_contract[self._path_contract.rindex('/')+1:len(self._path_contract)])
+            
     def __enabled_btns(self, window, disabled):
         window.Element(DEFAULT_KEY_BTN_GENERATE).update(disabled=disabled)
         window.Element(DEFAULT_KEY_BTN_CANCEL).update(disabled=disabled)

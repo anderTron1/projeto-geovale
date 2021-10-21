@@ -9,14 +9,18 @@ Created on Fri Sep  3 00:20:07 2021
 from Layouts.import_contract import Import_contract
 from Layouts.registration import Registration
 from Layouts.generate_construct import Generate_contract
-
 from databaseConection import Database
+
 import screeninfo
 import PySimpleGUI as sg
-        
+import sys
+
 class main_layout: 
     def __init__(self):
-        self._conn = Database()
+        try:
+            self._conn = Database()
+        except AttributeError:
+            sys.exit()
         self._class_registration = Registration(self._conn)
         self._class_inport_contract = Import_contract()
         self._class_generate_constract = Generate_contract(self._conn)

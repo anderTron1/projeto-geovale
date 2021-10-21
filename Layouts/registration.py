@@ -174,8 +174,8 @@ class register_personal_data:
                                      'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior']
         
         spouse_frame = [
-            [sg.T('Nome:'), sg.Input(size=(60,1), key=DEFAULT_KEY_NAME_SPOUSE)],
-            [sg.Text('Sexo:'), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_SPOUSE),
+            [sg.T('Nome:',size=(5)), sg.Input(size=(60,1), key=DEFAULT_KEY_NAME_SPOUSE)],
+            [sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_SPOUSE),
              sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), key=DEFAULT_KEY_BIRTHDATE_SPOUSE), sg.Text('Idade'), sg.Spin(rangeArray(1, 120), initial_value='', key=DEFAULT_KEY_AGE_SPOUSE),
              sg.T('Naturalidade:'), sg.Input(size=(20,1), key=DEFAULT_KEY_NATURALNESS_SPOUSE)],
             [sg.T('Tel.:', size=(10, 1)), sg.Input(size=(20,1), key=DEFAULT_KEY_TEL_SPOUSE)], 
@@ -183,19 +183,19 @@ class register_personal_data:
             [sg.T('RG:', size=(10, 1)), sg.Input(size=(15,1),  key=DEFAULT_KEY_RG_SPOUSE), sg.T('órgão Emissor:'), sg.Input(size=(5,1), key=DEFAULT_KEY_ISSUING_BODY_SPOUSE), 
              sg.T('CPF:',), sg.Input(size=(15,1), key=DEFAULT_KEY_CPF_SPOUSE),
              sg.T('CNH'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_SPOUSE)],
-            [sg.T('Titulo de Eleitor:'), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
-            [sg.T('Escolaridade:', size=(18)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
+            [sg.T('Titulo de Eleitor:', size=(12)), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
+            [sg.T('Escolaridade:', size=(12)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
                                              'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE)]   
             ]
 
         personal_data_tab = [
-            [sg.Text('Nome:'), sg.Input(size=(60,1), disabled=True, key=DEFAULT_KEY_NOME_PERSONAL_DATA),
-             sg.Text('Sexo:'), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_PERSONAL_DATA),
+            [sg.Text('Nome:',size=(5)), sg.Input(size=(60,1), disabled=True, key=DEFAULT_KEY_NOME_PERSONAL_DATA),
+             sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_PERSONAL_DATA),
              sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), disabled=True, key=DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA)], 
-            [sg.Text('Idade'), sg.Spin(rangeArray(1, 120),initial_value='', disabled=True, key=DEFAULT_KEY_AGE_PERSONAL_DATA),
+            [sg.Text('Idade',size=(5)), sg.Spin(rangeArray(1, 120),initial_value='', disabled=True, key=DEFAULT_KEY_AGE_PERSONAL_DATA),
              sg.Text('Naturalidade'), sg.Input(size=(30,1), disabled=True,key=DEFAULT_KEY_NATURALNESS_PERSONAL_DATA), sg.Text('UF:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_UF_PERSONAL_DATA)],
-            [sg.Text('Tel.:'), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_TEL_PERSONAL_DATA)], 
-            [sg.Text('Cel.:'), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_CEL_PERSONAL_DATA)],
+            [sg.Text('Tel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_TEL_PERSONAL_DATA)], 
+            [sg.Text('Cel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_CEL_PERSONAL_DATA)],
             [sg.HorizontalSeparator()],
             [sg.Text('Email:', size=(10)), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_EMAIL_PERSONAL_DATA)],
             [sg.Text('Endereço:', size=(10)), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_ADDRESS_PERSONAL_DATA),

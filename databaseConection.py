@@ -7,6 +7,7 @@ Created on Sat Sep 25 14:15:13 2021
 """
 import sqlite3
 import os.path as path
+import PySimpleGUI as sg
 
 patch_file = 'database/sqlite_database/Database.sqlite3'
 
@@ -27,10 +28,14 @@ class Database:
         self.register_residents = 'register_residents'
         self.id_register_residents = 'id_register_residents'
                 
-        if path.exists(patch_file):
-            self._conection = sqlite3.Connection(path_file)    
-            self._cur = self._conection.cursor()
-            self._conected = True
+        try:
+            with sqlite3.Connection(path_file) as conection:
+                self._conection = conection  
+        except sqlite3.OperationalError:
+            sg.popup('O arquivo do banco de dados não existe!')
+            
+        self._cur = self._conection.cursor()
+        self._conected = True
     
     def connection_right_here(self):
         return self._conected
@@ -93,7 +98,8 @@ class Database:
         else:
             sql = 'SELECT {0} FROM {1} WHERE {2} = {3};'.format(', '.join([str(_) for _ in names_columns]), name_table, name_id_table, id_table)
 
-        self._cur.execute(sql)
+        if not self._cur.execute(sql):
+            raise AttributeError(f'{sql} does not exist.')
         for row in self._cur:
             datas_db.append(row)
                 
