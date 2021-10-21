@@ -28,11 +28,12 @@ DEFAULT_KEY_TABLE_INPORT_CONTRACT = '-INPORT_CONTRACT-'
 
 class Import_contract:
         
-    def __init__(self):
+    def __init__(self, return_only_the_path = False):
         self.elem = ElementsAdditional()
         self.path_docs = 'database/imported_documents'
         self.rows_table = None
         self.table_elements = dict()
+        self.__return_only_the_path = return_only_the_path
         
     def _table_search(self):
         headings = ['Contratos salvos']
@@ -71,18 +72,25 @@ class Import_contract:
         for key, item in self.table_elements.items():
             if item[0].find(record_to_select) != -1:
                 return key
-        
         return -1
         
     
     def layout(self):
-        layout = [
-                    [sg.T('Contrato'), sg.Input(key=DEFAULT_KEY_INPUT_SEARCH_SELECT), sg.Button('Selecionar', key=DEFAULT_KEY_BTN_SELECT)],
-                    [self._table_search()],
-                    [sg.Button('Abrir', key=DEFAULT_KEY_BTN_OPEN, disabled=True), sg.Button('Excluir', key=DEFAULT_KEY_BTN_DELET, disabled=True)],
-                    [sg.Input(key=DEFAULT_KEY_INP_PATH, disabled=True, size=55), sg.Button('Importar', key=DEFAULT_KEY_BTN_IMPORT)],
-                    [sg.FileBrowse(button_text= 'Importar Contrato', target=DEFAULT_KEY_INP_PATH,tooltip='Importar novo contrato para o sistema', file_types=(('Arquivo no Formato', "*.docx"),))]
-                ]
+        if self.__return_only_the_path != True:
+            layout = [
+                        [sg.T('Contrato'), sg.Input(key=DEFAULT_KEY_INPUT_SEARCH_SELECT), sg.Button('Selecionar', key=DEFAULT_KEY_BTN_SELECT)],
+                        [self._table_search()],
+                            
+                        [sg.Button('Abrir', key=DEFAULT_KEY_BTN_OPEN, disabled=True), sg.Button('Excluir', key=DEFAULT_KEY_BTN_DELET, disabled=True)],
+                        [sg.Input(key=DEFAULT_KEY_INP_PATH, disabled=True, size=55), sg.Button('Importar', key=DEFAULT_KEY_BTN_IMPORT)],
+                        [sg.FileBrowse(button_text= 'Importar Contrato', target=DEFAULT_KEY_INP_PATH,tooltip='Importar novo contrato para o sistema', file_types=(('Arquivo no Formato', "*.docx"),))]
+                      ]
+        else:
+            layout = [
+                        [sg.T('Contrato'), sg.Input(key=DEFAULT_KEY_INPUT_SEARCH_SELECT), sg.Button('Selecionar', key=DEFAULT_KEY_BTN_SELECT)],
+                        [self._table_search()]
+                      ]
+            
         return layout
     
     def path_exist(self, path):
@@ -170,24 +178,39 @@ class Import_contract:
     
     def exec_classes(self):
         window_input_layout = sg.Window('Modelos de Contratos', self.layout(),icon=r'image/iconLogo.ico', keep_on_top=True, modal=True)
+        closed = False
+        path_file = None
+        
         while(True):
             event, value = window_input_layout.read(timeout=100)  
             
-            if event == DEFAULT_KEY_TABLE_INPORT_CONTRACT:
-                if len(window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.get_children()) > 0 and len(window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()) > 0:
-                        self._disable_btns(window_input_layout,False, False)
-                else:
-                    self._disable_btns(window_input_layout,True, True)
-                    
             if event == sg.WINDOW_CLOSED:
                 break
+            
+            if event == DEFAULT_KEY_TABLE_INPORT_CONTRACT:
+                if self.__return_only_the_path != True:
+                    if len(window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.get_children()) > 0 and len(window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()) > 0:
+                            self._disable_btns(window_input_layout,False, False)
+                    else:
+                        self._disable_btns(window_input_layout,True, True)
+                        
+            if self.__return_only_the_path == True:        
+                window_input_layout[DEFAULT_KEY_TABLE_INPORT_CONTRACT].bind('<Double-Button-1>', '_dublo')
+                if event == DEFAULT_KEY_TABLE_INPORT_CONTRACT + '_dublo':
+                    if len(window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection()) > 0:
+                        name, _ =self._selected_element_table(window_input_layout)
+                        path_file = self.path_docs + '/' + name[0]
+                        
+                        closed = True
+                        break
+                    
             if event == DEFAULT_KEY_BTN_IMPORT:
                 if value[DEFAULT_KEY_INP_PATH] != '':
                     self.import_file(window_input_layout, event,  DEFAULT_KEY_TABLE_INPORT_CONTRACT, value[DEFAULT_KEY_INP_PATH])
-                    
+                    window_input_layout.Element(DEFAULT_KEY_INP_PATH).update('')
                 else:
                     sg.popup('Selecione um arquivo para importar', keep_on_top=True)
-            
+                                   
             if event == DEFAULT_KEY_BTN_SELECT:
                 id_regist_table = self._search_register(window_input_layout, value[DEFAULT_KEY_INPUT_SEARCH_SELECT])
                 try:
@@ -206,3 +229,6 @@ class Import_contract:
                 self._delete_regist(window_input_layout, DEFAULT_KEY_TABLE_INPORT_CONTRACT, element_selection, id_selection_table)
                 
         window_input_layout.close()
+        if closed == True:
+            return path_file
+        return -1

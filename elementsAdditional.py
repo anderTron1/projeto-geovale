@@ -67,7 +67,7 @@ class ElementsAdditional:
             #val = sg.popup('Número com menos digitos que o necéssario!')
             return -1
     
-    def valid_cpf(self,sg, num):
+    def valid_cpf(self, num):
         num = re.sub('[^0-9]','', num)
         
         if len(num) == 11:

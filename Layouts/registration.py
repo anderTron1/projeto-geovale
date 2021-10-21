@@ -684,7 +684,7 @@ class register_personal_data:
             self._event_have_information(window, result, DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA, 'Apenas valor númerico!')
                 
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_CPF_PERSONAL_DATA):
-            result = elemAdditional.valid_cpf(sg, velue[DEFAULT_KEY_CPF_PERSONAL_DATA])
+            result = elemAdditional.valid_cpf(velue[DEFAULT_KEY_CPF_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_CPF_PERSONAL_DATA, 'quantidades de digítos do CPF incorreta!')
             
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA):
