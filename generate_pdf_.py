@@ -5,7 +5,7 @@ Created on Mon Oct 25 18:07:25 2021
 
 @author: andre
 """
-from keys_to_registration import *
+from Layouts.keys_names.keys_to_registration import *
 
 from reportlab.pdfgen import canvas
 

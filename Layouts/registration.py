@@ -14,7 +14,7 @@ import re
 
 from elementsAdditional import ElementsAdditional
 from Layouts.search_register_person import Search_register_person
-from keys_to_registration import *
+from Layouts.keys_names.keys_to_registration import *
 
 #--------------------------key to buttons personal data-------------------
 DEFAULT_KEY_BTN_NEW = '-BUTTONNEW-'
@@ -61,36 +61,42 @@ class register_personal_data:
             [sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_SPOUSE),
              sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), key=DEFAULT_KEY_BIRTHDATE_SPOUSE), sg.Text('Idade'), sg.Spin(rangeArray(1, 120), initial_value='', key=DEFAULT_KEY_AGE_SPOUSE),
              sg.T('Naturalidade:'), sg.Input(size=(20,1), key=DEFAULT_KEY_NATURALNESS_SPOUSE)],
-            [sg.T('Tel.:', size=(10, 1)), sg.Input(size=(20,1), key=DEFAULT_KEY_TEL_SPOUSE)], 
-            [sg.T('Cel.:', size=(10, 1)), sg.Input(size=(20,1),  key=DEFAULT_KEY_CEL_SPOUSE)],
+            [sg.T('Tel.:', size=(10, 1)), sg.Input(size=(20,1), key=DEFAULT_KEY_TEL_SPOUSE), 
+             sg.T('Cel.:'), sg.Input(size=(20,1),  key=DEFAULT_KEY_CEL_SPOUSE)],
             [sg.T('RG:', size=(10, 1)), sg.Input(size=(15,1),  key=DEFAULT_KEY_RG_SPOUSE), sg.T('órgão Emissor:'), sg.Input(size=(5,1), key=DEFAULT_KEY_ISSUING_BODY_SPOUSE), 
              sg.T('CPF:',), sg.Input(size=(15,1), key=DEFAULT_KEY_CPF_SPOUSE),
              sg.T('CNH'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_SPOUSE)],
-            [sg.T('Titulo de Eleitor:', size=(12)), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
-            [sg.T('Escolaridade:', size=(12)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
+            [sg.T('Titulo de Eleitor:', size=(18)), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
+            [sg.T('Escolaridade:', size=(18)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
                                              'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE)]   
             ]
-
+        
+        batch_to_be_regularized = [
+            [sg.T('Lote nº:', size=15), sg.Input(size=(10,1), k=DEFAULT_KEY_BATCH_REGU_BATCH), sg.T('Quadra nº:', size=20), sg.Input(size=(10,1), k=DEFAULT_KEY_BATCH_REGU_BLOCK)],
+            [sg.T('Bairro:', size=15), sg.Input(size=(20,1), k=DEFAULT_KEY_BATCH_REGU_BATCH_REGULARIZAR_DISTRICT), sg.T('Área (m²):', size=10), sg.Input(size=(15,1), k=DEFAULT_KEY_BATCH_REGU_AREA)],
+            [sg.T('Rua do Lote:', size=15), sg.Input(size=(20,1), k=DEFAULT_KEY_BATCH_REGU_STREET_LOTE)]
+        ]
         personal_data_tab = [
             [sg.Text('Nome:',size=(5)), sg.Input(size=(60,1), disabled=True, key=DEFAULT_KEY_NOME_PERSONAL_DATA),
              sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_PERSONAL_DATA),
              sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), disabled=True, key=DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA)], 
             [sg.Text('Idade',size=(5)), sg.Spin(rangeArray(1, 120),initial_value='', disabled=True, key=DEFAULT_KEY_AGE_PERSONAL_DATA),
              sg.Text('Naturalidade'), sg.Input(size=(30,1), disabled=True,key=DEFAULT_KEY_NATURALNESS_PERSONAL_DATA), sg.Text('UF:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_UF_PERSONAL_DATA)],
-            [sg.Text('Tel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_TEL_PERSONAL_DATA)], 
-            [sg.Text('Cel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_CEL_PERSONAL_DATA)],
+            [sg.Text('Tel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_TEL_PERSONAL_DATA), 
+             sg.Text('Cel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_CEL_PERSONAL_DATA)],
             [sg.HorizontalSeparator()],
             [sg.Text('Email:', size=(10)), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_EMAIL_PERSONAL_DATA)],
             [sg.Text('Endereço:', size=(10)), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_ADDRESS_PERSONAL_DATA),
              sg.Text('Bairro:'), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_DISTRICT_PERSONAL_DATA), sg.Text('Nº:'), sg.Input(size=(5,), disabled=True, key=DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA)],
-            [sg.Text('RG:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_RG_PERSONAL_DATA), sg.Text('Órgão Emissor:'), sg.Input(size=(5,1), disabled=True, key=DEFAULT_KEY_ISSUING_BODY_PERSONAL_DATA)], 
-            [sg.Text('CPF:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_CPF_PERSONAL_DATA)],
-            [sg.Text('CNH:', size=(10)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_PERSONAL_DATA)], 
+            [sg.Text('RG:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_RG_PERSONAL_DATA), sg.Text('Órgão Emissor:'), sg.Input(size=(5,1), disabled=True, key=DEFAULT_KEY_ISSUING_BODY_PERSONAL_DATA), 
+             sg.Text('CPF:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_CPF_PERSONAL_DATA),
+             sg.Text('CNH:', size=(10)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_PERSONAL_DATA)], 
             [sg.Text('Titulo de Eleitor:'), sg.Input(size=(20,1), disabled=True, key=DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA),
              sg.T('Considera-se'),sg.Combo(['Branco','Negro', 'Pardo', 'Amarelo', 'Indígena'], key=DEFAULT_KEY_CONSIDER_PERSONAL_DATA), sg.T('Estado Civil:'), 
              sg.Combo(listEstadoCivil, key=DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA)],
             [sg.T('Escolaridade', size=(18)), sg.Combo(schooling_list, key=DEFAULT_KEY_SCHOOLING_PERSONAL_DATA)],
-            [sg.Frame('Dados do Cônjuge', spouse_frame)]
+            [sg.Frame('Dados do Cônjuge', spouse_frame)],
+            [sg.Frame('Lote a regularizar', batch_to_be_regularized)]
             ]
 
         frameConfImovel = [
@@ -143,7 +149,8 @@ class register_personal_data:
              sg.T('Tem acesso a internet?', size=(25)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_INTERNET)],
             [sg.T('Tem acesso a Energia Elétrica?', size=(30)), sg.Combo(['Sim', 'Não'],  key=DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI),
              sg.T('Tem acesso a Água Encanada?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER)],
-            [sg.Frame('Condições do Imóvel', frameCondImoveis)]
+            [sg.Frame('Condições do Imóvel', frameCondImoveis)],
+            [sg.T('Projetos/serviços'), sg.Combo(['Projeto1', 'projeto2'])]
             ]
         
         
@@ -277,7 +284,13 @@ class register_personal_data:
                 window.Element(key).Widget['state'] = 'selected'
                 
             window.Element(key).Widget.configure(style='TCombobox')
-               
+    
+    '''
+    get the data from the fields of the layouts
+    valuer         = inform variable of own PySimpleGui generated by windows
+    key            = inform layout keys
+    keys_numeric   = all keys here will be formatted to leave only the numbers
+    '''
     def get_key_values(self, valuer, keys, keys_numeric):
         register = []
         for key in keys:
@@ -621,7 +634,10 @@ class Registration:
         self._id_register_db = None
         
     def _load_layout(self):
-        layout = [self._class_register.load_window_layout(),
+        layout = [
+             self._class_register.load_window_layout(),
+            [sg.T('O cadastro em questão se enquadra como:'), sg.Combo(['REURB-E', 'REURB-S'],disabled=True, k=DEFAULT_KEY_TYPE_FRAMEWORK), 
+             sg.Button('Editar', k=DEFAULT_KEY_EDIT_TYPE_FRAMEWORK), sg.Button('Salvar', k=DEFAULT_KEY_SAVE_TYPE_FRAMEWORK)],
             [sg.Button('Novo', key=DEFAULT_KEY_BTN_NEW), sg.Button('Cancelar', disabled=True, key=DEFAULT_KEY_BTN_CANCEL),sg.Button('Salvar',disabled=True, key=DEFAULT_KEY_BTN_SAVE), 
              sg.Button('Editar', disabled=True, key=DEFAULT_KEY_BTN_EDIT), sg.Button('Excluir', disabled=True, key=DEFAULT_KEY_BTN_DELETE)],
             [sg.HorizontalSeparator()],

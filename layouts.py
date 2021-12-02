@@ -9,6 +9,8 @@ Created on Fri Sep  3 00:20:07 2021
 from Layouts.import_contract import Import_contract
 from Layouts.registration import Registration
 from Layouts.generate_construct import Generate_contract
+from Layouts.settings import Settings
+
 from databaseConection import Database
 
 import screeninfo
@@ -24,6 +26,7 @@ class main_layout:
         self._class_registration = Registration(self._conn)
         self._class_inport_contract = Import_contract()
         self._class_generate_constract = Generate_contract(self._conn)
+        self.__class_Settings = Settings(self._conn)
         
         self._current_screen = self.get_monitor_from_coord(200, 200)
         
@@ -38,7 +41,7 @@ class main_layout:
     def layout(self):
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
-                [   ['&Menu', ['&Cadastros', 'E&xit']],
+                [   ['&Menu', ['&Cadastros', 'Co&nfigurações', 'E&xit']],
                     ['C&ontratos', ['&Gerar Tegs para contratos', '&Lista de Contratos', 'G&erar contrato']],
                     ['Sobre', ['Dados desenvolvedor']]
                 ])]]#, background_color='#176d81')]]
@@ -57,6 +60,8 @@ class main_layout:
             
             if event == 'Cadastros':
                 self._class_registration.exec_classes()
+            if event == 'Configurações':
+                self.__class_Settings .exec_class()
             if event == 'Lista de Contratos':
                 self._class_inport_contract.exec_classes()
                 

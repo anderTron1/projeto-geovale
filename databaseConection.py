@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Sat Sep 25 14:15:13 2021
@@ -56,6 +56,7 @@ class Database:
                 if register_layout[cont] != None:
                     list_fields[row[1]] = register_layout[cont]
                 cont += 1
+        print(list_fields)
         return list_fields
 
     def _get_id_table_register_people(self):
