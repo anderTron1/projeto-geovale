@@ -2,6 +2,8 @@
 from elementsAdditional import ElementsAdditional
 from Layouts.keys_names.keys_to_settings import *
 
+import numpy as np
+
 import PySimpleGUI as sg
 
 DEFAULT_KEY_BTN_EDIT_REURB = '<<-EDIT_REURB->>'
@@ -23,8 +25,81 @@ def rangeArray(init, size):
 ################################################################
 class Framework_reurb:
     def __init__(self):
-        super
+        self.__conn_db_to_framework_reurb= None
+        self.__id_db = None
+    #==============================
+    #           TO DATABASE
+    #==============================
     
+    def __get_keys_fields_db(self, name_table):
+        name_table = name_table
+        keys_fields = self.__keys_fileds_framework()        
+        keys_fields_db = self.__conn_db_to_framework_reurb._take_fields_records(name_table, keys_fields)
+
+        return keys_fields_db
+    
+    def get_db_valuer_field_Framework(self, window):
+        name_table = self.__conn_db_to_framework_reurb.basic_settings
+        keys_fields = self.__get_keys_fields_db(name_table)
+        
+        keys_fields[self.__conn_db_to_framework_reurb.id_basic_settings] = 'id'
+        
+        datas = np.array(self.__conn_db_to_framework_reurb.select_register(keys_fields.keys(), name_table))
+        print(datas[0])
+        
+        for count, key in enumerate(keys_fields.values()):
+            if datas[0][count] != None:
+                if key == 'id':
+                    print('ID: ',datas[0][count])
+                    self.__id_db = datas[0][count]
+                    break
+                if window.Element(key).Type == 'input':
+                    print('Tipo input: ', datas[0][count])
+                    window.Element(key).Update(datas[0][count])
+                   
+                elif window.Element(key).Type == 'combo':
+                    print('Tipo combo: ', datas[0][count])
+                    window.Element(key).TKCombo.set(datas[0][count])
+                
+                elif window.Element(key).Type == 'spind':
+                    print('Tipo SPIND: ', datas[0][count])
+                    window.Element(key).TKStringVar.set(datas[0][count])
+                
+                elif window.Element(key).Type == 'radio':
+                    print('Tipo RADIO: ', datas[0][count])
+                    if datas[0][count] == 'REURB-S':
+                        window.Element(DEFAULT_KEY_REURB_S).update(True)
+                    else:
+                        window.Element(DEFAULT_KEY_REURB_E).update(True)
+
+    def get_value_fields(self, value):
+        all_fields_are_filled = True
+        values = []
+        
+        keys_fields = self.__keys_fileds_framework()
+        for key in keys_fields:
+            value_field = value[key]
+            print(value_field)
+            
+            if  value_field == '' or value_field == ' ':
+                all_fields_are_filled = False
+            else:
+                values.append(value_field)
+                
+        
+        return all_fields_are_filled, values
+                
+                
+    def save_editon(self, window, value):
+        name_table = self.__conn_db_to_framework_reurb.basic_settings
+        keys_fields = self.__get_keys_fields_db(name_table) 
+        id_name_table = self.__conn_db_to_framework_reurb.id_basic_settings
+        
+        print('inserindo dados no id: ', self.__id_db)
+        print(self.get_value_fields(value))
+        #self.__conn_db_to_framework_reurb.update_register(keys_fields.keys(), name_table, id_name_table, self.__id_db)
+        #self.get_db_valuer_field_Framework(window)
+        
     def tab_framework_reurb(self):
         setting_base_to = [
                 [sg.T('Renda familiar inferior a:'), sg.Input(size=10, disabled=True, key=DEFAULT_KEY_FAMILY_INCOME_LESS_THAN)],
@@ -58,15 +133,16 @@ class Framework_reurb:
         keys = self.__keys_fileds_framework()
         self.__event_disabled(window, keys, disable)
         
-    def event_btns_framework_reurb(self,window, event):
+    def event_btns_framework_reurb(self,window, event, value):
         if event == DEFAULT_KEY_BTN_EDIT_REURB:
             self.disabled_fields_framework_reurb(window,False)
-                
+            
         if event == DEFAULT_KEY_BTN_SAVE_REURB:
             self.disabled_fields_framework_reurb(window, True)
-        
+            self.save_editon(window, value)
+    
     def exec_tab_framework_reurb(self, window, event, value):
-        self.event_btns_framework_reurb(window,event)
+        self.event_btns_framework_reurb(window,event, value)
 
 ################################################################
 #
@@ -76,7 +152,7 @@ class Framework_reurb:
 class Project:
     def __init__(self):
         self.__elements = None
-        
+        self.__conn_db_to_project = None
     def __table(self):
         headings = ['ID', 'Projeto']
         table = self.__elements.Table(sg, headings, DEFAULT_KEY_TABLE_SETTINGS, col_width=25, num_rows=5)
@@ -147,6 +223,9 @@ class Project:
 class Settings(Framework_reurb, Project):
     def __init__(self, database):
         self.__conn = database
+        self._Framework_reurb__conn_db_to_framework_reurb = database
+        self._Project__conn_db_to_project = database
+        
         self._Project__elements = ElementsAdditional()
                 
     def layout(self):
@@ -161,12 +240,19 @@ class Settings(Framework_reurb, Project):
     
     def exec_class(self):
         window_settings = sg.Window('Configurações basicas', self.layout(), icon=r'image/iconLogo.ico')
+        loard_db_to_fields = True
         
         while(True):
             event, value = window_settings.read(timeout=100)
             
             self.exec_tab_framework_reurb(window_settings, event, value)
             self.exec_tab_project(window_settings, event, value)
+            
+            if loard_db_to_fields:
+                print('Carregando')
+                self.get_db_valuer_field_Framework(window_settings)
+                loard_db_to_fields = False
+            
             if event == sg.WINDOW_CLOSED:
                 break
             

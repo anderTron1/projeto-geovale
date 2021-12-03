@@ -6,8 +6,8 @@ Created on Wed Dec  1 17:12:41 2021
 @author: andre
 """
 
-KEY_YES = '<<-SIM->>'
-KEY_NOT = '<<-NAO->>'
+KEY_YES = 'Sim'
+KEY_NOT = 'Não'
 
 DEFAULT_KEY_TABLE_SETTINGS = '<<-DEFAULT_KEY_TABLE_SETTING->>'
 DEFAULT_KEY_FAMILY_INCOME_LESS_THAN = '<<-RENDA_FAMILIAR_INFERIOR_A->>'

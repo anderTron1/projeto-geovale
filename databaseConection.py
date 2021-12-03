@@ -27,6 +27,9 @@ class Database:
         
         self.register_residents = 'register_residents'
         self.id_register_residents = 'id_register_residents'
+        
+        self.basic_settings = 'basic_settings'
+        self.id_basic_settings = 'id_basic_settings'
                 
         try:
             with sqlite3.Connection(path_file) as conection:
@@ -56,7 +59,7 @@ class Database:
                 if register_layout[cont] != None:
                     list_fields[row[1]] = register_layout[cont]
                 cont += 1
-        print(list_fields)
+                
         return list_fields
 
     def _get_id_table_register_people(self):
