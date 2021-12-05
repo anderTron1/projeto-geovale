@@ -30,6 +30,9 @@ class Database:
         
         self.basic_settings = 'basic_settings'
         self.id_basic_settings = 'id_basic_settings'
+        
+        self.projects_service = 'projects_service'
+        self.id_projects_service = 'id_projects_service'
                 
         try:
             with sqlite3.Connection(path_file) as conection:

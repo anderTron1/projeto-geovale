@@ -443,7 +443,7 @@ class register_personal_data:
         data_new.append(self.update_register_txt_income(window))
         
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).update(values=data, num_rows=20,select_rows=[indice_table])
-
+    
         return data_new
     
     def __save_regist_table(self, window, count_rows, list_record, alternating_row_color, background_color):

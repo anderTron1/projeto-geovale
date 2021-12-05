@@ -61,7 +61,7 @@ class main_layout:
             if event == 'Cadastros':
                 self._class_registration.exec_classes()
             if event == 'Configurações':
-                self.__class_Settings .exec_class()
+                self.__class_Settings.exec_class()
             if event == 'Lista de Contratos':
                 self._class_inport_contract.exec_classes()
                 
