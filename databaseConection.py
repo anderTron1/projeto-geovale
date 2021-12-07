@@ -112,6 +112,17 @@ class Database:
                 
         return datas_db
     
+    def select_all(self, name_table):
+        datas = []
+        sql = "SELECT * FROM {0};".format(name_table)
+        
+        if not self._cur.execute(sql):
+            raise AttributeError(f'{sql} does not exist.')
+        for row in self._cur:
+            datas.append(row)
+        
+        return datas
+        
     def update_register(self, registers, name_table, name_id_table, id_register):        
         dic_datas = self._take_fields_records(name_table, registers)
         sql = None

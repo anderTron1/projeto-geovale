@@ -36,6 +36,16 @@ DEFAULT_KEY_BTN_DEL_REGIST_RESID = '-BTN_EXCLUIR_CADASTRO_MORADORES-'
 def rangeArray(init, size):
     return [num for num in range(init, size)]
 
+class Get_projects:
+    def __init__(self, database):
+        self.__conn = database
+        self.__name_db = database.projects_service
+        self.__id_of_db = database.id_projects_service
+        
+    def get_list(self):
+        return self.__conn.select_all(self.__name_db)
+        
+                
 #############################################################################
 #                                                                           #
 #                           FIST RECORD TAB class                           #
@@ -43,14 +53,24 @@ def rangeArray(init, size):
 #############################################################################
 class register_personal_data:
     
-    def __init__(self):
+    def __init__(self, database):
+        self.__conn = database
         self._marital_status = 'Casado'
         self.elemAdditional = ElementsAdditional()
         self.datas_register_residents_new = []
         self.datas_register_residents = []
         self.datas_register_residents_edit = []
         
+        self.__projetcs = None
+        self.__list_datas_projetcs = None
+        #print(self.__list_datas_projetcs[:,0])
+        
+        
     def load_window_layout(self):
+        
+        self.__projetcs = Get_projects(self.__conn)
+        self.__list_datas_projetcs = np.array(self.__projetcs.get_list())
+        
         listEstadoCivil = [self._marital_status, 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo']
         
         schooling_list = ['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
@@ -150,7 +170,7 @@ class register_personal_data:
             [sg.T('Tem acesso a Energia Elétrica?', size=(30)), sg.Combo(['Sim', 'Não'],  key=DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI),
              sg.T('Tem acesso a Água Encanada?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER)],
             [sg.Frame('Condições do Imóvel', frameCondImoveis)],
-            [sg.T('Projetos/serviços'), sg.Combo(['Projeto1', 'projeto2'])]
+            [sg.T('Projetos/serviços'), sg.Combo(self.__list_datas_projetcs[:,1].tolist())]
             ]
         
         
@@ -207,6 +227,9 @@ class register_personal_data:
                 DEFAULT_KEY_CPF_PERSONAL_DATA,          DEFAULT_KEY_CNH_PERSONAL_DATA,
                 DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA,  DEFAULT_KEY_CONSIDER_PERSONAL_DATA,
                 DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA, DEFAULT_KEY_SCHOOLING_PERSONAL_DATA,
+                DEFAULT_KEY_BATCH_REGU_BATCH,           DEFAULT_KEY_BATCH_REGU_BLOCK,
+                DEFAULT_KEY_BATCH_REGU_BATCH_REGULARIZAR_DISTRICT, DEFAULT_KEY_BATCH_REGU_AREA,
+                DEFAULT_KEY_BATCH_REGU_STREET_LOTE,
                 
                 #-------------------------KEY to tab other_information----------------------------
                 DEFAULT_KEY_COMB_WORKS,                 DEFAULT_KEY_INP_WHERE,
@@ -628,7 +651,7 @@ class register_personal_data:
 class Registration:
     def __init__(self, conectionDB = None):
         self._conn = conectionDB
-        self._class_register = register_personal_data()
+        self._class_register = register_personal_data(self._conn)
         self._window_button_search = None
         self._btn_edit_clicked = False
         self._id_register_db = None

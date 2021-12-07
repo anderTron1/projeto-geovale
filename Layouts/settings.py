@@ -215,7 +215,6 @@ class Project:
     
     def insert_register_table(self, window):
         datas = self.get_db_to_table()
-        print(datas)
         datas = np.array(datas)
         datas = np.flip(datas[::-1])
                 
@@ -230,10 +229,8 @@ class Project:
         count_rows = 0
         for count in range(len(datas)):
             count_rows = len(window.Element(DEFAULT_KEY_TABLE_SETTINGS).Values)
-            print('Count_rows: ', count_rows)
             if count == count_rows:
                 count_rows += 1
-                print("TUPLA: ",tuple(datas[count]))
                       
                 if count_rows % 2 == 0:
                     id = window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.insert(parent='',index='end',iid=count_rows, values=tuple(datas[count]), tags=('oddrow'))
@@ -284,11 +281,27 @@ class Project:
         keys = self.__keys_fileds_project()
         self.__event_disabled(window, keys, disable)
         
-    def edit_table(self, window, value, datas, index_table, id_db):
-        print('indice: ', index_table, ' dados: ', list([id_db, value[DEFAULT_KEY_NAME_PROJECT]]))
-        datas[int(index_table)] = list([id_db, value[DEFAULT_KEY_NAME_PROJECT]])
-        print('dados editado: ', datas)
-        window.Element(DEFAULT_KEY_TABLE_SETTINGS).update(values=datas, select_rows=[int(index_table)])
+    def save_edit_db(self, register, id_register):
+        name_table = self.__conn_db_to_project.projects_service
+        name_id = self.__conn_db_to_project.id_projects_service
+        
+        self.__conn_db_to_project.update_register(register, name_table, name_id, id_register)
+        
+    def edit_table(self, window, value, datas, index_table): 
+        index_list_ID = 0
+        index_list_PROJECT = 1
+        
+        #get id table 
+        id_to_edit = datas[index_table][index_list_ID]
+        
+        datas[int(index_table)] = list([id_to_edit, value[DEFAULT_KEY_NAME_PROJECT]])
+        new_datas = [list(data) for data in datas]
+    
+        window.Element(DEFAULT_KEY_TABLE_SETTINGS).update(values=new_datas, select_rows=[int(index_table)])
+        
+        #save register database
+        register_table = new_datas[index_table][index_list_PROJECT]
+        self.save_edit_db([register_table], id_to_edit)
         
     def __disabled_btns_project(self, window, btn_new, btn_edit, btn_save, btn_del, btn_cancel):
         window.Element(DEFAULT_KEY_BTN_NEW_PROJECT).update(disabled=btn_new)
@@ -315,18 +328,17 @@ class Project:
                 self.insert_register_table(window)
                 
             elif window.Element(DEFAULT_KEY_BTN_EDIT_PROJECT).TKButton['state'] != 'disabled':
-                index  = window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()[0]
-                id_db = window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0]
+                #id_db  = window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()[0]
+                index = window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0]
                 datas = window.Element(DEFAULT_KEY_TABLE_SETTINGS).Values 
-                print('DADOS PARA EDITAR: ', datas, 'TIPO: ', type(datas))
+                
+                self.edit_table(window, value, datas, index)
                 
                 self.disabled_fields_project(window,True, clear_field=True)
-                self.__disabled_btns_project(window, btn_new=True, btn_edit=True, btn_save=True, btn_del=True, btn_cancel=True)
-                
-                
-                self.edit_table(window, value, datas, index, id_db)
+                self.__disabled_btns_project(window, btn_new=False, btn_edit=True, btn_save=True, btn_del=True, btn_cancel=True)
                 
             
+            window.Element(DEFAULT_KEY_TABLE_SETTINGS).update(select_rows=None)
         if event == DEFAULT_KEY_BTN_DEL_PROJECT:
             delete = sg.popup_ok_cancel('Tem certeza que deseja deleta esse registro?')
             indice_id = 0
@@ -334,11 +346,9 @@ class Project:
                 self.disabled_fields_project(window,True, clear_field=True)
                 self.__disabled_btns_project(window, btn_new=False, btn_edit=True, btn_save=True, btn_del=True, btn_cancel=True)
                 id = window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()[0]
-                print('id: ', id)
                 rows = window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0]
-                print('SelectedRows: ', window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0])
+                
                 dadosDel = window.Element(DEFAULT_KEY_TABLE_SETTINGS).Values[int(rows)]
-                print('dado: ', dadosDel[indice_id])
                 
                 self.delete_register(window,int(id))
                 self.delete_register_db(int(dadosDel[indice_id]))
@@ -352,6 +362,7 @@ class Project:
         self.event_btns_project(window,event, value)
         if event == DEFAULT_KEY_TABLE_SETTINGS:
             if len(window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()):
+                self.disabled_fields_project(window,True, clear_field=True)
                 self.__disabled_btns_project(window, btn_new=True, btn_edit=False, btn_save=True, btn_del=False, btn_cancel=False)
         
 class Settings(Framework_reurb, Project):
