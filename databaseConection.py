@@ -33,6 +33,9 @@ class Database:
         
         self.projects_service = 'projects_service'
         self.id_projects_service = 'id_projects_service'
+        
+        self.id_to_projects_service = 'id_to_projects_service'
+        
                 
         try:
             with sqlite3.Connection(path_file) as conection:
@@ -51,14 +54,21 @@ class Database:
         
 
     #function to get the fields from the names of each column in the database
-    def _take_fields_records(self, name_table, register_layout):
+    def _take_fields_records(self, name_table, register_layout, is_pass_to_id = None):
         list_fields = dict()
         
         cont = 0
         self._cur.execute(f'PRAGMA table_info({name_table})')
         
         for row in self._cur:
-            if 'id_' not in row[1]:
+            
+            if is_pass_to_id != None:
+                if 'id_' not in row[1] or row[1] == is_pass_to_id:
+                    if register_layout[cont] != None:
+                        list_fields[row[1]] = register_layout[cont]
+                    cont += 1
+            
+            elif 'id_' not in row[1]:
                 if register_layout[cont] != None:
                     list_fields[row[1]] = register_layout[cont]
                 cont += 1
@@ -68,8 +78,8 @@ class Database:
     def _get_id_table_register_people(self):
         super
         
-    def insert_register(self, register, name_table, name_id_table, insert_id = None):
-        dic_datas = self._take_fields_records(name_table, register)
+    def insert_register(self, register, name_table, name_id_table, is_pass_to_id = None, insert_id = None):
+        dic_datas = self._take_fields_records(name_table, register, is_pass_to_id)
         sql = None
         sql_last_id = None
         
@@ -123,8 +133,8 @@ class Database:
         
         return datas
         
-    def update_register(self, registers, name_table, name_id_table, id_register):        
-        dic_datas = self._take_fields_records(name_table, registers)
+    def update_register(self, registers, name_table, name_id_table, id_register, is_pass_to_id = None):        
+        dic_datas = self._take_fields_records(name_table, registers, is_pass_to_id)
         sql = None
         
         valuers = ''

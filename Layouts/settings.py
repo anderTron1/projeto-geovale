@@ -30,6 +30,7 @@ class Framework_reurb:
         
     def tab_framework_reurb(self):
         setting_base_to = [
+                [sg.T('Valor atual do Salario Minimo:'), sg.Input(size=10, disabled=True, key=DEFAULT_KEY_MINIMUM_WAGE)],
                 [sg.T('Renda familiar inferior a:'), sg.Input(size=10, disabled=True, key=DEFAULT_KEY_FAMILY_INCOME_LESS_THAN)],
                 [sg.T('Possuir lote de até (m²):'), sg.Input(size=10, disabled=True, key=DEFAULT_KEY_OWN_BATCH_OF_UP_TO)],
                 [sg.T('Possuir a quantia de imóveis urbano de:'), sg.Spin(rangeArray(1, 100), disabled=True, key=DEFAULT_KEY_AMOUNT_REAL_ESTATE_URVAN)],
@@ -44,6 +45,7 @@ class Framework_reurb:
     
     def __keys_fileds_framework(self):
         keys = [
+                DEFAULT_KEY_MINIMUM_WAGE,
                 DEFAULT_KEY_FAMILY_INCOME_LESS_THAN,
                 DEFAULT_KEY_OWN_BATCH_OF_UP_TO,
                 DEFAULT_KEY_AMOUNT_REAL_ESTATE_URVAN,
@@ -256,8 +258,7 @@ class Project:
         name_id_db = self.__conn_db_to_project.id_projects_service
         
         register = self.get_register(value, keys)
-        
-        print(self.__id_db)
+
         self.__conn_db_to_project.insert_register(register, name_table, name_id_db)
         
     def delete_register_db(self, id):
@@ -394,7 +395,6 @@ class Settings(Framework_reurb, Project):
             self.exec_tab_project(window_settings, event, value)
             
             if loard_db_to_fields:
-                print("Carregando configurações basicas")
                 self.get_db_valuer_field_Framework(window_settings)
                 window_settings.Element(DEFAULT_KEY_TABLE_SETTINGS).update(values=[])
                 self.insert_register_table(window_settings)

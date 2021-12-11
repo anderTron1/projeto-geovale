@@ -42,9 +42,37 @@ class Get_projects:
         self.__name_db = database.projects_service
         self.__id_of_db = database.id_projects_service
         
-    def get_list(self):
-        return self.__conn.select_all(self.__name_db)
+        self.__datas_db = self.get_list_db()
         
+    def get_list_db(self):
+        return self.__conn.select_all(self.__name_db)
+    
+    def get_list(self):
+        return self.__datas_db
+    
+    def get_id(self, name_projet):
+        register = self.__datas_db 
+        id_table = None
+        #self.__list_datas_projetcs[:,1].tolist()
+        
+        for datas in register:
+            if datas[1] == name_projet:
+                id_table = datas[0]
+                break
+            
+        return id_table
+    
+    def get_name(self, id):
+        register = self.__datas_db 
+        name_project = None
+        #self.__list_datas_projetcs[:,1].tolist()
+        
+        for datas in register:
+            if datas[0] == id:
+                name_project = datas[1]
+                break
+            
+        return name_project
                 
 #############################################################################
 #                                                                           #
@@ -61,15 +89,14 @@ class register_personal_data:
         self.datas_register_residents = []
         self.datas_register_residents_edit = []
         
-        self.__projetcs = None
-        self.__list_datas_projetcs = None
-        #print(self.__list_datas_projetcs[:,0])
+        self.projetcs = None
+        self.list_datas_projetcs = None
         
         
     def load_window_layout(self):
         
-        self.__projetcs = Get_projects(self.__conn)
-        self.__list_datas_projetcs = np.array(self.__projetcs.get_list())
+        self.projetcs = Get_projects(self.__conn)
+        self.list_datas_projetcs = np.array(self.projetcs.get_list())        
         
         listEstadoCivil = [self._marital_status, 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo']
         
@@ -129,7 +156,7 @@ class register_personal_data:
         frameCondImoveis = [
             [sg.T('Tem outro dono?', size=(32)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_ONLY_OWNER), sg.T('Nome do outro Dono:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_OWNER)],
             [sg.T('A quanto tempo spossui o Imóvel?'), sg.Input(size=(15,1), disabled=True,  key=DEFAULT_KEY_TXT_STILL_TIME)],
-            [sg.T('Possui Outro Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_ANOTHER_PROPERTY), sg.T('Quantos?'),
+            [sg.T('Possui Outro Imóvel Urbano?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY), sg.T('Quantos?'), 
              sg.Spin(rangeArray(1, 11), disabled=True,  key=DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY, initial_value=('')), sg.T('Onde?'), sg.Input(size=(20,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE)],
             [sg.T('Tem Edificação no Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC), sg.T('Utiliza o imóvel para:'), 
              sg.Combo(['Moradia', 'Comércio'], key=DEFAULT_KEY_PROPERTY_USED_FOR)],
@@ -154,7 +181,7 @@ class register_personal_data:
              sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,20)), disabled=True, key=DEFAULT_KEY_HOW_MANY_CHILDREM, initial_value=(''))],
             [sg.T('Mora Algum deficiente ou idoso?', size=(38)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY), 
              sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,10)), disabled=True,  key=DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY, initial_value='')],
-            [sg.T('É beneficiário Concessionário de alguma imóvel Urbano ou Rural?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_RURAL_URBAN_BENEFICIARY)],
+            [sg.T('Possui imóvel rural?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY)],
             [sg.HorizontalSeparator()],
             
             [sg.T('Possui Automóvel?', size=(30)), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY__COMB_OWNS_CAR), sg.T('Quantas?'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_OWNS_CAR_HOW_MANY, initial_value=('')),
@@ -170,7 +197,7 @@ class register_personal_data:
             [sg.T('Tem acesso a Energia Elétrica?', size=(30)), sg.Combo(['Sim', 'Não'],  key=DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI),
              sg.T('Tem acesso a Água Encanada?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER)],
             [sg.Frame('Condições do Imóvel', frameCondImoveis)],
-            [sg.T('Projetos/serviços'), sg.Combo(self.__list_datas_projetcs[:,1].tolist())]
+            [sg.T('Projetos/serviços'), sg.Combo(self.list_datas_projetcs[:,1].tolist(), key=DEFAULT_KEY_PROJECT_SERVICES)]
             ]
         
         
@@ -237,7 +264,7 @@ class register_personal_data:
                 DEFAULT_KEY_BENEF_CAMB_SOCI_PROG,       DEFAULT_KEY_INCOME_COMB_INCOME,
                 DEFAULT_KEY_COMB_HAVE_CHILDREM,         DEFAULT_KEY_HOW_MANY_CHILDREM,
                 DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY,  DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY,
-                DEFAULT_KEY_COMB_RURAL_URBAN_BENEFICIARY, 
+                DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY, 
                 
                 DEFAULT_KEY__COMB_OWNS_CAR,         DEFAULT_KEY_OWNS_CAR_HOW_MANY,
                 DEFAULT_KEY__COMB_HAS_MOTORCICLE,   DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY,
@@ -249,7 +276,7 @@ class register_personal_data:
                 
                 #--------------------------KEY FRAME PROPERTY CONDITIONS---------------------------
                 DEFAULT_KEY_COMB_ONLY_OWNER,             DEFAULT_KEY_TXT_ANOTHER_OWNER,
-                DEFAULT_KEY_TXT_STILL_TIME,              DEFAULT_KEY_COMB_ANOTHER_PROPERTY,
+                DEFAULT_KEY_TXT_STILL_TIME,              DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY,
                 DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY,   DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE,
                 DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC,   DEFAULT_KEY_PROPERTY_USED_FOR,
                 
@@ -260,7 +287,8 @@ class register_personal_data:
                 DEFAULT_KEY_COMB_BATCH_POSITION,     DEFAULT_KEY_COMB_STATE_BUILDINGS,
                 DEFAULT_KEY_COMB_BUILDING_TYPE,      DEFAULT_KEY_COMB_IS_BEDRIDDEN,
                 DEFAULT_KEY_NUMB_FLOORS,             DEFAULT_KEY_ROOMS,
-                DEFAULT_KEY_BATHROOMS]
+                DEFAULT_KEY_BATHROOMS,               DEFAULT_KEY_PROJECT_SERVICES,
+                DEFAULT_KEY_TYPE_FRAMEWORK]
         return keys
 
     def key_to_disable_regist(self):
@@ -330,13 +358,16 @@ class register_personal_data:
                         break
                     
                 if key_found == False:
-                    register.append(valuer[key])
+                    
+                    if key == DEFAULT_KEY_PROJECT_SERVICES:
+                        register.append(self.projetcs.get_id(valuer[key]))
+                    else:    
+                        register.append(valuer[key])
         
         return register
             
     def required_fields(self,window,event, velue):
-        filled_fields = True
-        
+        filled_fields = True        
         key_to_check = [DEFAULT_KEY_NOME_PERSONAL_DATA,           DEFAULT_KEY_SEX_PERSONAL_DATA,
                         DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA,      DEFAULT_KEY_AGE_PERSONAL_DATA,
                         DEFAULT_KEY_NATURALNESS_PERSONAL_DATA,    DEFAULT_KEY_UF_PERSONAL_DATA,
@@ -352,7 +383,7 @@ class register_personal_data:
                         DEFAULT_KEY_INCOME_COMB_INCOME,           DEFAULT_KEY_COMB_HAVE_CHILDREM,
                         DEFAULT_KEY_HOW_MANY_CHILDREM,
                         DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY,    DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY,
-                        DEFAULT_KEY_COMB_RURAL_URBAN_BENEFICIARY,
+                        DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY,
                         DEFAULT_KEY__COMB_OWNS_CAR,               DEFAULT_KEY_OWNS_CAR_HOW_MANY,
                         DEFAULT_KEY__COMB_HAS_MOTORCICLE,         DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY,
                         DEFAULT_KEY_COMB__HAVE_FRIDGE,            DEFAULT_KEY_HAVE_FRIDGE_HOW_MANY,
@@ -361,7 +392,7 @@ class register_personal_data:
                         DEFAULT_KEY_COMB__HAVE_INTERNET,
                         DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI,     DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER,
                         DEFAULT_KEY_COMB_ONLY_OWNER,              DEFAULT_KEY_TXT_ANOTHER_OWNER,
-                        DEFAULT_KEY_TXT_STILL_TIME,               DEFAULT_KEY_COMB_ANOTHER_PROPERTY,
+                        DEFAULT_KEY_TXT_STILL_TIME,               DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY,
                         DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY,    DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE,
                         DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC,    DEFAULT_KEY_PROPERTY_USED_FOR,
                         DEFAULT_KEY_TXT_FRONT,                    DEFAULT_KEY_TXT_RIGHT,
@@ -416,8 +447,8 @@ class register_personal_data:
             DEFAULT_KEY_HAVE_TELEVI_HOW_MANY: DEFAULT_KEY_COMB__HAVE_TELEVI,
             DEFAULT_KEY_HAVE_COMPUTER_HOW_MANY: DEFAULT_KEY_COMB__HAVE_COMPUTER,
             DEFAULT_KEY_TXT_ANOTHER_OWNER: DEFAULT_KEY_COMB_ONLY_OWNER,
-            DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY: DEFAULT_KEY_COMB_ANOTHER_PROPERTY,
-            DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE :DEFAULT_KEY_COMB_ANOTHER_PROPERTY
+            DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY: DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY,
+            DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE :DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY
             }
         
         if window.Element(DEFAULT_KEY_COMB_WORKS).TKCombo['state'] == 'enable' or window.Element(DEFAULT_KEY_COMB_WORKS).TKCombo['state'] == 'selected':
@@ -651,6 +682,7 @@ class register_personal_data:
 class Registration:
     def __init__(self, conectionDB = None):
         self._conn = conectionDB
+        self.elemAdditional = ElementsAdditional()
         self._class_register = register_personal_data(self._conn)
         self._window_button_search = None
         self._btn_edit_clicked = False
@@ -669,8 +701,8 @@ class Registration:
             
         return layout
     
-    def _loard_records_into_fields(self,window, name_table, keys_fields, name_id_table, id_register, is_table = False, key_table = None, valuer=None):
-        fileds_and_field_db = self._conn._take_fields_records(name_table, keys_fields)
+    def _loard_records_into_fields(self,window, name_table, keys_fields, name_id_table, id_register, is_table = False, key_table = None, get_new_id=None):
+        fileds_and_field_db = self._conn._take_fields_records(name_table, keys_fields, is_pass_to_id = get_new_id)
         
         if is_table:
             keys_new = []
@@ -690,7 +722,11 @@ class Registration:
                     if window.Element(key).Type == 'input':
                         window.Element(key).Update(datas[cont])
                     elif window.Element(key).Type == 'combo':
-                        window.Element(key).TKCombo.set(datas[cont])
+                        if key == DEFAULT_KEY_PROJECT_SERVICES:
+                            name_project = self._class_register.projetcs.get_name(datas[cont])
+                            window.Element(key).TKCombo.set(name_project)
+                        else:
+                            window.Element(key).TKCombo.set(datas[cont])
                     elif window.Element(key).Type == 'spind':
                         window.Element(key).TKStringVar.set(datas[cont])
         else:
@@ -711,6 +747,72 @@ class Registration:
 
     def _activate_search_buttons(self, window, buttons):
         window.Element(DEFAULT_KEY_BTN_SEARCH).update(disabled=buttons)
+    
+    '''
+    CONFIGURATION TO DEFINE REGISTRATION AS REURB-S/E 
+    '''    
+    def if_framing_as(self, value):
+        name_db = self._conn.basic_settings
+        id_db = self._conn.id_basic_settings
+        
+        family_income = value[DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID].replace('R$: ', '')
+        print(family_income)
+        if family_income != '':
+            family_income = float(family_income.replace(',', '.'))
+        lot_area = float(value[DEFAULT_KEY_BATCH_REGU_AREA])
+        how_many_urban_property = int(value[DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY])
+        own_rural_property = value[DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY]
+        
+        print('\nteste nos valores das compos de cadastros:')
+        print("family_income: ", family_income)
+        print("lot_area: ", lot_area)
+        print("how_many_urban_property: ", how_many_urban_property)
+        print("own_rural_property: ", own_rural_property)
+        
+        '''
+        values database
+        '''
+        keys = ['minimum_wage', 'family_income', 'lot_area', 'how_many_urban_property', 'own_rural_property', 'REURB']
+        dict_value = dict()
+        
+        select_tupla = 0
+        elements_after_id = 1
+        database = self._conn.select_all(name_db)[select_tupla]
+        database = database[elements_after_id::]
+        for cont in range(len(keys)):
+            dict_value[keys[cont]] = database[cont]
+            
+        print('\nDados do database:')
+        print(dict_value)
+        
+        reurb = dict_value['REURB']  if dict_value['REURB'] == 'REURB-S' else 'REURB-E'
+        fits_how = None
+        
+        if family_income != '' and family_income != None:
+            family_income = family_income / dict_value['minimum_wage']
+            if family_income < dict_value['family_income']:
+                print('Se enquadra na family_income')
+                fits_how = reurb
+                
+        if lot_area != '' and family_income != None:
+            if lot_area <= dict_value['lot_area']:
+                print('Se enquadra na lot_area')
+                fits_how = reurb
+        
+        if how_many_urban_property != '' and family_income != None:
+            if how_many_urban_property == dict_value['how_many_urban_property']:
+                print('Se enquadra na how_many_urban_property')
+                fits_how = reurb
+                
+        if own_rural_property != '' and family_income != None:
+            if own_rural_property == dict_value['own_rural_property']:
+                print('Se enquadra na own_rural_property')
+                fits_how = reurb
+        
+        print('\n\nSe enquadra como: ', fits_how)
+                
+        return fits_how
+        
     
     def _input_event_buttons(self, window, event, value):
 
@@ -755,6 +857,9 @@ class Registration:
             if  resultFields == False:
                 #window[DEFAULT_KEY_PERSONAL_DATA_TABGROUP].select()
                 sg.popup_error('ERRO!\ntodos os campos em vermelho são obrigatorios.\n', keep_on_top=True) 
+                
+                window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(self.if_framing_as(value))
+                
             else:
                 keys_numeric_fields = [DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, DEFAULT_KEY_TEL_PERSONAL_DATA,DEFAULT_KEY_CEL_PERSONAL_DATA,
                                            DEFAULT_KEY_RG_PERSONAL_DATA, DEFAULT_KEY_CPF_PERSONAL_DATA]
@@ -765,7 +870,7 @@ class Registration:
                     
                     register_exist_db = self._conn.query_record(self._conn.register_people, 'cpf', re.sub('[^0-9]', '', value[DEFAULT_KEY_CPF_PERSONAL_DATA]))
                     if register_exist_db != True:
-                        self._id_register_db = self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people)
+                        self._id_register_db = self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._conn.id_to_projects_service)
                     
                         if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
                             self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric) , self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
@@ -780,7 +885,8 @@ class Registration:
                         
                 else: #save edition register
                     register_exist_db = True
-                    self._conn.update_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._id_register_db)
+                                        
+                    self._conn.update_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._id_register_db, self._conn.id_to_projects_service)
                     register_exist = self._conn.query_record(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                     
                     if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
@@ -851,7 +957,7 @@ class Registration:
                 self._class_register.disable_objts(self._class_register.keys_fields_tab(), window, True,True)
                 self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True)
             
-                register_ok = self._loard_records_into_fields(window, self._conn.register_people, self._class_register.keys_fields_tab(), self._conn.id_register_people, self._id_register_db)
+                register_ok = self._loard_records_into_fields(window, self._conn.register_people, self._class_register.keys_fields_tab(), self._conn.id_register_people, self._id_register_db, get_new_id=self._conn.id_to_projects_service)
                 register_spouse_exist = self._conn.query_record(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                 register_residents_exist = self._conn.query_record(self._conn.register_residents, self._conn.name_id_to_table_register, self._id_register_db)
                 
