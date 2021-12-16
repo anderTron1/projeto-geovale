@@ -33,8 +33,8 @@ class Framework_reurb:
                 [sg.T('Valor atual do Salario Minimo:'), sg.Input(size=10, disabled=True, key=DEFAULT_KEY_MINIMUM_WAGE)],
                 [sg.T('Renda familiar inferior a:'), sg.Input(size=10, disabled=True, key=DEFAULT_KEY_FAMILY_INCOME_LESS_THAN)],
                 [sg.T('Possuir lote de até (m²):'), sg.Input(size=10, disabled=True, key=DEFAULT_KEY_OWN_BATCH_OF_UP_TO)],
-                [sg.T('Possuir a quantia de imóveis urbano de:'), sg.Spin(rangeArray(1, 100), disabled=True, key=DEFAULT_KEY_AMOUNT_REAL_ESTATE_URVAN)],
-                [sg.T('Deve possuir imóvel rural?'), sg.Combo([KEY_YES, KEY_NOT], disabled=True, key=DEFAULT_KEY_OWN_RURAL_PROPERTY)],
+                [sg.T('Possuir a quantia de imóveis urbano de:'), sg.Spin(rangeArray(1, 100), disabled=True, key=DEFAULT_KEY_AMOUNT_REAL_ESTATE_URVAN, readonly=True)],
+                [sg.T('Deve possuir imóvel rural?'), sg.Combo([KEY_YES, KEY_NOT], disabled=True, key=DEFAULT_KEY_OWN_RURAL_PROPERTY, readonly=True)],
                 [sg.Radio('REURB-S', group_id='RADIO', disabled=True, key=DEFAULT_KEY_REURB_S), sg.Radio('REURB-E',group_id='RADIO', disabled=True, key=DEFAULT_KEY_REURB_E)],
                 [sg.Button('Editar', key=DEFAULT_KEY_BTN_EDIT_REURB), sg.Button('Salvar', key=DEFAULT_KEY_BTN_SAVE_REURB, disabled=True)]
             ]
@@ -311,6 +311,17 @@ class Project:
         window.Element(DEFAULT_KEY_BTN_DEL_PROJECT).update(disabled=btn_del)
         window.Element(DEFAULT_KEY_BTN_CANCEL_PROJECT).update(disabled=btn_cancel)
         
+    def __id_is_being_used(self, window):
+        name_db_register_people = self.__conn_db_to_project.register_people
+        name_id_register_people = self.__conn_db_to_project.id_register_people
+        
+        index_list_ID = 0
+        index = window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0]
+        datas = window.Element(DEFAULT_KEY_TABLE_SETTINGS).Values 
+        print('IDA: ', datas[index][index_list_ID])
+        
+        return self.__conn_db_to_project.query_record(name_db_register_people, name_id_register_people, datas[index][index_list_ID])
+        
     def event_btns_project(self,window, event, value):
         if event == DEFAULT_KEY_BTN_NEW_PROJECT:
             self.disabled_fields_project(window,False, clear_field=True)
@@ -344,15 +355,19 @@ class Project:
             delete = sg.popup_ok_cancel('Tem certeza que deseja deleta esse registro?')
             indice_id = 0
             if delete == "OK":
-                self.disabled_fields_project(window,True, clear_field=True)
-                self.__disabled_btns_project(window, btn_new=False, btn_edit=True, btn_save=True, btn_del=True, btn_cancel=True)
-                id = window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()[0]
-                rows = window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0]
                 
-                dadosDel = window.Element(DEFAULT_KEY_TABLE_SETTINGS).Values[int(rows)]
-                
-                self.delete_register(window,int(id))
-                self.delete_register_db(int(dadosDel[indice_id]))
+                if self.__id_is_being_used(window):
+                    self.disabled_fields_project(window,True, clear_field=True)
+                    self.__disabled_btns_project(window, btn_new=False, btn_edit=True, btn_save=True, btn_del=True, btn_cancel=True)
+                    id = window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()[0]
+                    rows = window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0]
+                    
+                    dadosDel = window.Element(DEFAULT_KEY_TABLE_SETTINGS).Values[int(rows)]
+                    
+                    self.delete_register(window,int(id))
+                    self.delete_register_db(int(dadosDel[indice_id]))
+                else:
+                    sg.popup_error('ERRO!\n O registro não pode ser deletado, porque existem registros na base de dados cliente cadastrados com este ID!')
         
         if event == DEFAULT_KEY_BTN_CANCEL_PROJECT:
             self.disabled_fields_project(window,True, clear_field=True)
@@ -365,7 +380,7 @@ class Project:
             if len(window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()):
                 self.disabled_fields_project(window,True, clear_field=True)
                 self.__disabled_btns_project(window, btn_new=True, btn_edit=False, btn_save=True, btn_del=False, btn_cancel=False)
-        
+                        
 class Settings(Framework_reurb, Project):
     def __init__(self, database):
         self.__conn = database

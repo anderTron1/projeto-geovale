@@ -39,8 +39,10 @@ def update_docx(name, dict_sub):
         
         
 nomes = {'ACADÊMICO': 'to nem ai', 'serem': 'ja foram', '27':'12345'}
-#update_docx('testttt.dss', nomes)
+update_docx('testttt.dss', nomes)
 
+
+'''
 import os
 
 newPath = 'image1'
@@ -52,4 +54,4 @@ else:
     print('Existe')
 
 for root, dirs, files in os.walk('imported_documents', topdown=True):
-    print(files)
+    print(files)'''

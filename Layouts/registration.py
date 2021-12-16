@@ -105,17 +105,17 @@ class register_personal_data:
         
         spouse_frame = [
             [sg.T('Nome:',size=(5)), sg.Input(size=(60,1), key=DEFAULT_KEY_NAME_SPOUSE)],
-            [sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_SPOUSE),
-             sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), key=DEFAULT_KEY_BIRTHDATE_SPOUSE), sg.Text('Idade'), sg.Spin(rangeArray(1, 120), initial_value='', key=DEFAULT_KEY_AGE_SPOUSE),
+            [sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_SPOUSE, readonly=True),
+             sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), key=DEFAULT_KEY_BIRTHDATE_SPOUSE), sg.Text('Idade'), sg.Spin(rangeArray(1, 120), initial_value='', key=DEFAULT_KEY_AGE_SPOUSE, readonly=True),
              sg.T('Naturalidade:'), sg.Input(size=(20,1), key=DEFAULT_KEY_NATURALNESS_SPOUSE)],
             [sg.T('Tel.:', size=(10, 1)), sg.Input(size=(20,1), key=DEFAULT_KEY_TEL_SPOUSE), 
              sg.T('Cel.:'), sg.Input(size=(20,1),  key=DEFAULT_KEY_CEL_SPOUSE)],
             [sg.T('RG:', size=(10, 1)), sg.Input(size=(15,1),  key=DEFAULT_KEY_RG_SPOUSE), sg.T('órgão Emissor:'), sg.Input(size=(5,1), key=DEFAULT_KEY_ISSUING_BODY_SPOUSE), 
              sg.T('CPF:',), sg.Input(size=(15,1), key=DEFAULT_KEY_CPF_SPOUSE),
-             sg.T('CNH'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_SPOUSE)],
+             sg.T('CNH'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_SPOUSE, readonly=True)],
             [sg.T('Titulo de Eleitor:', size=(18)), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
             [sg.T('Escolaridade:', size=(18)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
-                                             'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE)]   
+                                             'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE, readonly=True)]   
             ]
         
         batch_to_be_regularized = [
@@ -125,9 +125,9 @@ class register_personal_data:
         ]
         personal_data_tab = [
             [sg.Text('Nome:',size=(5)), sg.Input(size=(60,1), disabled=True, key=DEFAULT_KEY_NOME_PERSONAL_DATA),
-             sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_PERSONAL_DATA),
+             sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_PERSONAL_DATA, readonly=True),
              sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), disabled=True, key=DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA)], 
-            [sg.Text('Idade',size=(5)), sg.Spin(rangeArray(1, 120),initial_value='', disabled=True, key=DEFAULT_KEY_AGE_PERSONAL_DATA),
+            [sg.Text('Idade',size=(5)), sg.Spin(rangeArray(1, 120),initial_value='', disabled=True, key=DEFAULT_KEY_AGE_PERSONAL_DATA, readonly=True),
              sg.Text('Naturalidade'), sg.Input(size=(30,1), disabled=True,key=DEFAULT_KEY_NATURALNESS_PERSONAL_DATA), sg.Text('UF:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_UF_PERSONAL_DATA)],
             [sg.Text('Tel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_TEL_PERSONAL_DATA), 
              sg.Text('Cel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_CEL_PERSONAL_DATA)],
@@ -137,11 +137,11 @@ class register_personal_data:
              sg.Text('Bairro:'), sg.Input(size=(40,1), disabled=True,key=DEFAULT_KEY_DISTRICT_PERSONAL_DATA), sg.Text('Nº:'), sg.Input(size=(5,), disabled=True, key=DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA)],
             [sg.Text('RG:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_RG_PERSONAL_DATA), sg.Text('Órgão Emissor:'), sg.Input(size=(5,1), disabled=True, key=DEFAULT_KEY_ISSUING_BODY_PERSONAL_DATA), 
              sg.Text('CPF:', size=(10)), sg.Input(size=(15,1), disabled=True,key=DEFAULT_KEY_CPF_PERSONAL_DATA),
-             sg.Text('CNH:', size=(10)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_PERSONAL_DATA)], 
+             sg.Text('CNH:', size=(10)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_PERSONAL_DATA, readonly=True)], 
             [sg.Text('Titulo de Eleitor:'), sg.Input(size=(20,1), disabled=True, key=DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA),
-             sg.T('Considera-se'),sg.Combo(['Branco','Negro', 'Pardo', 'Amarelo', 'Indígena'], key=DEFAULT_KEY_CONSIDER_PERSONAL_DATA), sg.T('Estado Civil:'), 
-             sg.Combo(listEstadoCivil, key=DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA)],
-            [sg.T('Escolaridade', size=(18)), sg.Combo(schooling_list, key=DEFAULT_KEY_SCHOOLING_PERSONAL_DATA)],
+             sg.T('Considera-se'),sg.Combo(['Branco','Negro', 'Pardo', 'Amarelo', 'Indígena'], key=DEFAULT_KEY_CONSIDER_PERSONAL_DATA, readonly=True), sg.T('Estado Civil:'), 
+             sg.Combo(listEstadoCivil, key=DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA, readonly=True)],
+            [sg.T('Escolaridade', size=(18)), sg.Combo(schooling_list, key=DEFAULT_KEY_SCHOOLING_PERSONAL_DATA, readonly=True)],
             [sg.Frame('Dados do Cônjuge', spouse_frame)],
             [sg.Frame('Lote a regularizar', batch_to_be_regularized)]
             ]
@@ -154,50 +154,50 @@ class register_personal_data:
             ]
 
         frameCondImoveis = [
-            [sg.T('Tem outro dono?', size=(32)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_ONLY_OWNER), sg.T('Nome do outro Dono:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_OWNER)],
+            [sg.T('Tem outro dono?', size=(32)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_ONLY_OWNER, readonly=True), sg.T('Nome do outro Dono:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_OWNER)],
             [sg.T('A quanto tempo spossui o Imóvel?'), sg.Input(size=(15,1), disabled=True,  key=DEFAULT_KEY_TXT_STILL_TIME)],
-            [sg.T('Possui Outro Imóvel Urbano?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY), sg.T('Quantos?'), 
-             sg.Spin(rangeArray(1, 11), disabled=True,  key=DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY, initial_value=('')), sg.T('Onde?'), sg.Input(size=(20,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE)],
-            [sg.T('Tem Edificação no Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC), sg.T('Utiliza o imóvel para:'), 
-             sg.Combo(['Moradia', 'Comércio'], key=DEFAULT_KEY_PROPERTY_USED_FOR)],
+            [sg.T('Possui Outro Imóvel Urbano?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY, readonly=True), sg.T('Quantos?'), 
+             sg.Spin(rangeArray(1, 11), disabled=True,  key=DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY, initial_value=(''), readonly=True), sg.T('Onde?'), sg.Input(size=(20,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE)],
+            [sg.T('Tem Edificação no Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC, readonly=True), sg.T('Utiliza o imóvel para:'), 
+             sg.Combo(['Moradia', 'Comércio'], key=DEFAULT_KEY_PROPERTY_USED_FOR, readonly=True)],
             [sg.Frame('Confrontantes do imóvel, Vizinhos, Nº:', frameConfImovel)],
             
-            [sg.T('Tipo do Imóvel:', size=(25)), sg.Combo(['Casa', 'Sobrado', 'Apartamento', 'Ponto de comércio'], key=DEFAULT_KEY_COMB_TYPE), 
-             sg.T('É murado?', size=(11)), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY_COMB_IS_WALLED),
-             sg.T('Posição no lote:'), sg.Combo(['Frente', 'Fundos', 'Centro'],  key=DEFAULT_KEY_COMB_BATCH_POSITION)], 
-            [sg.T('Estado das edificações:', size=(25)), sg.Combo(['Muito bom', 'Bom', 'Regular', 'Ruim', 'Péssimo'],  key=DEFAULT_KEY_COMB_STATE_BUILDINGS),
-             sg.T('Tipo de construção:', size=(19)), sg.Combo(['Alvenaria', 'Madeira', 'Estuque', 'Mista', 'Outros'], key=DEFAULT_KEY_COMB_BUILDING_TYPE)], 
-            [sg.T('Tem Acabamento?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_IS_BEDRIDDEN),
-             sg.T('Numero de pavimentos?', size=(25)), sg.Spin(rangeArray(1, 11), initial_value='', disabled=True, key=DEFAULT_KEY_NUMB_FLOORS),
-             sg.T('Cômodos?'),sg.Spin(rangeArray(1, 11),  initial_value='', disabled=True, key=DEFAULT_KEY_ROOMS),sg.T('e Banheiros?'), sg.Spin(rangeArray(1, 11), initial_value='', disabled=True, key=DEFAULT_KEY_BATHROOMS)]
+            [sg.T('Tipo do Imóvel:', size=(25)), sg.Combo(['Casa', 'Sobrado', 'Apartamento', 'Ponto de comércio'], key=DEFAULT_KEY_COMB_TYPE, readonly=True), 
+             sg.T('É murado?', size=(11)), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY_COMB_IS_WALLED, readonly=True),
+             sg.T('Posição no lote:'), sg.Combo(['Frente', 'Fundos', 'Centro'],  key=DEFAULT_KEY_COMB_BATCH_POSITION, readonly=True)], 
+            [sg.T('Estado das edificações:', size=(25)), sg.Combo(['Muito bom', 'Bom', 'Regular', 'Ruim', 'Péssimo'],  key=DEFAULT_KEY_COMB_STATE_BUILDINGS, readonly=True),
+             sg.T('Tipo de construção:', size=(19)), sg.Combo(['Alvenaria', 'Madeira', 'Estuque', 'Mista', 'Outros'], key=DEFAULT_KEY_COMB_BUILDING_TYPE, readonly=True)], 
+            [sg.T('Tem Acabamento?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_IS_BEDRIDDEN, readonly=True),
+             sg.T('Numero de pavimentos?', size=(25)), sg.Spin(rangeArray(1, 11), initial_value='', disabled=True, key=DEFAULT_KEY_NUMB_FLOORS, readonly=True),
+             sg.T('Cômodos?'),sg.Spin(rangeArray(1, 11),  initial_value='', disabled=True, key=DEFAULT_KEY_ROOMS, readonly=True),sg.T('e Banheiros?'), sg.Spin(rangeArray(1, 11), initial_value='', disabled=True, key=DEFAULT_KEY_BATHROOMS, readonly=True)]
             ]
 
         tab_other_infor = [
-            [sg.T('Trabalha?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_WORKS),sg.T('Onde:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_INP_WHERE),
-             sg.T('Profissão:'), sg.Input(size=(25,1), disabled=True,   key=DEFAULT_KEY_TXT_PROFESSION), sg.T('É aposentado?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_RETIREE)],
-            [sg.T('Beneficiário de algum programa social?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_BENEF_CAMB_SOCI_PROG),
-             sg.T('Renda:'), sg.Combo(['Até 1 Salário Mínimo', 'De 1 a 3 Salários mínimos', 'De 3 a 5 Salários Mínimos', 'Mais de 5 Salários mínimos'],  key=DEFAULT_KEY_INCOME_COMB_INCOME),
-             sg.T('Tem Filhos?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_CHILDREM), 
-             sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,20)), disabled=True, key=DEFAULT_KEY_HOW_MANY_CHILDREM, initial_value=(''))],
-            [sg.T('Mora Algum deficiente ou idoso?', size=(38)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY), 
-             sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,10)), disabled=True,  key=DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY, initial_value='')],
-            [sg.T('Possui imóvel rural?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY)],
+            [sg.T('Trabalha?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_WORKS, readonly=True),sg.T('Onde:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_INP_WHERE),
+             sg.T('Profissão:'), sg.Input(size=(25,1), disabled=True,   key=DEFAULT_KEY_TXT_PROFESSION), sg.T('É aposentado?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_RETIREE, readonly=True)],
+            [sg.T('Beneficiário de algum programa social?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_BENEF_CAMB_SOCI_PROG, readonly=True),
+             sg.T('Renda:'), sg.Combo(['Até 1 Salário Mínimo', 'De 1 a 3 Salários mínimos', 'De 3 a 5 Salários Mínimos', 'Mais de 5 Salários mínimos'],  key=DEFAULT_KEY_INCOME_COMB_INCOME, readonly=True),
+             sg.T('Tem Filhos?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_CHILDREM, readonly=True), 
+             sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,20)), disabled=True, key=DEFAULT_KEY_HOW_MANY_CHILDREM, initial_value=(''), readonly=True)],
+            [sg.T('Mora Algum deficiente ou idoso?', size=(38)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY, readonly=True), 
+             sg.T('Quantos?'), sg.Spin(values=(rangeArray(1,10)), disabled=True,  key=DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY, initial_value='', readonly=True)],
+            [sg.T('Possui imóvel rural?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY, readonly=True)],
             [sg.HorizontalSeparator()],
             
-            [sg.T('Possui Automóvel?', size=(30)), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY__COMB_OWNS_CAR), sg.T('Quantas?'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_OWNS_CAR_HOW_MANY, initial_value=('')),
-             sg.T('Possui Motos?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY__COMB_HAS_MOTORCICLE), sg.T('Quantas?'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY, initial_value=(''))],
+            [sg.T('Possui Automóvel?', size=(30)), sg.Combo([KEY_YES, KEY_NOT],   key=DEFAULT_KEY__COMB_OWNS_CAR, readonly=True), sg.T('Quantas?'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_OWNS_CAR_HOW_MANY, initial_value=(''), readonly=True),
+             sg.T('Possui Motos?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY__COMB_HAS_MOTORCICLE, readonly=True), sg.T('Quantas?'),sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY, initial_value=(''), readonly=True)],
             
-            [sg.T('Tem Geladeira em casa?', size=(30)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_FRIDGE), sg.T('Quantas?'), 
-             sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_HAVE_FRIDGE_HOW_MANY, initial_value=('')),
-             sg.T('Tem Televisão em casa?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_TELEVI), sg.T('Quantas?'), 
-             sg.Spin(rangeArray(1, 11), disabled=True, key=DEFAULT_KEY_HAVE_TELEVI_HOW_MANY, initial_value=(''))],
-            [sg.T('Tem Computador em casa?', size=(30)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_COMPUTER), sg.T('Quantos?'), 
-             sg.Spin(rangeArray(1, 11), disabled=True, key=DEFAULT_KEY_HAVE_COMPUTER_HOW_MANY, initial_value=('')),
-             sg.T('Tem acesso a internet?', size=(25)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_INTERNET)],
-            [sg.T('Tem acesso a Energia Elétrica?', size=(30)), sg.Combo(['Sim', 'Não'],  key=DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI),
-             sg.T('Tem acesso a Água Encanada?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER)],
+            [sg.T('Tem Geladeira em casa?', size=(30)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_FRIDGE, readonly=True), sg.T('Quantas?'), 
+             sg.Spin(rangeArray(1,11), disabled=True,  key=DEFAULT_KEY_HAVE_FRIDGE_HOW_MANY, initial_value=(''), readonly=True),
+             sg.T('Tem Televisão em casa?', size=(25)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_TELEVI, readonly=True), sg.T('Quantas?'), 
+             sg.Spin(rangeArray(1, 11), disabled=True, key=DEFAULT_KEY_HAVE_TELEVI_HOW_MANY, initial_value=(''), readonly=True)],
+            [sg.T('Tem Computador em casa?', size=(30)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB__HAVE_COMPUTER, readonly=True), sg.T('Quantos?'), 
+             sg.Spin(rangeArray(1, 11), disabled=True, key=DEFAULT_KEY_HAVE_COMPUTER_HOW_MANY, initial_value=(''), readonly=True),
+             sg.T('Tem acesso a internet?', size=(25)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_INTERNET, readonly=True)],
+            [sg.T('Tem acesso a Energia Elétrica?', size=(30)), sg.Combo(['Sim', 'Não'],  key=DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI, readonly=True),
+             sg.T('Tem acesso a Água Encanada?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER, readonly=True)],
             [sg.Frame('Condições do Imóvel', frameCondImoveis)],
-            [sg.T('Projetos/serviços'), sg.Combo(self.list_datas_projetcs[:,1].tolist(), key=DEFAULT_KEY_PROJECT_SERVICES)]
+            [sg.T('Projetos/serviços'), sg.Combo(self.list_datas_projetcs[:,1].tolist(), key=DEFAULT_KEY_PROJECT_SERVICES, readonly=True)]
             ]
         
         
@@ -207,9 +207,9 @@ class register_personal_data:
             [sg.Frame('Informações', [
                 [sg.T('ID:', size=(15,1)), sg.Input(size=(20,1), key=DEFAULT_KEY_INPUT_ID_REGIST_RESID, disabled=True)],
                 [sg.T('Nome:', size=(15,1)), sg.Input(size=(25,1), disabled=True, key=DEFAULT_KEY_TXT_NOME_REGIST_RESID)],
-                [sg.T('Parentesco',size=(15,1)), sg.Spin(rangeArray(1, 120), disabled=True,initial_value='', key=DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID), sg.T('Sexo'), 
-                 sg.Combo(['M', 'F'], disabled=True, key=DEFAULT_KEY_COMB_SEX_REGIST_RESID)],
-                [sg.T('Estado Civil:', size=(15,1)),sg.Combo(['Casado', 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo'], disabled=True,  key=DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID)],
+                [sg.T('Parentesco',size=(15,1)), sg.Spin(rangeArray(1, 120), disabled=True,initial_value='', key=DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID, readonly=True), sg.T('Sexo'), 
+                 sg.Combo(['M', 'F'], disabled=True, key=DEFAULT_KEY_COMB_SEX_REGIST_RESID, readonly=True)],
+                [sg.T('Estado Civil:', size=(15,1)),sg.Combo(['Casado', 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo'], disabled=True,  key=DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID, readonly=True)],
                 [sg.T('Ocupação:', size=(15,1)), sg.Input(size=(20,1),disabled=True, key=DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID), sg.T('Renda:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_TXT_INCOME_REGIST_RESID)],
                 [sg.Button('Novo', disabled=True, key=DEFAULT_KEY_BTN_NEW_REGIST_RESID), sg.Button('Cancelar', disabled=True, key=DEFAULT_KEY_BTN_CANCEL_REGIST_RESID),
                  sg.T(' '*5), sg.Button('Salvar', disabled=True, key=DEFAULT_KEY_BTN_SAVE_REGIST_RESID), 
@@ -316,8 +316,35 @@ class register_personal_data:
                                 
         elif  window.Element(DEFAULT_KEY_NAME_SPOUSE).TKEntry['state'] == 'normal':
             self.disable_objts(keys,window, True)
-
-    def _change_fields_color(self, window, key, color):
+   
+    '''
+    get the data from the fields of the layouts
+    valuer         = inform variable of own PySimpleGui generated by windows
+    key            = inform layout keys
+    keys_numeric   = all keys here will be formatted to leave only the numbers
+    '''
+    def get_key_values(self, valuer, keys, keys_numeric):
+        register = []
+        for key in keys:
+            if valuer[key] == '':
+                register.append(None)
+            else:
+                
+                '''key_found = False
+                for key_number in keys_numeric:
+                    if key == key_number:
+                        num = re.sub('[^0-9]', '', valuer[key])
+                        register.append(num)
+                        key_found = True
+                        break'''
+                register.append(valuer[key])
+                   
+                if key == DEFAULT_KEY_PROJECT_SERVICES:
+                        register.append(self.projetcs.get_id(valuer[key]))
+        
+        return register
+            
+    '''def _change_fields_color(self, window, key, color):
         if window.Element(key).Type == 'input':
             window.Element(key).TKEntry.configure(background=color)
                     
@@ -336,36 +363,6 @@ class register_personal_data:
                 
             window.Element(key).Widget.configure(style='TCombobox')
     
-    '''
-    get the data from the fields of the layouts
-    valuer         = inform variable of own PySimpleGui generated by windows
-    key            = inform layout keys
-    keys_numeric   = all keys here will be formatted to leave only the numbers
-    '''
-    def get_key_values(self, valuer, keys, keys_numeric):
-        register = []
-        for key in keys:
-            if valuer[key] == '':
-                register.append(None)
-            else:
-                
-                key_found = False
-                for key_number in keys_numeric:
-                    if key == key_number:
-                        num = re.sub('[^0-9]', '', valuer[key])
-                        register.append(num)
-                        key_found = True
-                        break
-                    
-                if key_found == False:
-                    
-                    if key == DEFAULT_KEY_PROJECT_SERVICES:
-                        register.append(self.projetcs.get_id(valuer[key]))
-                    else:    
-                        register.append(valuer[key])
-        
-        return register
-            
     def required_fields(self,window,event, velue):
         filled_fields = True        
         key_to_check = [DEFAULT_KEY_NOME_PERSONAL_DATA,           DEFAULT_KEY_SEX_PERSONAL_DATA,
@@ -435,6 +432,7 @@ class register_personal_data:
                     self._change_fields_color(window, key_check, "white")
                     
         return filled_fields
+    '''
     
     def event_other_infor(self,window,value):
         dict_key_Comb = {
@@ -755,19 +753,19 @@ class Registration:
         name_db = self._conn.basic_settings
         id_db = self._conn.id_basic_settings
         
+        family_income = None
+        lot_area = None
+        how_many_urban_property = None
+        own_rural_property = None
+        
         family_income = value[DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID].replace('R$: ', '')
-        print(family_income)
         if family_income != '':
             family_income = float(family_income.replace(',', '.'))
-        lot_area = float(value[DEFAULT_KEY_BATCH_REGU_AREA])
-        how_many_urban_property = int(value[DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY])
+        if value[DEFAULT_KEY_BATCH_REGU_AREA] != '':
+            lot_area = float(value[DEFAULT_KEY_BATCH_REGU_AREA])
+        if value[DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY] != '':
+            how_many_urban_property = int(value[DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY])
         own_rural_property = value[DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY]
-        
-        print('\nteste nos valores das compos de cadastros:')
-        print("family_income: ", family_income)
-        print("lot_area: ", lot_area)
-        print("how_many_urban_property: ", how_many_urban_property)
-        print("own_rural_property: ", own_rural_property)
         
         '''
         values database
@@ -782,35 +780,30 @@ class Registration:
         for cont in range(len(keys)):
             dict_value[keys[cont]] = database[cont]
             
-        print('\nDados do database:')
-        print(dict_value)
         
-        reurb = dict_value['REURB']  if dict_value['REURB'] == 'REURB-S' else 'REURB-E'
-        fits_how = None
+        reurb = 'REURB-S'  if dict_value['REURB'] == 'REURB-S' else 'REURB-E'
+        fits_how = ''
         
         if family_income != '' and family_income != None:
             family_income = family_income / dict_value['minimum_wage']
             if family_income < dict_value['family_income']:
-                print('Se enquadra na family_income')
                 fits_how = reurb
                 
-        if lot_area != '' and family_income != None:
+        if lot_area != '' and lot_area != None:
             if lot_area <= dict_value['lot_area']:
-                print('Se enquadra na lot_area')
                 fits_how = reurb
         
-        if how_many_urban_property != '' and family_income != None:
+        if how_many_urban_property != '' and how_many_urban_property != None:
             if how_many_urban_property == dict_value['how_many_urban_property']:
-                print('Se enquadra na how_many_urban_property')
                 fits_how = reurb
                 
-        if own_rural_property != '' and family_income != None:
+        if own_rural_property != '' and own_rural_property != None:
             if own_rural_property == dict_value['own_rural_property']:
-                print('Se enquadra na own_rural_property')
                 fits_how = reurb
-        
-        print('\n\nSe enquadra como: ', fits_how)
                 
+        if fits_how == '':
+            fits_how = 'REURB-E' if reurb == 'REURB-S' else 'REURB-S'
+                        
         return fits_how
         
     
@@ -844,83 +837,104 @@ class Registration:
             for item in window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children():
                 window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.delete(item)
                 
-            for key in self._class_register.keys_fields_tab():
-                self._class_register._change_fields_color(window, key, "white")
+            #for key in self._class_register.keys_fields_tab():
+            #   self._class_register._change_fields_color(window, key, "white")
                 
             self._class_register.disable_objts(self._class_register.keys_fields_tab(), window, True,False)
             self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True, False)
             
         elif event == DEFAULT_KEY_BTN_SAVE:
-            resultFields = self._class_register.required_fields(window, event,value)
-            
-            
+            '''resultFields = self._class_register.required_fields(window, event,value)
+                        
             if  resultFields == False:
                 #window[DEFAULT_KEY_PERSONAL_DATA_TABGROUP].select()
                 sg.popup_error('ERRO!\ntodos os campos em vermelho são obrigatorios.\n', keep_on_top=True) 
                 
-                window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(self.if_framing_as(value))
-                
             else:
-                keys_numeric_fields = [DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, DEFAULT_KEY_TEL_PERSONAL_DATA,DEFAULT_KEY_CEL_PERSONAL_DATA,
-                                           DEFAULT_KEY_RG_PERSONAL_DATA, DEFAULT_KEY_CPF_PERSONAL_DATA]
-                keys_numeric = [DEFAULT_KEY_BIRTHDATE_SPOUSE, DEFAULT_KEY_CEL_SPOUSE,DEFAULT_KEY_TEL_SPOUSE, DEFAULT_KEY_RG_SPOUSE,DEFAULT_KEY_CPF_SPOUSE]
+            '''
+            field_name = value[DEFAULT_KEY_NOME_PERSONAL_DATA]
+            field_cpf = value[DEFAULT_KEY_CPF_PERSONAL_DATA]
+            
+            if field_name != '' and field_cpf != '':
+                keys_numeric_fields = [DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, DEFAULT_KEY_TEL_PERSONAL_DATA, DEFAULT_KEY_CEL_PERSONAL_DATA,
+                                       DEFAULT_KEY_RG_PERSONAL_DATA, DEFAULT_KEY_CPF_PERSONAL_DATA]
+                keys_numeric = [DEFAULT_KEY_BIRTHDATE_SPOUSE, DEFAULT_KEY_CEL_SPOUSE, DEFAULT_KEY_TEL_SPOUSE, DEFAULT_KEY_RG_SPOUSE, DEFAULT_KEY_CPF_SPOUSE]
                 register_exist_db = False
-                
-                if self._btn_edit_clicked == False: #Save register
-                    
-                    register_exist_db = self._conn.query_record(self._conn.register_people, 'cpf', re.sub('[^0-9]', '', value[DEFAULT_KEY_CPF_PERSONAL_DATA]))
+                change_events_fields  = False
+                window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(self.if_framing_as(value))
+    
+                if self._btn_edit_clicked == False:  # Save register
+
+                    register_exist_db = self._conn.query_record(self._conn.register_people, 'cpf', re.sub(
+                        '[^0-9]', '', value[DEFAULT_KEY_CPF_PERSONAL_DATA]))
                     if register_exist_db != True:
-                        self._id_register_db = self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._conn.id_to_projects_service)
-                    
+                        self._id_register_db = self._conn.insert_register(self._class_register.get_key_values(value, self._class_register.keys_fields_tab(
+                        ), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._conn.id_to_projects_service)
+
                         if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
-                            self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric) , self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
-                        
+                            self._conn.insert_register(self._class_register.get_key_values(value, self._class_register.keys_fields_spouse(
+                            ), keys_numeric), self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
+
                         if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
-                            datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
-                            
+                            datas = window.Element(
+                                DEFAULT_KEY_TABLE_RESIDENTS).Values
+
                             for register in datas:
-                                self._conn.insert_register(register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
+                                self._conn.insert_register(
+                                    register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
                     else:
-                        sg.popup('ERRO!\n  cadastro do titular do CPF: {0} já existente na base de dados.'.format(value[DEFAULT_KEY_CPF_PERSONAL_DATA]), keep_on_top=True)
-                        
-                else: #save edition register
-                    register_exist_db = True
-                                        
-                    self._conn.update_register(self._class_register.get_key_values(value,self._class_register.keys_fields_tab(), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._id_register_db, self._conn.id_to_projects_service)
-                    register_exist = self._conn.query_record(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
-                    
+                        sg.popup('ERRO!\n  cadastro do titular do CPF: {0} já existente na base de dados.'.format(
+                            value[DEFAULT_KEY_CPF_PERSONAL_DATA]), keep_on_top=True)
+
+                else:  # save edition register
+                    change_events_fields = True
+
+                    self._conn.update_register(self._class_register.get_key_values(value, self._class_register.keys_fields_tab(
+                    ), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._id_register_db, self._conn.id_to_projects_service)
+                    register_exist = self._conn.query_record(
+                        self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
+
                     if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
                         if register_exist:
-                            self._conn.update_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric), self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
+                            self._conn.update_register(self._class_register.get_key_values(value, self._class_register.keys_fields_spouse(
+                            ), keys_numeric), self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                         else:
-                            self._conn.insert_register(self._class_register.get_key_values(value,self._class_register.keys_fields_spouse(), keys_numeric) , self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
+                            self._conn.insert_register(self._class_register.get_key_values(value, self._class_register.keys_fields_spouse(
+                            ), keys_numeric), self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
 
-                        
                     if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
                         #when a new record is inserted into the table
-                        if (len(self._class_register.datas_register_residents_new)) > 0: 
+                        if (len(self._class_register.datas_register_residents_new)) > 0:
                             for register in self._class_register.datas_register_residents_new:
-                                self._conn.insert_register(register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
+                                self._conn.insert_register(
+                                    register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
                             self._class_register.datas_register_residents_new = []
-                            
+
                         #when a record is edited, it will save only the record that was edited.
                         if(len(self._class_register.datas_register_residents_edit)) > 0:
-                            
+
                             for register in self._class_register.datas_register_residents_edit:
                                 index_column_name_table = 1
                                 index_column_income_table = 7
-                                self._conn.update_register(register[index_column_name_table:index_column_income_table], self._conn.register_residents, self._conn.id_register_residents, register[0:1][0])
+                                self._conn.update_register(register[index_column_name_table:index_column_income_table],
+                                                           self._conn.register_residents, self._conn.id_register_residents, register[0:1][0])
                             self._class_register.datas_register_residents_edit = []
-                                
-                if register_exist_db == True:
-                    self._class_register.disable_objts(self._class_register.keys_fields_tab(), window, True,False)
-                    self._class_register.disable_objts(self._class_register.keys_fields_spouse(), window, True, False)
-                    
-                    self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
+
+                if register_exist_db != True or change_events_fields:
+                    self._class_register.disable_objts(
+                        self._class_register.keys_fields_tab(), window, True, False)
+                    self._class_register.disable_objts(
+                        self._class_register.keys_fields_spouse(), window, True, False)
+
+                    self._activate_registration_buttons(
+                        window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
                     self._activate_search_buttons(window, buttons=False)
                     #event buttons registration residents
-                    self._class_register.event_buttons_residents(window, False, True, True, True, False)
-            
+                    self._class_register.event_buttons_residents(
+                        window, False, True, True, True, False)
+            else:
+                sg.popup_error('ERRO!\nCampos Nome e CPF dos dados pessoais são obrigatorios!', keep_on_top=True)
+
         elif event == DEFAULT_KEY_BTN_EDIT:
             self._btn_edit_clicked = True
             self._class_register.disable_objts(self._class_register.keys_fields_tab(),window, False,False)

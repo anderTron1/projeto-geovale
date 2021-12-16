@@ -73,7 +73,6 @@ class Import_contract:
             if item[0].find(record_to_select) != -1:
                 return key
         return -1
-        
     
     def layout(self):
         if self.__return_only_the_path != True:
