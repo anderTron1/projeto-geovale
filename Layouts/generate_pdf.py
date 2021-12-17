@@ -133,6 +133,9 @@ class Tags:
         'Banheiros':DEFAULT_KEY_BATHROOMS,
         
         '7':self.space,
+        'COLOCAR NO CABEÇALHO DA TABELA DE CADASTRO DE MORADORES':DEFAULT_KEY_TABLE_RESIDENTS,
+        'Renda Familiar total':DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID,
+        '8':self.space,
         'Projetos/Serviçõs':DEFAULT_KEY_PROJECT_SERVICES,
         'Tipo de Enquadramento (REURB-S/E)':DEFAULT_KEY_TYPE_FRAMEWORK,
         }
@@ -178,7 +181,7 @@ class Generate_pdf:
             pdf = canvas.Canvas(path_file)
             #pdf.setTitle(nome_pdf)
             pdf.setFont("Helvetica-Oblique", 14)
-            pdf.drawString(170,750, 'Lista das tags para colocar nos contratos')
+            pdf.drawString(170,750, 'Lista de tags para')
             pdf.setFont("Helvetica-Bold", 12)
             pdf.drawString(245,724, 'Cadastro Socioeconômico')
             pdf.setFont("Helvetica-Oblique", 12)

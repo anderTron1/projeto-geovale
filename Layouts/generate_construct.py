@@ -26,8 +26,9 @@ DEFAULT_KEY_BTN_CANCEL = '-CANCELAR_INFORMACOES-'
 
 
 class Generate:
-    def __init__(self):
-        super()
+    def __init__(self, name):
+        self.document = Document(name)
+        self.elements = ElementsAdditional()
         
     def lines(self,inline, dict_sub):
         for i in range(len(inline)):
@@ -38,36 +39,61 @@ class Generate:
                     inline[i].text = texto
                     paragr = texto
     
-    def update_docx(self, name, dict_save, save_as, dict_sub):
-        save = True
+    def update_docx(self, name, datas=None, is_table=False):
+
         if name.find('.docx') == -1:
             sg.popup_error('O arquivo não é um formato docx')
         else:
-            document = Document(name)
-            
-            #atualizando paragrafos
-            for paragraph in document.paragraphs:
-                self.lines(paragraph.runs, dict_sub)
+            if is_table==False:
+                #update  paragraph
+                for paragraph in self.document.paragraphs:
+                    self.lines(paragraph.runs, datas)
                 
-            #atualizar tabelas
-            for table in document.tables:
-                for i, line in enumerate(table.rows):
-                    for cell in line.cells:
-                        for paragraph in cell.paragraphs:
-                            self.lines(paragraph.runs, dict_sub)
-            
-            try:
-                document.save(dict_save+'/'+save_as+'.docx')
-            except:
-                save = False
+            if is_table==True:
+                cont = 0
+                size_data = len(datas)
+                icome = 0
+                #update table
+                for table in self.document.tables:
+                    cont_rows = len(datas) / (len(table.columns)-1)
+                    
+                    if table.rows[0].cells[0].text == DEFAULT_KEY_TABLE_RESIDENTS:
+                        table.rows[0].cells[0].text='Cadastro de Moradores'
+                        
+                        if len(table.rows) < cont_rows:
+                            difference = cont_rows - len(table.rows)
+                            
+                            for div in range(difference):
+                                table.add_row().cells
+                        
+                        for line in table.rows:
+                            for cell in line.cells:
+                                if cont == size_data:
+                                    break
+                                if cell.text == '':
+                                    if type(datas[cont]) == float:
+                                        icome += datas[cont]
+                                        cell.text = self.elements.money_validation(str(datas[cont]))
+                                    else:
+                                        cell.text = str(datas[cont])
+                                    cont += 1
+                #update icome table
+                dic_icome = {DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID: self.elements.money_validation(str(icome))}
+                for paragraph in self.document.paragraphs:
+                    self.lines(paragraph.runs, dic_icome)
+                                   
+    def save(self,dict_save, save_as): 
+        save = True
+        try:
+            self.document.save(dict_save+'/'+save_as+'.docx')
+        except:
+            save = False
         return save
+    
+    def close(self):
+        self.document.close()
         
         
-#nomes = {'ACADÊMICO': 'to nem ai', 'serem': 'ja foram', '27':'12345'}
-#update_docx('testttt.dss', nomes)
-
-        
-
 class Generate_contract:
     def __init__(self, conectionDB):
         self._conn = conectionDB
@@ -78,9 +104,7 @@ class Generate_contract:
         
         self._path_contract = None
         self._id_register_db = None
-        
-        self.__generate = Generate()
-        
+
     def layout(self):
         construct_layout = [
                         [sg.T('ID:', size=(5)), sg.Input(size=(10),key=DEFAULT_KEY_INPUT_ID, disabled=True)],
@@ -130,7 +154,7 @@ class Generate_contract:
         window.Element(DEFAULT_KEY_INPUT_CONTRACT).update('')
         window.Element(DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE).update('')
     
-    def keys_fields_tab(self):
+    def keys_fields(self):
         keys = [               
                 #-------------------------KEYS TO personal_data_tab------------------------------
                 DEFAULT_KEY_NOME_PERSONAL_DATA,         DEFAULT_KEY_SEX_PERSONAL_DATA,
@@ -180,24 +204,83 @@ class Generate_contract:
                 DEFAULT_KEY_TYPE_FRAMEWORK]
         return keys
     
+    def key_fields_spouse(self):
+        keys = [
+            DEFAULT_KEY_NAME_SPOUSE,
+            DEFAULT_KEY_SEX_SPOUSE,
+            DEFAULT_KEY_BIRTHDATE_SPOUSE,
+            DEFAULT_KEY_AGE_SPOUSE,
+            DEFAULT_KEY_NATURALNESS_SPOUSE,
+            DEFAULT_KEY_TEL_SPOUSE,
+            DEFAULT_KEY_CEL_SPOUSE,
+            DEFAULT_KEY_RG_SPOUSE,
+            DEFAULT_KEY_ISSUING_BODY_SPOUSE,
+            DEFAULT_KEY_CPF_SPOUSE,
+            DEFAULT_KEY_CNH_SPOUSE,
+            DEFAULT_KEY_VOTER_TITLE_SPOUSE,
+            DEFAULT_KEY_SCHOOLING_SPOUSE,
+            ]
+        return keys
+    
+    
+    def key_fields_residents(self):
+            keys = [
+                DEFAULT_KEY_TXT_NOME_REGIST_RESID,
+                DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID,
+                DEFAULT_KEY_SPIN_AGE,
+                DEFAULT_KEY_COMB_SEX_REGIST_RESID,
+                DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID,
+                DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID,
+                DEFAULT_KEY_TXT_INCOME_REGIST_RESID]
+            return keys
+    
+    def get_db(self, value,keys_fields, name_register, name_id_register, id_register, is_table=False):
+        fileds_and_field_db = self._conn._take_fields_records(name_register, keys_fields)
+        
+        if is_table:
+            values = []
+            register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)
+            if register_db != None:
+                for val_tuple in register_db:
+                    for value in val_tuple:
+                        values.append(value)
+            self.__generate.update_docx(self._path_contract, values, is_table)
+        else:
+            key_value = dict()
+            register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)[0]
+        
+            for cont, key in enumerate(fileds_and_field_db.values()):
+                if register_db[cont] != None:
+                    key_value[key] = register_db[cont]
+            
+                self.__generate.update_docx(self._path_contract, key_value, is_table)
+       
+    
     def get_datas_db(self, value):
+        self.__generate = Generate(self._path_contract)
+        
+        save_in_directory = sg.tk.filedialog.askdirectory(initialdir=os.path.abspath(os.sep))
+        
+        #everyting register client
         name_register = self._conn.register_people
         name_id_register = self._conn.id_register_people
         id_register = int(value[DEFAULT_KEY_INPUT_ID])
-        
-        key_value = dict()
-        
-        fileds_and_field_db = self._conn._take_fields_records(name_register, self.keys_fields_tab())
-        
-        register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)[0]
-        
-        for cont, key in enumerate(fileds_and_field_db.values()):
-            if register_db[cont] != None:
-                key_value[key] = register_db[cont]
 
-        save_in_directory = sg.tk.filedialog.askdirectory(initialdir=os.path.abspath(os.sep))
+        self.get_db(value, self.keys_fields(), name_register, name_id_register, id_register)
         
-        save = self.__generate.update_docx(self._path_contract, save_in_directory, value[DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE], key_value)
+        #everyting register spouse
+        name_spouse = self._conn.register_spouse
+        name_id_to_register = self._conn.name_id_to_table_register
+        
+        self.get_db(value, self.key_fields_spouse(), name_spouse, name_id_to_register, id_register)
+        
+        #everyting register residents
+        name_register_residents = self._conn.register_residents
+        
+        self.get_db(value, self.key_fields_residents(), name_register_residents, name_id_to_register, id_register, is_table=True)
+        
+        save = self.__generate.save(save_in_directory, value[DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE])
+        
         if save:
             sg.popup('Arquivo gerado e salvo com sucesso!', keep_on_top=True)
         

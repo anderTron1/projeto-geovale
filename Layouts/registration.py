@@ -201,14 +201,14 @@ class register_personal_data:
             ]
         
         
-        headings = ['id','Nome:', 'Paren.', 'Sexo', 'Est. Civil', 'Ocupação', 'Renda']
+        headings = ['id','Nome:', 'Paren.', 'Idade', 'Sexo', 'Est. Civil', 'Ocupação', 'Renda']
         table = self.elemAdditional.Table(sg, headings, DEFAULT_KEY_TABLE_RESIDENTS, col_width=12)
         tab_residents = [
             [sg.Frame('Informações', [
                 [sg.T('ID:', size=(15,1)), sg.Input(size=(20,1), key=DEFAULT_KEY_INPUT_ID_REGIST_RESID, disabled=True)],
                 [sg.T('Nome:', size=(15,1)), sg.Input(size=(25,1), disabled=True, key=DEFAULT_KEY_TXT_NOME_REGIST_RESID)],
                 [sg.T('Parentesco',size=(15,1)), sg.Spin(rangeArray(1, 120), disabled=True,initial_value='', key=DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID, readonly=True), sg.T('Sexo'), 
-                 sg.Combo(['M', 'F'], disabled=True, key=DEFAULT_KEY_COMB_SEX_REGIST_RESID, readonly=True)],
+                 sg.Combo(['M', 'F'], disabled=True, key=DEFAULT_KEY_COMB_SEX_REGIST_RESID, readonly=True), sg.T('Idade'), sg.Spin(rangeArray(1, 120), disabled=True,initial_value='', key=DEFAULT_KEY_SPIN_AGE, readonly=True)],
                 [sg.T('Estado Civil:', size=(15,1)),sg.Combo(['Casado', 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo'], disabled=True,  key=DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID, readonly=True)],
                 [sg.T('Ocupação:', size=(15,1)), sg.Input(size=(20,1),disabled=True, key=DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID), sg.T('Renda:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_TXT_INCOME_REGIST_RESID)],
                 [sg.Button('Novo', disabled=True, key=DEFAULT_KEY_BTN_NEW_REGIST_RESID), sg.Button('Cancelar', disabled=True, key=DEFAULT_KEY_BTN_CANCEL_REGIST_RESID),
@@ -295,6 +295,7 @@ class register_personal_data:
         key_to_disable_regist = [DEFAULT_KEY_INPUT_ID_REGIST_RESID,
                                  DEFAULT_KEY_TXT_NOME_REGIST_RESID,
                                          DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID,
+                                         DEFAULT_KEY_SPIN_AGE,
                                          DEFAULT_KEY_COMB_SEX_REGIST_RESID,
                                          DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID,
                                          DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID,
@@ -337,10 +338,12 @@ class register_personal_data:
                         register.append(num)
                         key_found = True
                         break'''
-                register.append(valuer[key])
-                   
+
                 if key == DEFAULT_KEY_PROJECT_SERVICES:
                         register.append(self.projetcs.get_id(valuer[key]))
+                        print(valuer[key])
+                else:
+                    register.append(valuer[key])
         
         return register
             
@@ -479,15 +482,17 @@ class register_personal_data:
             
             window.Element(DEFAULT_KEY_INPUT_ID_REGIST_RESID).update(dados[0])
             window.Element(DEFAULT_KEY_TXT_NOME_REGIST_RESID).update(dados[1])
-            window.Element(DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID).update(dados[5])
-            window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(dados[6])
+            window.Element(DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID).update(dados[6])
+            window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(dados[7])
             
-            select_sex = window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).Values.index(dados[3])
+            select_sex = window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).update(dados[3])
             window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).update(set_to_index=select_sex)
+            
+            window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(dados[4])
             
             window.Element(DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID).update(value=dados[2])
                 
-            select_marital_status = window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).Values.index(dados[4])
+            select_marital_status = window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).update(dados[4])
             window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).update(set_to_index = select_marital_status)
             
     def _edit_table(self, window, value, data, keys, indice_table):
@@ -539,9 +544,10 @@ class register_personal_data:
         if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()) > 0:
             datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
             #update valuer to family income
-            total_income = [sum(float(str(i[6]).replace(',', '.')) for i in datas)][0]
+            print(datas)
+            total_income = [sum(float(str(i[7]).replace(',', '.')) for i in datas)][0]
             
-            income = self.elemAdditional.money_validation(sg,str(total_income))
+            income = self.elemAdditional.money_validation(str(total_income))
             
             window.Element(DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID).update(income)
             return income
@@ -662,7 +668,7 @@ class register_personal_data:
             self._event_have_information(window, result, DEFAULT_KEY_RG_SPOUSE, 'Número de RG incorreto!')
         
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_CPF_SPOUSE):
-            result = elemAdditional.valid_cpf(sg, velue[DEFAULT_KEY_CPF_SPOUSE])
+            result = elemAdditional.valid_cpf(velue[DEFAULT_KEY_CPF_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_CPF_SPOUSE, 'Número de CPF incorreto!')
                 
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_SPOUSE):
@@ -873,15 +879,15 @@ class Registration:
 
                         if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
                             self._conn.insert_register(self._class_register.get_key_values(value, self._class_register.keys_fields_spouse(
-                            ), keys_numeric), self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
+                            ), keys_numeric), self._conn.register_spouse, self._conn.id_register_spouse, insert_id=self._id_register_db)
 
                         if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
                             datas = window.Element(
                                 DEFAULT_KEY_TABLE_RESIDENTS).Values
-
+                            datas = datas[1:]
                             for register in datas:
                                 self._conn.insert_register(
-                                    register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
+                                    register, self._conn.register_residents, self._conn.id_register_residents, insert_id=self._id_register_db)
                     else:
                         sg.popup('ERRO!\n  cadastro do titular do CPF: {0} já existente na base de dados.'.format(
                             value[DEFAULT_KEY_CPF_PERSONAL_DATA]), keep_on_top=True)
@@ -891,23 +897,25 @@ class Registration:
 
                     self._conn.update_register(self._class_register.get_key_values(value, self._class_register.keys_fields_tab(
                     ), keys_numeric_fields), self._conn.register_people, self._conn.id_register_people, self._id_register_db, self._conn.id_to_projects_service)
+                    
                     register_exist = self._conn.query_record(
                         self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
-
+                    
+                    print('id existe: ', register_exist, ' id: ',self._id_register_db)
                     if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
                         if register_exist:
                             self._conn.update_register(self._class_register.get_key_values(value, self._class_register.keys_fields_spouse(
                             ), keys_numeric), self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                         else:
                             self._conn.insert_register(self._class_register.get_key_values(value, self._class_register.keys_fields_spouse(
-                            ), keys_numeric), self._conn.register_spouse, self._conn.id_register_spouse, self._id_register_db)
+                            ), keys_numeric), self._conn.register_spouse, self._conn.id_register_people, insert_id=self._id_register_db)
 
                     if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
                         #when a new record is inserted into the table
                         if (len(self._class_register.datas_register_residents_new)) > 0:
                             for register in self._class_register.datas_register_residents_new:
                                 self._conn.insert_register(
-                                    register, self._conn.register_residents, self._conn.id_register_residents, self._id_register_db)
+                                    register, self._conn.register_residents, self._conn.id_register_residents, insert_id=self._id_register_db)
                             self._class_register.datas_register_residents_new = []
 
                         #when a record is edited, it will save only the record that was edited.
@@ -961,7 +969,7 @@ class Registration:
         if event == DEFAULT_KEY_BTN_SEARCH:
             search = Search_register_person(self._conn)
             self._window_button_search, self._id_register_db = search.window_button_search()
-            
+            print('Procurando id: ',self._id_register_db )
             if self._window_button_search != None or self._id_register_db != None:
                 #event to residents
                 self._class_register.disable_objts(self._class_register.key_to_disable_regist(), window,True,closeValue=True)
@@ -980,7 +988,7 @@ class Registration:
             
                 if register_residents_exist is True:
                     self._loard_records_into_fields(window, self._conn.register_residents, self._class_register.key_to_disable_regist(),  self._conn.name_id_to_table_register, 
-                                                    self._id_register_db, is_table=True, key_table=DEFAULT_KEY_TABLE_RESIDENTS, valuer=value)
+                                                    self._id_register_db, is_table=True, key_table=DEFAULT_KEY_TABLE_RESIDENTS)
                     self._class_register.update_register_txt_income(window)
             
                 if register_ok:

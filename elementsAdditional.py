@@ -35,7 +35,7 @@ class ElementsAdditional:
             return True
         return False
     
-    def money_validation(self,sg, num):
+    def money_validation(self,num):
         nume = re.sub('([^0-9].[^0-9]{1,2})', '', num)
         
         return 'R$: {}'.format(str(round(float(nume), 2)).replace('.', ','))
