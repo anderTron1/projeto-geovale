@@ -112,7 +112,6 @@ class Database:
         
         if id_table == None:
             sql = 'SELECT {0} FROM {1};'.format(', '.join([str(_) for _ in names_columns]), name_table)
-            print(sql)
         else:
             sql = 'SELECT {0} FROM {1} WHERE {2} = {3};'.format(', '.join([str(_) for _ in names_columns]), name_table, name_id_table, id_table)
 
