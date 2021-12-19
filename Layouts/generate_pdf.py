@@ -74,6 +74,7 @@ class Tags:
         'CNH Conjuge':DEFAULT_KEY_CNH_SPOUSE,
         'Titulo de eleitor Conjuge':DEFAULT_KEY_VOTER_TITLE_SPOUSE,
         'Escolaridade Conjuge':DEFAULT_KEY_SCHOOLING_SPOUSE,
+        'Regime de União':DEFAULT_KEY_UNION_REGIME,
         
         #-------------------------KEY to tab other_information----------------------
         '4':self.space,
@@ -190,7 +191,6 @@ class Generate_pdf:
             for key,value in list_tags.items():
                 x -= 20
                 if x <= 80:
-                    print('X: ', x)
                     pdf.showPage()
                     x = 720
                 
@@ -198,7 +198,6 @@ class Generate_pdf:
                     pdf.drawString(40,x, ' ')
                 else:
                     pdf.drawString(40,x, '{} : {}'.format(key,value))
-                print('valor de x: ', x)
                 
             
             pdf.save()
@@ -231,7 +230,7 @@ class Generate_pdf:
             window.Element(DEFAULT_KEY_BTN_EXPORT_FILE).update(disabled=False)               
                 
     def exec_class(self):
-        window = sg.Window('PDF para tags', self.layout(), icon=r'image/iconLogo.ico')
+        window = sg.Window('PDF para tags', self.layout(), icon=r'image/iconLogo.ico', modal=True)
             
         while(True):
             event, value = window.read(timeout=100)
@@ -242,10 +241,3 @@ class Generate_pdf:
             self.event_elements(window, event, value) 
             
         window.close()
-
-'''
-if __name__ == '__main__':
-    
-    app = Generate_pdf()
-    app.exec_class()'''
-

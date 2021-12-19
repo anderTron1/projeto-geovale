@@ -219,6 +219,7 @@ class Generate_contract:
             DEFAULT_KEY_CNH_SPOUSE,
             DEFAULT_KEY_VOTER_TITLE_SPOUSE,
             DEFAULT_KEY_SCHOOLING_SPOUSE,
+            DEFAULT_KEY_UNION_REGIME
             ]
         return keys
     
@@ -272,17 +273,25 @@ class Generate_contract:
         name_spouse = self._conn.register_spouse
         name_id_to_register = self._conn.name_id_to_table_register
         
-        self.get_db(value, self.key_fields_spouse(), name_spouse, name_id_to_register, id_register)
+        register_spouse_exist = self._conn.query_record(name_spouse, name_id_to_register, id_register)
+        
+        if register_spouse_exist:
+            self.get_db(value, self.key_fields_spouse(), name_spouse, name_id_to_register, id_register)
         
         #everyting register residents
         name_register_residents = self._conn.register_residents
         
-        self.get_db(value, self.key_fields_residents(), name_register_residents, name_id_to_register, id_register, is_table=True)
+        register_residents_exist = self._conn.query_record(name_register_residents, name_id_to_register, id_register)
         
+        if register_residents_exist:
+            self.get_db(value, self.key_fields_residents(), name_register_residents, name_id_to_register, id_register, is_table=True)
+        
+        #generate and save changes to the Word file 
         save = self.__generate.save(save_in_directory, value[DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE])
-        
         if save:
             sg.popup('Arquivo gerado e salvo com sucesso!', keep_on_top=True)
+        else:
+            sg.popup_error('Um erro enesperado foi encontrato ao tentar gerar o contrato')
         
     def exec_class(self):
         window = sg.Window('Gerar contrato para registros', self.layout(),icon=r'image/iconLogo.ico', keep_on_top=False, modal=True)

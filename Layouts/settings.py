@@ -400,7 +400,7 @@ class Settings(Framework_reurb, Project):
     
     
     def exec_class(self):
-        window_settings = sg.Window('Configurações basicas', self.layout(), icon=r'image/iconLogo.ico')
+        window_settings = sg.Window('Configurações basicas', self.layout(), icon=r'image/iconLogo.ico', modal=True)
         loard_db_to_fields = True
                 
         while(True):

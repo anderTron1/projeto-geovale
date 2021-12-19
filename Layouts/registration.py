@@ -115,7 +115,8 @@ class register_personal_data:
              sg.T('CNH'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_SPOUSE, readonly=True)],
             [sg.T('Titulo de Eleitor:', size=(18)), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
             [sg.T('Escolaridade:', size=(18)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
-                                             'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE, readonly=True)]   
+                                             'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE, readonly=True),
+             sg.T('Regime de Uãnio'), sg.Combo(['Comunhão parcial de bens','Comunhão Universal de Bens','Separação de bens', 'Participação final nos Aquestos'],key=DEFAULT_KEY_UNION_REGIME, readonly=True)]   
             ]
         
         batch_to_be_regularized = [
@@ -237,7 +238,7 @@ class register_personal_data:
                 DEFAULT_KEY_CEL_SPOUSE,           DEFAULT_KEY_RG_SPOUSE,
                 DEFAULT_KEY_ISSUING_BODY_SPOUSE,  DEFAULT_KEY_CPF_SPOUSE,
                 DEFAULT_KEY_CNH_SPOUSE,           DEFAULT_KEY_VOTER_TITLE_SPOUSE,
-                DEFAULT_KEY_SCHOOLING_SPOUSE]
+                DEFAULT_KEY_SCHOOLING_SPOUSE,     DEFAULT_KEY_UNION_REGIME]
         
         return keys
     
@@ -308,6 +309,8 @@ class register_personal_data:
                 window.Element(key).update(disabled=disable, value='')
             else:
                 window.Element(key).update(disabled=disable)
+                
+        window.Element(DEFAULT_KEY_INPUT_ID_REGIST_RESID).update(disabled=True)
 
         
     def disable_input_conjuge(self,window, velue, keys, estadCivil):
@@ -480,20 +483,8 @@ class register_personal_data:
             rows = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0]
             dados = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values[int(rows)]
             
-            window.Element(DEFAULT_KEY_INPUT_ID_REGIST_RESID).update(dados[0])
-            window.Element(DEFAULT_KEY_TXT_NOME_REGIST_RESID).update(dados[1])
-            window.Element(DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID).update(dados[6])
-            window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(dados[7])
-            
-            select_sex = window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).update(dados[3])
-            window.Element(DEFAULT_KEY_COMB_SEX_REGIST_RESID).update(set_to_index=select_sex)
-            
-            window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(dados[4])
-            
-            window.Element(DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID).update(value=dados[2])
-                
-            select_marital_status = window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).update(dados[4])
-            window.Element(DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID).update(set_to_index = select_marital_status)
+            for id, key in enumerate(self.key_to_disable_regist()):
+                window.Element(key).update(dados[id])
             
     def _edit_table(self, window, value, data, keys, indice_table):
         data_new = data[indice_table] = [value[keys[indice]] for indice in range(len(keys))]
@@ -544,7 +535,6 @@ class register_personal_data:
         if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()) > 0:
             datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
             #update valuer to family income
-            print(datas)
             total_income = [sum(float(str(i[7]).replace(',', '.')) for i in datas)][0]
             
             income = self.elemAdditional.money_validation(str(total_income))
@@ -564,7 +554,7 @@ class register_personal_data:
                      
         if event == DEFAULT_KEY_BTN_NEW_REGIST_RESID:
             self.disable_objts(self.key_to_disable_regist(), window,False,closeValue=True)
-            self.event_buttons_residents(window, False, False, False, True, True)
+            self.event_buttons_residents(window=window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True)
             #window.Element(DEFAULT_KEY_TABLE_RESIDENTS).focus()
             
         if event == DEFAULT_KEY_BTN_CANCEL_REGIST_RESID:
@@ -575,11 +565,13 @@ class register_personal_data:
 
             element_nane = False
             for key in self.key_to_disable_regist():
-                if valuer[key] == '':
-                    element_nane = True
+                if key != DEFAULT_KEY_INPUT_ID_REGIST_RESID:
+                    if valuer[key] == '':
+                        element_nane = True
                     
             if element_nane == False:
-                if window.Element(DEFAULT_KEY_BTN_EDIT_REGIST_RESID).Disabled == False:
+                if valuer[DEFAULT_KEY_INPUT_ID_REGIST_RESID] != '':
+                    print('Salvar Ediãço')
                     regist = self._edit_table(window, valuer, dados, self.key_to_disable_regist(), window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0])
                     
                     regist_exist = False
@@ -592,7 +584,8 @@ class register_personal_data:
                     if regist_exist == False:
                         self.datas_register_residents_edit.append(regist)
                         
-                elif window.Element(DEFAULT_KEY_BTN_NEW_REGIST_RESID).Disabled == False:
+                else:
+                    print('Salvar Novo registro')
                     regist = self.save_record_regist_resid(window, valuer,self.key_to_disable_regist()) 
                     self.datas_register_residents_new.append(regist)
     
@@ -605,13 +598,19 @@ class register_personal_data:
             
         if event == DEFAULT_KEY_BTN_EDIT_REGIST_RESID:
             self.disable_objts(self.key_to_disable_regist(),window,False,closeValue=False)
-            self.event_buttons_residents(window, True, False, False, False, True)
+            self.event_buttons_residents(window=window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True)
                 
         if event == DEFAULT_KEY_BTN_DEL_REGIST_RESID:
             id = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()[0]
             self.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS, int(id))
             self.disable_objts(self.key_to_disable_regist(),window,True,closeValue=True)
             
+            
+        if valuer[DEFAULT_KEY_TXT_INCOME_REGIST_RESID] != '' and window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).TKEntry['state'] == 'normal': 
+            try:
+                float(valuer[DEFAULT_KEY_TXT_INCOME_REGIST_RESID].replace(',', '.'))
+            except ValueError:
+                window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update('')
             
     def event_inputs(self,sg, window, event, velue):
         elemAdditional = ElementsAdditional()
@@ -911,19 +910,21 @@ class Registration:
                             ), keys_numeric), self._conn.register_spouse, self._conn.id_register_people, insert_id=self._id_register_db)
 
                     if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
+                        index_column_name_table = 1
+                        index_column_income_table = 8
                         #when a new record is inserted into the table
                         if (len(self._class_register.datas_register_residents_new)) > 0:
-                            for register in self._class_register.datas_register_residents_new:
-                                self._conn.insert_register(
-                                    register, self._conn.register_residents, self._conn.id_register_residents, insert_id=self._id_register_db)
+                            for cont in range(len(self._class_register.datas_register_residents_new)):
+                                for register in [self._class_register.datas_register_residents_new[cont][index_column_name_table:]]:
+                                    self._conn.insert_register(
+                                        register, self._conn.register_residents, self._conn.id_register_residents, insert_id=self._id_register_db)
+                                    
                             self._class_register.datas_register_residents_new = []
 
                         #when a record is edited, it will save only the record that was edited.
                         if(len(self._class_register.datas_register_residents_edit)) > 0:
 
                             for register in self._class_register.datas_register_residents_edit:
-                                index_column_name_table = 1
-                                index_column_income_table = 7
                                 self._conn.update_register(register[index_column_name_table:index_column_income_table],
                                                            self._conn.register_residents, self._conn.id_register_residents, register[0:1][0])
                             self._class_register.datas_register_residents_edit = []
