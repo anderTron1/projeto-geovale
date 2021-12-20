@@ -2,28 +2,31 @@ from mega import  Mega
 from datetime import datetime
 import os
 
+import shutil
+import zipfile
 
 def creat_dir(m):
-    date = '_'+datetime.today().strftime('%Y_%m_%d %He%M hs')
-    root_folde = 'database'+date
+    root_folde, file = compact()
     
     if m.find(root_folde) == None:
-        for pasta, subpasta, files in os.walk('database'):
-        #for arq in arquivos:
-            for path in subpasta:
-                print(root_folde+'/'+path)
-                m.create_folder(root_folde+'/'+path)
-            print('Pasta Criada')
-            
-            for file in files:
-                past_dir = pasta+'/'+file
-                pasta_mega = pasta.replace('/', date+'/')
-                print(file, pasta_mega)
-                m.upload(past_dir, m.find(pasta_mega)[0])
+        m.create_folder(root_folde)
+        
+    if m.find(file) == None:   
+        m.upload(file, m.find(root_folde)[0])
 
-def pull_dir():
-    super
-   
+def compact():
+    date = '_'+datetime.today().strftime('%Y_%m_%d %He%M hs')
+    root_folde = 'backup_database'
+    arqzip = 'backup_database/database'+date
+    shutil.make_archive(arqzip, 'zip', './', 'database')
+    
+    return root_folde, arqzip + '.zip'
+
+def desconpacta(arq, pasta):
+    
+    with zipfile.ZipFile('backup_database/pull/'+arq,"r") as Zip_ref:
+        Zip_ref.extractall(pasta)   
+ 
 def download(m, path, remote_filename, local_filename=None):
         mega_file = m.find_path_descriptor(path, remote_filename)
         print('\n',mega_file)
@@ -49,8 +52,8 @@ def test():
     email = 'andre-luizpiresguimaraes@outlook.com'
     password = 'andertron123'
 
-    #mega = Mega()
-    mega = Mega({'verbose': True})  # verbose option for print output
+    mega = Mega()
+    #mega = Mega({'verbose': True})  # verbose option for print output
 
     # login
     m = mega.login(email, password)
@@ -79,7 +82,10 @@ def test():
     #    m.create_folder('geovale/teste')
     #m.upload('database', m.find('geovale/teste')[0])
     #creat_dir(m)
+    m.download_url('https://mega.nz/file/eQlGQKCZ#aa1DAqhLC7_Di3ITRkLUTe1YsOspTnROtKcd5AcEiVU', 'backup_database/pull')
+    #ownload(m, 'database_2021_12_19 21e23 hs/files_pdf', 'tags_para_cadastro.pdf', 'teste')
     
-    download(m, 'database_2021_12_19 21e23 hs/files_pdf', 'tags_para_cadastro.pdf', 'teste')
-
-test()
+    
+#test()
+#compact()
+desconpacta('database_2021_12_20 08e28 hs.zip','backup_database/pull')
