@@ -152,6 +152,13 @@ class Database:
         self._cur.execute(sql)
         self._conection.commit()
         
+    def update_record_by(self, registers, name_table, name_id, id_register):
+        sql = None
+        if len(registers) > 0:
+            sql = 'UPDATE {0} SET {1} WHERE {2} = {3}'.format(name_table, ','.join([str(key+"='"+value+"'") for key, value in registers.items()]), name_id, id_register)
+            self._cur.execute(sql)
+            self._conection.commit()
+            
     def delete_register(self, name_table, name_id_table, id_register):
         sql = f'DELETE FROM {name_table} WHERE {name_id_table} = {id_register}'
         self._cur.execute(sql)

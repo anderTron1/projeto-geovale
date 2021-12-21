@@ -311,6 +311,7 @@ class register_personal_data:
                 window.Element(key).update(disabled=disable)
                 
         window.Element(DEFAULT_KEY_INPUT_ID_REGIST_RESID).update(disabled=True)
+        window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(disabled=True)
 
         
     def disable_input_conjuge(self,window, velue, keys, estadCivil):
@@ -475,7 +476,7 @@ class register_personal_data:
         else:
             window.Element(key).update('')
             window.Element(key).set_focus(False)
-            sg.popup_error(msg)
+            sg.popup_error(msg, keep_on_top=True)
             
      
     def _select_rows_table_residents(self, window):
@@ -696,6 +697,7 @@ class Registration:
              self._class_register.load_window_layout(),
             [sg.T('O cadastro em questão se enquadra como:'), sg.Combo(['REURB-E', 'REURB-S'],disabled=True, k=DEFAULT_KEY_TYPE_FRAMEWORK), 
              sg.Button('Editar', k=DEFAULT_KEY_EDIT_TYPE_FRAMEWORK), sg.Button('Salvar', k=DEFAULT_KEY_SAVE_TYPE_FRAMEWORK)],
+            
             [sg.Button('Novo', key=DEFAULT_KEY_BTN_NEW), sg.Button('Cancelar', disabled=True, key=DEFAULT_KEY_BTN_CANCEL),sg.Button('Salvar',disabled=True, key=DEFAULT_KEY_BTN_SAVE), 
              sg.Button('Editar', disabled=True, key=DEFAULT_KEY_BTN_EDIT), sg.Button('Excluir', disabled=True, key=DEFAULT_KEY_BTN_DELETE)],
             [sg.HorizontalSeparator()],
@@ -994,6 +996,16 @@ class Registration:
             
                 if register_ok:
                     self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False)
+                    
+                    
+        if event == DEFAULT_KEY_EDIT_TYPE_FRAMEWORK:
+            window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(disabled=False)
+        if event == DEFAULT_KEY_SAVE_TYPE_FRAMEWORK:
+            dict_regist = dict()
+            dict_regist['type_reurb'] = value[DEFAULT_KEY_TYPE_FRAMEWORK]
+            self._conn.update_record_by(registers = dict_regist, name_table=self._conn.register_people , name_id = self._conn.id_register_people, id_register = self._id_register_db)
+            
+            window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(disabled=True)
             
     def exec_classes(self):
         window_regitration = sg.Window('Cadastro', self._load_layout(),icon=r'image/iconLogo.ico',keep_on_top=True, modal=True)

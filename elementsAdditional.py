@@ -49,6 +49,9 @@ class ElementsAdditional:
             return '{}/{}/{}'.format(result.group(1), result.group(2), result.group(3))
         elif len(num) > 0 and len(num) < 8:
             return -1
+        elif len(num) > 8:
+            return -1
+        
     def valid_cell_number(self,sg, num):
         num = re.sub('[^0-9]', '', num)
         if len(num) == 11:
@@ -66,6 +69,8 @@ class ElementsAdditional:
         elif len(num) > 0 and len(num) < 11:
             #val = sg.popup('Número com menos digitos que o necéssario!')
             return -1
+        elif len(num) > 15:
+            return -1
     
     def valid_cpf(self, num):
         num = re.sub('[^0-9]','', num)
@@ -75,7 +80,7 @@ class ElementsAdditional:
             result = re.search(default, num)
             return '{}.{}.{}-{}'.format(result.group(1), result.group(2), result.group(3),result.group(4))
         
-        elif len(num) > 0 and len(num) < 11:
+        elif len(num) > 0 and len(num) < 11 or len(num) > 11:
             #val = sg.popup('Número com menos digitos que o necéssario!')
             return -1
         
