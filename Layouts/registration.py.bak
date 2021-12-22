@@ -398,7 +398,7 @@ class register_personal_data:
                             window.Element(key_disabled).update(value = '0',disabled=True)
                         elif window.Element(key_disabled).Type == 'input':
                             window.Element(key_disabled).update(value = '--',disabled=True)
-                    elif value[keys_itens] == '':
+                    elif value[keys_itens] == ''
                         window.Element(key_disabled).update(value = '',disabled=True)
    
     def event_buttons_residents(self,window, btnNew,btnCancel, btnSave, btnEdit, btnDel):
