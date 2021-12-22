@@ -172,10 +172,7 @@ class Import_contract:
                 if root[len(path):].find('Office') != -1:
                     path_office_to_exec_file_word = root
                     break
-            try:
-                pid = subprocess.Popen([path_office_to_exec_file_word+ "/WINWORD.EXE", file_path]).pid
-            except:
-                sg.popup_error('Erro na hora de abrir o contrato')
+            pid = subprocess.Popen([path_office_to_exec_file_word+ "/WINWORD.EXE", file_path]).pid
             print(pid)
     
     def exec_classes(self):

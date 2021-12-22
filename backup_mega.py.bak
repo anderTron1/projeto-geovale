@@ -132,8 +132,8 @@ class Backup_mega:
             self.m.download_url(link, self.__folder_database_pull)
         except ConnectionError:
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Erro de conexão com o mega ocorreu!')
-        except Exception as e:
-            window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Um erro ocorreu e não foi possivel continuar...ERRO: '+e)
+        except:
+            window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Um erro ocorreu e não foi possivel continuar...ERRO: ')
             
         return self.__desconpacta(window, progress_bar)
         

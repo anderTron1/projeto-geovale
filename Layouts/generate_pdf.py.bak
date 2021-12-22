@@ -270,8 +270,8 @@ class Generate_pdf:
             window.Element(DEFAULT_KEY_BTN_EXPORT_FILE_EXCEL).update(disabled=False)
                 
         if self.checke_file_existance(self.__tags.path_file_excel):
-            abspath_arq = os.path.abspath(self.__tags.path_file_excel)
-            window.Element(DEFAULT_KEY_INPUT_EXPORT_FILE_EXCEL).update(abspath_arq)
+            abspath_arq = os.path.abspath(simp_path)
+            window.Element(DEFAULT_KEY_INPUT_EXPORT_FILE_EXCEL).update(self.__tags.name_file_excel)
                 
         if event == DEFAULT_KEY_BTN_EXPORT_FILE_EXCEL:
             shutil.copy(self.__tags.path_file_excel, value[DEFAULT_KEY_PATH_TO_SAVE_PDF])
