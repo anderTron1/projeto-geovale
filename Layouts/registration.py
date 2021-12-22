@@ -782,8 +782,8 @@ class Registration:
             self._class_register.disable_objts(key_fields_residents(), window,True,True)
             self._class_register.event_buttons_residents(window, True, True, True, True, True)
             
-            for item in window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children():
-                window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.delete(item)
+            #for item in window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children():
+            #    window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.delete(item)
                 
             #for key in self._class_register.keys_fields():
             #   self._class_register._change_fields_color(window, key, "white")
@@ -896,18 +896,16 @@ class Registration:
             #event buttons registration residents
             self._class_register.event_buttons_residents(window, False, True, True, True, True)
         
-        elif event == DEFAULT_KEY_BTN_DELETE:  
-            
-            self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
-            
+        elif event == DEFAULT_KEY_BTN_DELETE:              
             deleta = sg.popup_ok_cancel('Deseja realmente Excluir esse registro ?\n\nOK=SIM\nCancel=Não', keep_on_top=True)
             if deleta == 'OK':
+                self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
                 self._conn.delete_register(self._conn.register_residents, self._conn.name_id_to_table_register, self._id_register_db)
                 self._conn.delete_register(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                 self._conn.delete_register(self._conn.register_people, self._conn.id_register_people, self._id_register_db)
             
                 self._class_register.disable_objts(keys_fields(), window, True,True)
-                self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False,btnUpdataType=True)
+                self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=True, btnDel=True,btnUpdataType=True)
                 self._activate_search_buttons(window, buttons=False)
                 self._class_register.event_buttons_residents(window, True, True, True, True, True)
                 

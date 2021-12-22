@@ -4,8 +4,8 @@
 block_cipher = None
 
 
-a = Analysis(['layouts.py'],
-             pathex=[],
+a = Analysis(['lyouts.py'],
+             pathex=['C:\\Users\\secretaria\\AppData\\Roaming\\Python\\Python38\\site-packages\\PyQt5\\Qt5\\bin'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -24,7 +24,7 @@ exe = EXE(pyz,
           a.scripts, 
           [],
           exclude_binaries=True,
-          name='layouts',
+          name='lyouts',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -41,4 +41,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='layouts')
+               name='lyouts')

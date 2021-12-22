@@ -398,7 +398,7 @@ class register_personal_data:
                             window.Element(key_disabled).update(value = '0',disabled=True)
                         elif window.Element(key_disabled).Type == 'input':
                             window.Element(key_disabled).update(value = '--',disabled=True)
-                    elif value[keys_itens] == ''
+                    elif value[keys_itens] == '':
                         window.Element(key_disabled).update(value = '',disabled=True)
    
     def event_buttons_residents(self,window, btnNew,btnCancel, btnSave, btnEdit, btnDel):
@@ -782,8 +782,8 @@ class Registration:
             self._class_register.disable_objts(key_fields_residents(), window,True,True)
             self._class_register.event_buttons_residents(window, True, True, True, True, True)
             
-            for item in window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children():
-                window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.delete(item)
+            #for item in window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children():
+            #    window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.delete(item)
                 
             #for key in self._class_register.keys_fields():
             #   self._class_register._change_fields_color(window, key, "white")
@@ -907,7 +907,7 @@ class Registration:
                 self._conn.delete_register(self._conn.register_people, self._conn.id_register_people, self._id_register_db)
             
                 self._class_register.disable_objts(keys_fields(), window, True,True)
-                self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False,btnUpdataType=True)
+                self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=True, btnDel=True,btnUpdataType=True)
                 self._activate_search_buttons(window, buttons=False)
                 self._class_register.event_buttons_residents(window, True, True, True, True, True)
                 

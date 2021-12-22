@@ -18,7 +18,6 @@ from databaseConection import Database
 import screeninfo
 import PySimpleGUI as sg
 import sys
-import ctypes
 
 
 class main_layout: 

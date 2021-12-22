@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['layouts.py'],
+a = Analysis(['backup_mega.py'],
              pathex=[],
              binaries=[],
              datas=[],
@@ -24,7 +24,7 @@ exe = EXE(pyz,
           a.scripts, 
           [],
           exclude_binaries=True,
-          name='layouts',
+          name='backup_mega',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -41,4 +41,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='layouts')
+               name='backup_mega')
