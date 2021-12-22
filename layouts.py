@@ -13,6 +13,7 @@ from Layouts.settings import Settings
 from Layouts.generate_pdf import Generate_pdf
 from Layouts.export_data import Export_data
 
+from backup_mega import Backup_database
 from databaseConection import Database
 
 import screeninfo
@@ -33,6 +34,7 @@ class main_layout:
         self.__class_Settings = Settings(self._conn)
         self.__class_generate_pdf = Generate_pdf()
         self.__class_export_data = Export_data(self._conn)
+        self.__class_backup = Backup_database()
         
         self._current_screen = self.get_monitor_from_coord(200, 200)
         
@@ -47,7 +49,7 @@ class main_layout:
     def layout(self):
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
-                [   ['&Menu', ['&Cadastros', '&Exportar dados', 'Co&nfigurações', 'E&xit']],
+                [   ['&Menu', ['&Cadastros', '&Exportar dados', 'Co&nfigurações', '&Backup', 'E&xit']],
                     ['C&ontratos', ['&Gerar Tegs para contratos', '&Lista de Contratos', 'G&erar contrato']],
                     ['Sobre', ['Dados desenvolvedor']]
                 ])]]#, background_color='#176d81')]]
@@ -70,6 +72,8 @@ class main_layout:
                 self.__class_export_data.exec_class()
             if event == 'Configurações':
                 self.__class_Settings.exec_class()
+            if event == 'Backup':
+                 self.__class_backup.exec_class()
             if event == 'Lista de Contratos':
                 self._class_inport_contract.exec_classes()
             if event == 'Gerar Tegs para contratos':

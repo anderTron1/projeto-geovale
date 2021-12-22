@@ -159,8 +159,8 @@ class Backup_database:
     def layout(self):
         
         login = [
-                [sg.T('Email'), sg.Input('andre-luizpiresguimaraes@outlook.com',size=45, key=DEFAULT_KEY_EMAIL)],
-                [sg.T('Senha'), sg.Input('andertron123', size=20, password_char='*', key=DEFAULT_KEY_PASSWORD)],
+                [sg.T('Email'), sg.Input(size=45, key=DEFAULT_KEY_EMAIL)],
+                [sg.T('Senha'), sg.Input(size=20, password_char='*', key=DEFAULT_KEY_PASSWORD)],
                 [sg.Button('loga', key=DEFAULT_KEY_LOGAR), sg.T('', key=DEFAULT_KEY_LOGADO)]
                 ]
         
@@ -216,7 +216,7 @@ class Backup_database:
                 
         window.close()
         
-if __name__ == '__main__':
+'''if __name__ == '__main__':
     
     app = Backup_database()
-    app.exec_class()
+    app.exec_class()'''
