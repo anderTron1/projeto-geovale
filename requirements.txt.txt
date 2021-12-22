@@ -1,0 +1,5 @@
+pip install PySimpleGUI==4.55.1
+pip install python-docx==0.8.11
+pip install canvas==0.3
+pip install reportlab==3.6.3 
+pip install screeninfo==0.8
