@@ -10,6 +10,7 @@ from Layouts.search_register_person import Search_register_person
 from Layouts.import_contract import Import_contract
 import PySimpleGUI as sg
 import os
+import time
 
 from docx import Document
 
@@ -23,7 +24,8 @@ DEFAULT_KEY_BTN_SEARCH_RECORD = '-PESQUISAR_REGISTRO-'
 DEFAULT_KEY_BTN_SEARCH_CONTRACT = '-PESQUISAR_CONTRATO-'
 DEFAULT_KEY_BTN_GENERATE = '-GERAR_CONTRATO-'
 DEFAULT_KEY_BTN_CANCEL = '-CANCELAR_INFORMACOES-'
-
+DEFAULT_KEY_PROGRESS_BAR_GENERATE_CONSTRUCT = 'PROGRESS_BAR_GENERATE_CONSTRUCT'
+DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT = 'PROCESSO_PARA_GERAR_CONTRATO'
 
 class Generate:
     def __init__(self, name):
@@ -31,28 +33,34 @@ class Generate:
         self.elements = ElementsAdditional()
         
     def lines(self,inline, dict_sub):
+        
         for i in range(len(inline)):
             paragr = inline[i].text
             for text in dict_sub.keys():
                 if paragr.find(text) != -1:
+                    
+                    #print(paragr)
                     texto = paragr.replace(text, str(dict_sub[text]))
                     inline[i].text = texto
                     paragr = texto
     
-    def update_docx(self, name, datas=None, is_table=False):
+    def update_docx(self, name, datas=None, is_table=False, progress_bar=None):
 
         if name.find('.docx') == -1:
             sg.popup_error('O arquivo não é um formato docx')
         else:
             if is_table==False:
-                #update  paragraph
+                #update  paragraph                
                 for paragraph in self.document.paragraphs:
-                    self.lines(paragraph.runs, datas)
+                      self.lines(paragraph.runs, datas)
                 
-            if is_table==True:
+            if is_table==True and progress_bar != None:
                 cont = 0
                 size_data = len(datas)
                 icome = 0
+                
+                progress_bar.UpdateBar(0, size_data+1)
+                time.sleep(.2)
                 #update table
                 for table in self.document.tables:
                     cont_rows = len(datas) / (len(table.columns)-1)
@@ -77,10 +85,16 @@ class Generate:
                                     else:
                                         cell.text = str(datas[cont])
                                     cont += 1
+                                    
+                                    progress_bar.UpdateBar(cont, size_data)
+                                    time.sleep(.2)
                 #update icome table
                 dic_icome = {DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID: self.elements.money_validation(str(icome))}
                 for paragraph in self.document.paragraphs:
                     self.lines(paragraph.runs, dic_icome)
+                
+                progress_bar.UpdateBar(cont+1, size_data+1)
+                time.sleep(.2)
                                    
     def save(self,dict_save, save_as): 
         save = True
@@ -116,7 +130,9 @@ class Generate_contract:
                         [sg.Button('Pesquisar', key=DEFAULT_KEY_BTN_SEARCH_CONTRACT, disabled=True)],
                         [sg.T('Salvar como:'), sg.Input(size=30, key=DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE, disabled=True), sg.T('.docx')],
                         [sg.Button('Gerar', key=DEFAULT_KEY_BTN_GENERATE, disabled=True),
-                         sg.Button('Cancelar', key=DEFAULT_KEY_BTN_CANCEL, disabled=True)]
+                         sg.Button('Cancelar', key=DEFAULT_KEY_BTN_CANCEL, disabled=True)],
+                        [sg.ProgressBar(1, orientation='h', size=(40,20), key=DEFAULT_KEY_PROGRESS_BAR_GENERATE_CONSTRUCT)],
+                        [sg.T('', key=DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT)]
                     ]
         return construct_layout
     
@@ -154,89 +170,9 @@ class Generate_contract:
         window.Element(DEFAULT_KEY_INPUT_CONTRACT).update('')
         window.Element(DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE).update('')
     
-    def keys_fields(self):
-        keys = [               
-                #-------------------------KEYS TO personal_data_tab------------------------------
-                DEFAULT_KEY_NOME_PERSONAL_DATA,         DEFAULT_KEY_SEX_PERSONAL_DATA,
-                DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA,    DEFAULT_KEY_AGE_PERSONAL_DATA,
-                DEFAULT_KEY_NATURALNESS_PERSONAL_DATA,  DEFAULT_KEY_UF_PERSONAL_DATA,
-                DEFAULT_KEY_TEL_PERSONAL_DATA,          DEFAULT_KEY_CEL_PERSONAL_DATA,
-                DEFAULT_KEY_EMAIL_PERSONAL_DATA,        DEFAULT_KEY_ADDRESS_PERSONAL_DATA,
-                DEFAULT_KEY_DISTRICT_PERSONAL_DATA,     DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA,
-                DEFAULT_KEY_RG_PERSONAL_DATA,           DEFAULT_KEY_ISSUING_BODY_PERSONAL_DATA,
-                DEFAULT_KEY_CPF_PERSONAL_DATA,          DEFAULT_KEY_CNH_PERSONAL_DATA,
-                DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA,  DEFAULT_KEY_CONSIDER_PERSONAL_DATA,
-                DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA, DEFAULT_KEY_SCHOOLING_PERSONAL_DATA,
-                DEFAULT_KEY_BATCH_REGU_BATCH,           DEFAULT_KEY_BATCH_REGU_BLOCK,
-                DEFAULT_KEY_BATCH_REGU_BATCH_REGULARIZAR_DISTRICT, DEFAULT_KEY_BATCH_REGU_AREA,
-                DEFAULT_KEY_BATCH_REGU_STREET_LOTE,
-                
-                #-------------------------KEY to tab other_information----------------------------
-                DEFAULT_KEY_COMB_WORKS,                 DEFAULT_KEY_INP_WHERE,
-                DEFAULT_KEY_TXT_PROFESSION,             DEFAULT_KEY_COMB_RETIREE,
-                DEFAULT_KEY_BENEF_CAMB_SOCI_PROG,       DEFAULT_KEY_INCOME_COMB_INCOME,
-                DEFAULT_KEY_COMB_HAVE_CHILDREM,         DEFAULT_KEY_HOW_MANY_CHILDREM,
-                DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY,  DEFAULT_KEY_DISABLED_ELDERLY_HOW_MANY,
-                DEFAULT_KEY_COMB_OWN_RURAL_PROPERTY, 
-                
-                DEFAULT_KEY__COMB_OWNS_CAR,         DEFAULT_KEY_OWNS_CAR_HOW_MANY,
-                DEFAULT_KEY__COMB_HAS_MOTORCICLE,   DEFAULT_KEY_HAS_MOTORCICLE_HOW_MANY,
-                DEFAULT_KEY_COMB__HAVE_FRIDGE,      DEFAULT_KEY_HAVE_FRIDGE_HOW_MANY,
-                DEFAULT_KEY_COMB__HAVE_TELEVI,      DEFAULT_KEY_HAVE_TELEVI_HOW_MANY,
-                DEFAULT_KEY_COMB__HAVE_COMPUTER,    DEFAULT_KEY_HAVE_COMPUTER_HOW_MANY,
-                DEFAULT_KEY_COMB__HAVE_INTERNET,    DEFAULT_KEY_COMB__HAVE_ACESS_ELECTRI,
-                DEFAULT_KEY_COMB__HAVE_DRAINAG_WATER, 
-                
-                #--------------------------KEY FRAME PROPERTY CONDITIONS---------------------------
-                DEFAULT_KEY_COMB_ONLY_OWNER,             DEFAULT_KEY_TXT_ANOTHER_OWNER,
-                DEFAULT_KEY_TXT_STILL_TIME,              DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY,
-                DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY,   DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE,
-                DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC,   DEFAULT_KEY_PROPERTY_USED_FOR,
-                
-                DEFAULT_KEY_TXT_FRONT,   DEFAULT_KEY_TXT_RIGHT,
-                DEFAULT_KEY_TXT_LEFT,    DEFAULT_KEY_TXT_FUNDS,
-                
-                DEFAULT_KEY_COMB_TYPE,               DEFAULT_KEY_COMB_IS_WALLED,
-                DEFAULT_KEY_COMB_BATCH_POSITION,     DEFAULT_KEY_COMB_STATE_BUILDINGS,
-                DEFAULT_KEY_COMB_BUILDING_TYPE,      DEFAULT_KEY_COMB_IS_BEDRIDDEN,
-                DEFAULT_KEY_NUMB_FLOORS,             DEFAULT_KEY_ROOMS,
-                DEFAULT_KEY_BATHROOMS,               DEFAULT_KEY_PROJECT_SERVICES,
-                DEFAULT_KEY_TYPE_FRAMEWORK]
-        return keys
-    
-    def key_fields_spouse(self):
-        keys = [
-            DEFAULT_KEY_NAME_SPOUSE,
-            DEFAULT_KEY_SEX_SPOUSE,
-            DEFAULT_KEY_BIRTHDATE_SPOUSE,
-            DEFAULT_KEY_AGE_SPOUSE,
-            DEFAULT_KEY_NATURALNESS_SPOUSE,
-            DEFAULT_KEY_TEL_SPOUSE,
-            DEFAULT_KEY_CEL_SPOUSE,
-            DEFAULT_KEY_RG_SPOUSE,
-            DEFAULT_KEY_ISSUING_BODY_SPOUSE,
-            DEFAULT_KEY_CPF_SPOUSE,
-            DEFAULT_KEY_CNH_SPOUSE,
-            DEFAULT_KEY_VOTER_TITLE_SPOUSE,
-            DEFAULT_KEY_SCHOOLING_SPOUSE,
-            DEFAULT_KEY_UNION_REGIME
-            ]
-        return keys
-    
-    
-    def key_fields_residents(self):
-            keys = [
-                DEFAULT_KEY_TXT_NOME_REGIST_RESID,
-                DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID,
-                DEFAULT_KEY_SPIN_AGE,
-                DEFAULT_KEY_COMB_SEX_REGIST_RESID,
-                DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID,
-                DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID,
-                DEFAULT_KEY_TXT_INCOME_REGIST_RESID]
-            return keys
-    
-    def get_db(self, value,keys_fields, name_register, name_id_register, id_register, is_table=False):
+    def get_db(self,window, value,keys_fields, name_register, name_id_register, id_register, is_table=False):
         fileds_and_field_db = self._conn._take_fields_records(name_register, keys_fields)
+        progress_bar = window.Element(DEFAULT_KEY_PROGRESS_BAR_GENERATE_CONSTRUCT)
         
         if is_table:
             values = []
@@ -245,19 +181,25 @@ class Generate_contract:
                 for val_tuple in register_db:
                     for value in val_tuple:
                         values.append(value)
-            self.__generate.update_docx(self._path_contract, values, is_table)
+            self.__generate.update_docx(self._path_contract, values, is_table, progress_bar)
         else:
             key_value = dict()
             register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)[0]
         
+            #print(register_db, '\n\n')
+            size_list = len(fileds_and_field_db.values())
+            progress_bar.UpdateBar(0, size_list)
+            
             for cont, key in enumerate(fileds_and_field_db.values()):
                 if register_db[cont] != None:
                     key_value[key] = register_db[cont]
             
                 self.__generate.update_docx(self._path_contract, key_value, is_table)
-       
-    
-    def get_datas_db(self, value):
+                progress_bar.UpdateBar(cont, size_list)
+                time.sleep(.2)
+            #print(key_value)
+            
+    def get_datas_db(self,window, value):
         self.__generate = Generate(self._path_contract)
         
         save_in_directory = sg.tk.filedialog.askdirectory(initialdir=os.path.abspath(os.sep))
@@ -267,7 +209,8 @@ class Generate_contract:
         name_id_register = self._conn.id_register_people
         id_register = int(value[DEFAULT_KEY_INPUT_ID])
 
-        self.get_db(value, self.keys_fields(), name_register, name_id_register, id_register)
+        window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Inserindo registros dos dados pessoais...')
+        self.get_db(window,value, keys_fields(), name_register, name_id_register, id_register)
         
         #everyting register spouse
         name_spouse = self._conn.register_spouse
@@ -276,7 +219,8 @@ class Generate_contract:
         register_spouse_exist = self._conn.query_record(name_spouse, name_id_to_register, id_register)
         
         if register_spouse_exist:
-            self.get_db(value, self.key_fields_spouse(), name_spouse, name_id_to_register, id_register)
+            window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Inserindo registros do cônjuge...')
+            self.get_db(window,value, keys_fields_spouse(), name_spouse, name_id_to_register, id_register)
         
         #everyting register residents
         name_register_residents = self._conn.register_residents
@@ -284,14 +228,16 @@ class Generate_contract:
         register_residents_exist = self._conn.query_record(name_register_residents, name_id_to_register, id_register)
         
         if register_residents_exist:
-            self.get_db(value, self.key_fields_residents(), name_register_residents, name_id_to_register, id_register, is_table=True)
+            
+            window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Inserindo registros nas tabelas...')
+            self.get_db(window,value, key_fields_residents().pop(0), name_register_residents, name_id_to_register, id_register, is_table=True)
         
         #generate and save changes to the Word file 
         save = self.__generate.save(save_in_directory, value[DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE])
         if save:
-            sg.popup('Arquivo gerado e salvo com sucesso!', keep_on_top=True)
+            window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Arquivo gerado e salvo com sucesso!...',text_color='white')
         else:
-            sg.popup_error('Um erro enesperado foi encontrato ao tentar gerar o contrato')
+            window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Um erro inesperado foi encontrato ao tentar gerar e salvar o arquivo!...',text_color='red')
         
     def exec_class(self):
         window = sg.Window('Gerar contrato para registros', self.layout(),icon=r'image/iconLogo.ico', keep_on_top=False, modal=True)
@@ -320,7 +266,7 @@ class Generate_contract:
                 self.__enabled_btns(window, True)
             
             if event == DEFAULT_KEY_BTN_GENERATE:
-                self.get_datas_db(value)
+                self.get_datas_db(window, value)
                 self.__clear_inputs(window, True)
                 
             if event == DEFAULT_KEY_BTN_CANCEL:

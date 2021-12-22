@@ -11,6 +11,8 @@ from reportlab.pdfgen import canvas
 import shutil
 import os
 
+import pandas as pd
+
 import PySimpleGUI as sg
 
 DEFAULT_KEY_BTN_GENERATE_PDF = '<<-GERAR_PDF->>'
@@ -20,10 +22,19 @@ DEFAULT_KEY_BTN_SAVE_IN = '<<-SALVAR_EM->>'
 DEFAULT_KEY_GENERATED_PDF_FILE = '<<-ARQUIVO_PDF_GERADO->>'
 DEFAULT_KEY_PATH_TO_SAVE_PDF = '<<-CAMINHO_PARA_SALVAR_PDF->>'
 
+DEFAULT_KEY_INPUT_EXPORT_FILE_EXCEL = 'EXPORTAR_ARQUIVO_EXCEL'
+DEFAULT_KEY_BTN_EXPORT_FILE_EXCEL = 'BTN_EXPORTAR_ARQUIVO_EXCEL'
+
 class Tags:
     def __init__(self):
+        
+        self.path = 'database/files_pdf_excel'
+        
         self.name_file = 'tags_para_cadastro'
-        self.path_file = 'database/files_pdf/' + self.name_file + '.pdf'
+        self.path_file = 'database/files_pdf_excel/' + self.name_file + '.pdf'
+        
+        self.name_file_excel = 'database_keys'
+        self.path_file_excel = 'database/files_pdf_excel/' + self.name_file_excel + '.ods'
         
         self.space = '<<space>>'
         self.list_tags = {
@@ -150,13 +161,14 @@ class Generate_pdf:
         self.__path_to_save = None
         
     def layout(self):
-        
         menu = [
                 [sg.T('Arquivo pdf gerado:'), sg.Input(size=25, key=DEFAULT_KEY_GENERATED_PDF_FILE)],
                 [sg.Button('Gerar pdf', key=DEFAULT_KEY_BTN_GENERATE_PDF)],
                 [sg.HorizontalSeparator()],
-                [sg.Input(size=25, key=DEFAULT_KEY_PATH_TO_SAVE_PDF, disabled=True), sg.Button('Salva em', key=DEFAULT_KEY_BTN_SAVE_IN)],
-                [sg.Button('Exportar arquivo', key=DEFAULT_KEY_BTN_EXPORT_FILE, disabled=True)]
+                [sg.T('Caminho'),sg.Input(size=25, key=DEFAULT_KEY_PATH_TO_SAVE_PDF, disabled=True), sg.Button('Salva em', key=DEFAULT_KEY_BTN_SAVE_IN)],
+                [sg.Button('Exportar arquivo', key=DEFAULT_KEY_BTN_EXPORT_FILE, disabled=True)],
+                [sg.HorizontalSeparator()],
+                [sg.T('Nome'),sg.Input(size=25, key=DEFAULT_KEY_INPUT_EXPORT_FILE_EXCEL, disabled=True),sg.Button('Exportar arq. excel', key=DEFAULT_KEY_BTN_EXPORT_FILE_EXCEL, disabled=True)]
             ]
         
         layout = [
@@ -205,7 +217,33 @@ class Generate_pdf:
             sg.popup('{}.pdf criado com sucesso!'.format(nome_pdf))
         except:
             sg.popup_error('ERRO!\nErro ao gerar {}.pdf'.format(nome_pdf))
+    
+    '''def generateExcel(self):
+        
+        data_new = []
+        
+        for key in key_fields_spouse():
+            data_new.append(key)
+        
+        for key in keys_fields():
+            data_new.append(key)
+        data_new.append(DEFAULT_KEY_TABLE_RESIDENTS)
+        data_new.append(DEFAULT_KEY_TABLE_RESIDENTS)
+        data_new.append(DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID)
+        data_new.append(DEFAULT_KEY_PROJECT_SERVICES)
+        data_new.append(DEFAULT_KEY_TYPE_FRAMEWORK)
+        
+        if len(data_new) > 0:
+            df = pd.DataFrame(columns=data_new)
             
+            save_file = self.path
+            save_file += '/' +self.name_file_excel  +'.ods'
+
+            #Save file .xlsx
+            writer = pd.ExcelWriter(save_file)
+            df.to_excel(writer, sheet_name='teste', index=False)
+            writer.save()'''
+    
     def event_elements(self, window, event, value):
         if event == DEFAULT_KEY_BTN_GENERATE_PDF:
             self.GeneratePDF(self.__tags.list_tags)
@@ -227,8 +265,15 @@ class Generate_pdf:
             window.Element(DEFAULT_KEY_GENERATED_PDF_FILE).update(self.__tags.name_file)
             
         if value[DEFAULT_KEY_PATH_TO_SAVE_PDF] != '':
-            window.Element(DEFAULT_KEY_BTN_EXPORT_FILE).update(disabled=False)               
+            window.Element(DEFAULT_KEY_BTN_EXPORT_FILE).update(disabled=False)     
+            window.Element(DEFAULT_KEY_BTN_EXPORT_FILE_EXCEL).update(disabled=False)
                 
+        if self.checke_file_existance(self.__tags.path_file_excel):
+                window.Element(DEFAULT_KEY_INPUT_EXPORT_FILE_EXCEL).update(self.__tags.name_file_excel)
+                
+        if event == DEFAULT_KEY_BTN_EXPORT_FILE_EXCEL:
+            shutil.copy(self.__tags.path_file_excel, value[DEFAULT_KEY_PATH_TO_SAVE_PDF])
+            
     def exec_class(self):
         window = sg.Window('PDF para tags', self.layout(), icon=r'image/iconLogo.ico', modal=True)
             

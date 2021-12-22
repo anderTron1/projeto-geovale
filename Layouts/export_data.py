@@ -56,7 +56,7 @@ class Export_data:
     
     def get_datas(self,window, value):
         progress_bar = window.Element('progress')
-        
+
         name_db_people = self.__conn.register_people
         name_db_spouse = self.__conn.register_spouse
         
