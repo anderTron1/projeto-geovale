@@ -9,8 +9,10 @@ from pathlib import Path
 import PySimpleGUI as sg
 import time
 
+import threading
+
 class Backup_mega:
-    def __init__(self):
+    def __init__(self,):
         self.__folder_database = 'database'
         self.__folder_save_database = 'backup_database'
         self.__folder_database_pull = 'backup_database/pull'
@@ -18,6 +20,8 @@ class Backup_mega:
         self.mega = Mega() 
         self.m = None
         #mega = Mega({'verbose': True})  # verbose option for print output
+
+        #self.conn = database
         
     def compact(self):
         date = '_'+datetime.today().strftime('%Y_%m_%d %He%M hs')
@@ -30,7 +34,8 @@ class Backup_mega:
     
     def __desconpacta(self, window, progress_bar):
         arq = None
-        for _,_, file in os.walk(self.__folder_save_database):
+        for _,_, file in os.walk(self.__folder_database_pull):
+            print('\n\nARQUIVO:',file,'\n\n')
             arq = file[0]
         
         print(arq)
@@ -48,26 +53,29 @@ class Backup_mega:
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Extraindo registros do backup\n ['+arq+']...')
         progress_bar.UpdateBar(3,5)
         time.sleep(.6)
+
+        #try:
         for src_dir, dirs, files in os.walk(root_src_dir):
-            dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
-            if not os.path.exists(dst_dir):
-                os.makedirs(dst_dir)
-            for file_ in files:
-                src_file = os.path.join(src_dir, file_)
-                dst_file = os.path.join(dst_dir, file_)
-                if os.path.exists(dst_file):
-                    # in case of the src and dst are the same file
-                    if os.path.samefile(src_file, dst_file):
-                        continue
-                    os.remove(dst_file)
-                shutil.move(src_file, dst_dir)
-        
+                dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
+                if not os.path.exists(dst_dir):
+                    os.makedirs(dst_dir)
+                for file_ in files:
+                    src_file = os.path.join(src_dir, file_)
+                    dst_file = os.path.join(dst_dir, file_)
+                    if os.path.exists(dst_file):
+                        # in case of the src and dst are the same file
+                        if os.path.samefile(src_file, dst_file):
+                            continue
+                        os.remove(dst_file)
+                    shutil.move(src_file, dst_dir)
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Substituindo registros pelo backup...')
         progress_bar.UpdateBar(4,5)
         time.sleep(.6)
+        #except:
+        #    sg.popup_error('Um erro ocorreu ao tenta substituir os arquivos', keep_on_top=True, modal=True)
+
         try:
-            shutil.rmtree('backup_database/pull/database')
-            os.remove('backup_database/pull/'+arq)
+            shutil.rmtree('backup_database/pull')
             
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Processo realizado com sucesso...')
             progress_bar.UpdateBar(5,5)
@@ -76,7 +84,6 @@ class Backup_mega:
             return True
         except OSError as e:
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('ERRO! Não foi possivel realizar o processo de substituição...')
-            print(f"Error:{ e.strerror}")
             return False
             
             
@@ -91,10 +98,12 @@ class Backup_mega:
             self.m = self.mega.login(email, password)
         except: 
             self.m = None
-            
+        
+        retult = None
         if self.m != None:
-            return self.m.get_user()['name']
-        return None
+            retult = self.m.get_user()['name']
+        print('logando...')
+        window.write_event_value('LOGIN_OK', retult)
         
     def upload(self, window, progress_bar):
         window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update('Compactando databases...')
@@ -123,19 +132,27 @@ class Backup_mega:
         except ConnectionError:
             window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Erro de conexão com o mega ocorreu!")
             
-    def download(self,window, progress_bar, link):
+    def download(self,window, progress_bar, link): 
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Iniciando download...')
         progress_bar.UpdateBar(1,5)
         time.sleep(.6)
+        try:
+            if  os.path.isdir(self.__folder_database_pull):
+                shutil.rmtree(self.__folder_database_pull )
+            os.makedirs(self.__folder_database_pull)
+        except OSError as e:
+            print(f"Error:{ e.strerror}")   
         
         try:
-            self.m.download_url(link, self.__folder_database_pull)
+            result = self.m.download_url(link, self.__folder_database_pull)
         except ConnectionError:
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Erro de conexão com o mega ocorreu!')
         except:
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Um erro ocorreu e não foi possivel continuar...ERRO: ')
-            
-        return self.__desconpacta(window, progress_bar)
+   
+        finali = self.__desconpacta(window, progress_bar)
+        
+        window.write_event_value('DOWNLOAD_OK', finali)
         
 
 DEFAULT_KEY_EMAIL = '<<EMAIL_MEGA>>'
@@ -153,15 +170,15 @@ DEFAULT_KEY_BTN_DOWNLOAD = '<<BTN_DOWNLOAD>>'
 DEFAULT_KEY_TXT_PROCESS_DOWNLOAD = '<<TXT_PROCESSO_DE_DOWNLOAD>>'
 
 class Backup_database:
-    def __init__(self):
+    def __init__(self,):
+        #self.conn = database
         self.backup_mega = Backup_mega()
-        
         
     def layout(self):
         
         login = [
                 [sg.T('Email'), sg.Input('andre-luizpiresguimaraes@outlook.com',size=45, key=DEFAULT_KEY_EMAIL)],
-                [sg.T('Senha'), sg.Input('andertron123', size=20, password_char='*', key=DEFAULT_KEY_PASSWORD)],
+                [sg.T('Senha'), sg.Input('andertron123',size=20, password_char='*', key=DEFAULT_KEY_PASSWORD)],
                 [sg.Button('loga', key=DEFAULT_KEY_LOGAR), sg.T('', key=DEFAULT_KEY_LOGADO)]
                 ]
         
@@ -199,25 +216,37 @@ class Backup_database:
                 break
             
             if event == DEFAULT_KEY_LOGAR:
-                result = self.backup_mega.login_mega(window,value[DEFAULT_KEY_EMAIL], value[DEFAULT_KEY_PASSWORD])
-                if result != None:
-                    window.Element(DEFAULT_KEY_LOGADO).update("Usuario: "+ result+' logado no mega', text_color='white')
+                login_trheading = threading.Thread(target=self.backup_mega.login_mega, args=(window,value[DEFAULT_KEY_EMAIL], value[DEFAULT_KEY_PASSWORD],), daemon=True)
+                login_trheading.start()
+            if event == 'LOGIN_OK':
+                print('logado!')
+                if value['LOGIN_OK'] != None:
+                    window.Element(DEFAULT_KEY_LOGADO).update("Usuario: "+ value['LOGIN_OK']+' logado no mega', text_color='white')
                 else:
                     window.Element(DEFAULT_KEY_LOGADO).update('Um erro ocorreu ao tentar loga na conta', text_color='red')
+                    
             if event == DEFAULT_KEY_BTN_UPLOAD:
                 progress_bar = window.Element(DEFAULT_KEY_PROGRESS)
                 self.backup_mega.upload(window, progress_bar)
                 
             if event == DEFAULT_KEY_BTN_DOWNLOAD:
                 progress_bar = window.Element(DEFAULT_KEY_PROGRESS_DOWNLOAD)
-                result = self.backup_mega.download(window, progress_bar, value[DEFAULT_KEY_LINK_DOWNLOAD])
+                new_trheading = threading.Thread(target=self.backup_mega.download, args=(window, progress_bar, value[DEFAULT_KEY_LINK_DOWNLOAD],), daemon=True)
+                new_trheading.start()
                 
-                if result != False:
-                    window.Element(DEFAULT_KEY_LINK_DOWNLOAD).update('')
+            if event == 'DOWNLOAD_OK':
+                window.Element(DEFAULT_KEY_LINK_DOWNLOAD).update('')
+                
+            if value[DEFAULT_KEY_EMAIL] == '' and value[DEFAULT_KEY_PASSWORD] == '':
+                window.Element(DEFAULT_KEY_LOGAR).update(disabled=True)
+            else:
+                window.Element(DEFAULT_KEY_LOGAR).update(disabled=False)
+                
+            
                 
         window.close()
         
-if __name__ == '__main__':
+'''if __name__ == '__main__':
     
     app = Backup_database()
-    app.exec_class()
+    app.exec_class()'''

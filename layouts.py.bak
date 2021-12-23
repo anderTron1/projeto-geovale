@@ -13,11 +13,13 @@ from Layouts.settings import Settings
 from Layouts.generate_pdf import Generate_pdf
 from Layouts.export_data import Export_data
 
+from backup_mega import Backup_database
 from databaseConection import Database
 
 import screeninfo
 import PySimpleGUI as sg
 import sys
+import ctypes
 
 
 class main_layout: 
@@ -32,6 +34,7 @@ class main_layout:
         self.__class_Settings = Settings(self._conn)
         self.__class_generate_pdf = Generate_pdf()
         self.__class_export_data = Export_data(self._conn)
+        self.__class_backup = Backup_database()
         
         self._current_screen = self.get_monitor_from_coord(200, 200)
         
@@ -64,7 +67,7 @@ class main_layout:
             event, valuer = window.read(timeout=100)
             
             if event == 'Cadastros':
-                self._class_registration.exec_classes()
+                self._class_registration.exec_class(window)
             if event == 'Exportar dados':
                 self.__class_export_data.exec_class()
             if event == 'Configurações':
@@ -75,13 +78,23 @@ class main_layout:
                 self.__class_generate_pdf.exec_class()
             if event == 'Gerar contrato':
                 self._class_generate_constract.exec_class()
-            if event == sg.WINDOW_CLOSED:
-                break
-            elif event == 'Exit':
-                close = sg.popup_ok_cancel('Deseja fechar o sistema?')
+            if event == sg.WINDOW_CLOSED or event == 'Exit':
+                close = sg.popup_ok_cancel('Deseja realizar o backup antes de fechar?')
+                
                 if close == 'OK':
+                    result = sg.popup_ok_cancel('O sistema sera desconectado para realizar este processo.\n Deseja continuar?')
+                    if result == 'OK':
+                        if self._conn.close_connection():
+                            window.close()
+                            self.__class_backup.exec_class()
+                            window.close()
+                            break
+                        else:
+                            sg.popup_error('ERRO!\nErro ao tentar desconectar do banco de dados.')
+                else: 
+                    window.close()
+                    print('fechamento: ', window.WINDOW_CLOSED)
                     break
-        window.close()
         
 if __name__ == '__main__':
     

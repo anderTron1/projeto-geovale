@@ -49,7 +49,7 @@ class main_layout:
     def layout(self):
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
-                [   ['&Menu', ['&Cadastros', '&Exportar dados', 'Co&nfigurações', '&Backup', 'E&xit']],
+                [   ['&Menu', ['&Cadastros', '&Exportar dados', 'Co&nfigurações', 'E&xit']],
                     ['C&ontratos', ['&Gerar Tegs para contratos', '&Lista de Contratos', 'G&erar contrato']],
                     ['Sobre', ['Dados desenvolvedor']]
                 ])]]#, background_color='#176d81')]]
@@ -67,26 +67,34 @@ class main_layout:
             event, valuer = window.read(timeout=100)
             
             if event == 'Cadastros':
-                self._class_registration.exec_classes()
+                self._class_registration.exec_class(window)
             if event == 'Exportar dados':
                 self.__class_export_data.exec_class()
             if event == 'Configurações':
                 self.__class_Settings.exec_class()
-            if event == 'Backup':
-                 self.__class_backup.exec_class(window)
             if event == 'Lista de Contratos':
                 self._class_inport_contract.exec_classes()
             if event == 'Gerar Tegs para contratos':
                 self.__class_generate_pdf.exec_class()
             if event == 'Gerar contrato':
                 self._class_generate_constract.exec_class()
-            if event == sg.WINDOW_CLOSED:
-                break
-            elif event == 'Exit':
-                close = sg.popup_ok_cancel('Deseja fechar o sistema?')
+            if event == sg.WINDOW_CLOSED or event == 'Exit':
+                close = sg.popup_ok_cancel('Deseja realizar o backup antes de fechar?')
+                
                 if close == 'OK':
+                    result = sg.popup_ok_cancel('O sistema sera desconectado para realizar este processo.\n Deseja continuar?')
+                    if result == 'OK':
+                        if self._conn.close_connection():
+                            window.close()
+                            self.__class_backup.exec_class()
+                            window.close()
+                            break
+                        else:
+                            sg.popup_error('ERRO!\nErro ao tentar desconectar do banco de dados.')
+                else: 
+                    window.close()
+                    print('fechamento: ', window)
                     break
-        window.close()
         
 if __name__ == '__main__':
     

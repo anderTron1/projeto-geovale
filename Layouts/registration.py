@@ -950,7 +950,7 @@ class Registration:
             
             window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(disabled=True)
             
-    def exec_classes(self):
+    def exec_class(self, window_layout):
         window_regitration = sg.Window('Cadastro', self._load_layout(),icon=r'image/iconLogo.ico',keep_on_top=True, modal=True)
         event, value = None, None
         while(True):

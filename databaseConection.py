@@ -50,7 +50,13 @@ class Database:
         return self._conected
     
     def close_connection(self):
-        self._cur.close()
+        try:
+            self._cur.close()
+            del self._cur
+            del self._conection
+            return True
+        except:
+            return false
         
 
     #function to get the fields from the names of each column in the database

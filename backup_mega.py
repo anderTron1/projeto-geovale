@@ -9,8 +9,8 @@ from pathlib import Path
 import PySimpleGUI as sg
 import time
 
-import psutil
-import subprocess
+import threading
+
 class Backup_mega:
     def __init__(self,):
         self.__folder_database = 'database'
@@ -34,8 +34,8 @@ class Backup_mega:
     
     def __desconpacta(self, window, progress_bar):
         arq = None
-        for _,_, file in os.walk(self.__folder_save_database):
-            print(file)
+        for _,_, file in os.walk(self.__folder_database_pull):
+            print('\n\nARQUIVO:',file,'\n\n')
             arq = file[0]
         
         print(arq)
@@ -75,8 +75,7 @@ class Backup_mega:
         #    sg.popup_error('Um erro ocorreu ao tenta substituir os arquivos', keep_on_top=True, modal=True)
 
         try:
-            shutil.rmtree('backup_database/pull/database')
-            os.remove('backup_database/pull/'+arq)
+            shutil.rmtree('backup_database/pull')
             
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Processo realizado com sucesso...')
             progress_bar.UpdateBar(5,5)
@@ -99,10 +98,12 @@ class Backup_mega:
             self.m = self.mega.login(email, password)
         except: 
             self.m = None
-            
+        
+        retult = None
         if self.m != None:
-            return self.m.get_user()['name']
-        return None
+            retult = self.m.get_user()['name']
+        print('logando...')
+        window.write_event_value('LOGIN_OK', retult)
         
     def upload(self, window, progress_bar):
         window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update('Compactando databases...')
@@ -131,15 +132,7 @@ class Backup_mega:
         except ConnectionError:
             window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Erro de conexão com o mega ocorreu!")
             
-    def download(self,window, progress_bar, link):
-        PROCNAME  = 'Database.sqlite3'
-        '''for proc in psutil.process_iter():
-            print('process: ' + proc.name())
-            if proc.name() == PROCNAME:
-                print('achou?')
-                proc.kill()'''
-        os.system('taskkill /f /im database/sqlite_database\\Database.sqlite3')
-            
+    def download(self,window, progress_bar, link): 
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Iniciando download...')
         progress_bar.UpdateBar(1,5)
         time.sleep(.6)
@@ -151,13 +144,15 @@ class Backup_mega:
             print(f"Error:{ e.strerror}")   
         
         try:
-            self.m.download_url(link, self.__folder_database_pull)
+            result = self.m.download_url(link, self.__folder_database_pull)
         except ConnectionError:
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Erro de conexão com o mega ocorreu!')
         except:
             window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Um erro ocorreu e não foi possivel continuar...ERRO: ')
-            
-        return self.__desconpacta(window, progress_bar)
+   
+        finali = self.__desconpacta(window, progress_bar)
+        
+        window.write_event_value('DOWNLOAD_OK', finali)
         
 
 DEFAULT_KEY_EMAIL = '<<EMAIL_MEGA>>'
@@ -211,8 +206,7 @@ class Backup_database:
         
         return layout
     
-    def exec_class(self, window_layouts):
-        window_layouts.close()
+    def exec_class(self):
         window = sg.Window('Gerenciamento de backup da base de dados', self.layout(), icon=r'image/iconLogo.ico', modal=True)
         
         while(True):
@@ -222,24 +216,33 @@ class Backup_database:
                 break
             
             if event == DEFAULT_KEY_LOGAR:
-                result = self.backup_mega.login_mega(window,value[DEFAULT_KEY_EMAIL], value[DEFAULT_KEY_PASSWORD])
-                if result != None:
-                    window.Element(DEFAULT_KEY_LOGADO).update("Usuario: "+ result+' logado no mega', text_color='white')
+                login_trheading = threading.Thread(target=self.backup_mega.login_mega, args=(window,value[DEFAULT_KEY_EMAIL], value[DEFAULT_KEY_PASSWORD],), daemon=True)
+                login_trheading.start()
+            if event == 'LOGIN_OK':
+                print('logado!')
+                if value['LOGIN_OK'] != None:
+                    window.Element(DEFAULT_KEY_LOGADO).update("Usuario: "+ value['LOGIN_OK']+' logado no mega', text_color='white')
                 else:
                     window.Element(DEFAULT_KEY_LOGADO).update('Um erro ocorreu ao tentar loga na conta', text_color='red')
+                    
             if event == DEFAULT_KEY_BTN_UPLOAD:
                 progress_bar = window.Element(DEFAULT_KEY_PROGRESS)
                 self.backup_mega.upload(window, progress_bar)
                 
             if event == DEFAULT_KEY_BTN_DOWNLOAD:
                 progress_bar = window.Element(DEFAULT_KEY_PROGRESS_DOWNLOAD)
-                result = self.backup_mega.download(window, progress_bar, value[DEFAULT_KEY_LINK_DOWNLOAD])
+                new_trheading = threading.Thread(target=self.backup_mega.download, args=(window, progress_bar, value[DEFAULT_KEY_LINK_DOWNLOAD],), daemon=True)
+                new_trheading.start()
                 
-                if result != False:
-                    window.Element(DEFAULT_KEY_LINK_DOWNLOAD).update('')
-                else:
-                    print('conectado novamente')
-                    #self.conn=Database()
+            if event == 'DOWNLOAD_OK':
+                window.Element(DEFAULT_KEY_LINK_DOWNLOAD).update('')
+                
+            if value[DEFAULT_KEY_EMAIL] == '' and value[DEFAULT_KEY_PASSWORD] == '':
+                window.Element(DEFAULT_KEY_LOGAR).update(disabled=True)
+            else:
+                window.Element(DEFAULT_KEY_LOGAR).update(disabled=False)
+                
+                
         window.close()
         
 '''if __name__ == '__main__':
