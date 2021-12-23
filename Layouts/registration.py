@@ -630,6 +630,8 @@ class Registration:
         self._btn_edit_clicked = False
         self._id_register_db = None
         
+        self.window_regitration = None
+        
     def _load_layout(self):
         layout = [
              self._class_register.load_window_layout(),
@@ -950,18 +952,19 @@ class Registration:
             
             window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(disabled=True)
             
-    def exec_class(self, window_layout):
-        window_regitration = sg.Window('Cadastro', self._load_layout(),icon=r'image/iconLogo.ico',keep_on_top=True, modal=True)
+    def exec_class(self):
+        self.window_regitration = sg.Window('Cadastro', self._load_layout(),icon=r'image/iconLogo.ico',keep_on_top=True, modal=True)
         event, value = None, None
         while(True):
-            event, value = window_regitration.read(timeout=100)  
+            event, value = self.window_regitration.read(timeout=100)  
                 
             if event == sg.WINDOW_CLOSED:
-                break;  
-            self._input_event_buttons(window_regitration, event, value)
-            self._class_register.exec_layout(window_regitration, event, value)
+                break
+            
+            self._input_event_buttons(self.window_regitration, event, value)
+            self._class_register.exec_layout(self.window_regitration, event, value)
             
         if self._window_button_search != None:
             self._window_button_search.close()
         
-        window_regitration.close()
+        self.window_regitration.close()

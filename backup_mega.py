@@ -112,6 +112,7 @@ class Backup_mega:
         
         root_folde, path, file = self.compact()
         
+        results = False
         try:
             if self.m.find(root_folde) == None:
                 window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Criando pasta ["+root_folde+"] no Mega\n para o arquivo ["+file+"] gerado...")
@@ -119,7 +120,6 @@ class Backup_mega:
                 time.sleep(.6)
                 self.m.create_folder(root_folde)
                 
-            
             if self.m.find(path) == None:  
                 window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Fazendo upload do arquivo\n ["+file+"] para o mega...")
                 progress_bar.UpdateBar(3,4)
@@ -129,8 +129,11 @@ class Backup_mega:
                 window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Processo finalizado!")
                 progress_bar.UpdateBar(4,4)
                 time.sleep(.6)
+            results = True
         except ConnectionError:
-            window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Erro de conexão com o mega ocorreu!")
+            window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Um erro de conexão com o mega ocorreu!")
+            
+        window.write_event_value('UPLOAD_OK', results)
             
     def download(self,window, progress_bar, link): 
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Iniciando download...')
@@ -170,7 +173,7 @@ DEFAULT_KEY_BTN_DOWNLOAD = '<<BTN_DOWNLOAD>>'
 DEFAULT_KEY_TXT_PROCESS_DOWNLOAD = '<<TXT_PROCESSO_DE_DOWNLOAD>>'
 
 class Backup_database:
-    def __init__(self,):
+    def __init__(self):
         #self.conn = database
         self.backup_mega = Backup_mega()
         
@@ -183,14 +186,14 @@ class Backup_database:
                 ]
         
         backup = [
-                [sg.Button('Upload backup', key=DEFAULT_KEY_BTN_UPLOAD)],
+                [sg.Button('Upload backup', key=DEFAULT_KEY_BTN_UPLOAD, disabled=True)],
                 [sg.ProgressBar(1, orientation='h',size=(25,15),key=DEFAULT_KEY_PROGRESS)],
                 [sg.T('', key=DEFAULT_KEY_PROCESS_UPLOAD)]
                 ]
         download = [
                     [sg.T('Link mega do arquivo zip para o download')],
-                    [sg.Input(size=60, key=DEFAULT_KEY_LINK_DOWNLOAD)],
-                    [sg.Button('Baixar e atualizar', key=DEFAULT_KEY_BTN_DOWNLOAD)],
+                    [sg.Input(size=60, key=DEFAULT_KEY_LINK_DOWNLOAD, disabled=True)],
+                    [sg.Button('Baixar e atualizar', key=DEFAULT_KEY_BTN_DOWNLOAD, disabled=True)],
                     [sg.ProgressBar(1, orientation='h', size=(25,15),key=DEFAULT_KEY_PROGRESS_DOWNLOAD)],
                     [sg.T('', key=DEFAULT_KEY_TXT_PROCESS_DOWNLOAD)]
                    ]
@@ -206,7 +209,12 @@ class Backup_database:
         
         return layout
     
-    def exec_class(self):
+    def disabled_fields_to_backup(self,window, btn_upload, input_link, btn_download):
+        window.Element(DEFAULT_KEY_BTN_UPLOAD).update(disabled= btn_upload)
+        window.Element(DEFAULT_KEY_LINK_DOWNLOAD).update(disabled= input_link)
+        window.Element(DEFAULT_KEY_BTN_DOWNLOAD).update(disabled= btn_download)
+    
+    def exec_class(self, window_login):
         window = sg.Window('Gerenciamento de backup da base de dados', self.layout(), icon=r'image/iconLogo.ico', modal=True)
         
         while(True):
@@ -218,31 +226,42 @@ class Backup_database:
             if event == DEFAULT_KEY_LOGAR:
                 login_trheading = threading.Thread(target=self.backup_mega.login_mega, args=(window,value[DEFAULT_KEY_EMAIL], value[DEFAULT_KEY_PASSWORD],), daemon=True)
                 login_trheading.start()
+                
             if event == 'LOGIN_OK':
                 print('logado!')
                 if value['LOGIN_OK'] != None:
                     window.Element(DEFAULT_KEY_LOGADO).update("Usuario: "+ value['LOGIN_OK']+' logado no mega', text_color='white')
+                    self.disabled_fields_to_backup(window, False, False, False)
                 else:
                     window.Element(DEFAULT_KEY_LOGADO).update('Um erro ocorreu ao tentar loga na conta', text_color='red')
+                    self.disabled_fields_to_backup(window, True,True,True)
                     
             if event == DEFAULT_KEY_BTN_UPLOAD:
+                self.disabled_fields_to_backup(window, True,True,True)
                 progress_bar = window.Element(DEFAULT_KEY_PROGRESS)
-                self.backup_mega.upload(window, progress_bar)
+                upload_trheading = threading.Thread(target=self.backup_mega.upload, args=(window, progress_bar,), daemon=True)
+                upload_trheading.start()
+                
+            if event == 'UPLOAD_OK':
+                self.disabled_fields_to_backup(window, False, False, False)
                 
             if event == DEFAULT_KEY_BTN_DOWNLOAD:
+                self.disabled_fields_to_backup(window, True,True,True)
                 progress_bar = window.Element(DEFAULT_KEY_PROGRESS_DOWNLOAD)
                 new_trheading = threading.Thread(target=self.backup_mega.download, args=(window, progress_bar, value[DEFAULT_KEY_LINK_DOWNLOAD],), daemon=True)
                 new_trheading.start()
                 
             if event == 'DOWNLOAD_OK':
                 window.Element(DEFAULT_KEY_LINK_DOWNLOAD).update('')
+                self.disabled_fields_to_backup(window, False, False, False)
                 
             if value[DEFAULT_KEY_EMAIL] == '' and value[DEFAULT_KEY_PASSWORD] == '':
                 window.Element(DEFAULT_KEY_LOGAR).update(disabled=True)
             else:
                 window.Element(DEFAULT_KEY_LOGAR).update(disabled=False)
-                
-                
+            
+            if window_login == 'FECHAR':
+                print('O programa foi fechado...')
         window.close()
         
 '''if __name__ == '__main__':

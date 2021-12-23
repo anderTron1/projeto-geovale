@@ -38,6 +38,7 @@ class main_layout:
         
         self._current_screen = self.get_monitor_from_coord(200, 200)
         
+        
     def get_monitor_from_coord(self, x, y):
         monitors = screeninfo.get_monitors()
     
@@ -60,14 +61,30 @@ class main_layout:
     
     def exec_classes(self):
         window = sg.Window('Janela Principal', self.layout(),icon=r'image/iconLogo.ico',
-                           default_button_element_size=(25,1), background_color='white', 
+                           default_button_element_size=(25,1), background_color='white', disable_close=True,
                            resizable=True, size=(self._current_screen.width, self._current_screen.height))
-        
         while(True):
             event, valuer = window.read(timeout=100)
             
+            if event == sg.WINDOW_CLOSED or event == 'Exit':
+                del self._class_registration
+                close = sg.popup_ok_cancel('Deseja realizar o backup antes de fechar?')
+                
+                if close == 'OK':
+                    result = sg.popup_ok_cancel('O sistema sera desconectado para realizar este processo.\n Deseja continuar?')
+                    if result == 'OK':
+                        if self._conn.close_connection():
+                            window.close()
+                            self.__class_backup.exec_class(event)            
+                            break
+                        else:
+                            sg.popup_error('ERRO!\nErro ao tentar desconectar do banco de dados.')
+                else: 
+                    window.close()
+                    break
+            
             if event == 'Cadastros':
-                self._class_registration.exec_class(window)
+                self._class_registration.exec_class()
             if event == 'Exportar dados':
                 self.__class_export_data.exec_class()
             if event == 'Configurações':
@@ -78,24 +95,6 @@ class main_layout:
                 self.__class_generate_pdf.exec_class()
             if event == 'Gerar contrato':
                 self._class_generate_constract.exec_class()
-            if event == sg.WINDOW_CLOSED or event == 'Exit':
-                close = sg.popup_ok_cancel('Deseja realizar o backup antes de fechar?')
-                
-                if close == 'OK':
-                    result = sg.popup_ok_cancel('O sistema sera desconectado para realizar este processo.\n Deseja continuar?')
-                    if result == 'OK':
-                        if self._conn.close_connection():
-                            window.close()
-                            self.__class_backup.exec_class()
-                            window.close()
-                            break
-                        else:
-                            sg.popup_error('ERRO!\nErro ao tentar desconectar do banco de dados.')
-                else: 
-                    window.close()
-                    print('fechamento: ', window)
-                    break
-        
 if __name__ == '__main__':
     
     app = main_layout()
