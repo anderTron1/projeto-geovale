@@ -200,7 +200,8 @@ class Export_data:
                 window.Element(DEFAULT_KEY_PATH_TO_EXPORT).update(save_in_directory)
             if event == DEFAULT_KEY_BTN_EXPORT:
                 try:
-                    self.get_datas(window,value)
+                    generate = threading.Thread(target=self.get_datas, args=(window,value,), daemon=True)
+                    generate.start()
                 except Exception as inst:
                     sg.popup_error('ERRO!\n'+ str(inst.args))
             if value[DEFAULT_KEY_PROJECT] != '' and value[DEFAULT_KEY_FRAMEWORK] and value[DEFAULT_KEY_PATH_TO_EXPORT] != '' and value[DEFAULT_KEY_NAME_FILE_TO_EXPORT] != '':

@@ -59,7 +59,7 @@ class main_layout:
                   ]
         return layout
     
-    def exec_classes(self):
+    def exec_class(self):
         window = sg.Window('Janela Principal', self.layout(),icon=r'image/iconLogo.ico',
                            default_button_element_size=(25,1), background_color='white', disable_close=True,
                            resizable=True, size=(self._current_screen.width, self._current_screen.height))
@@ -67,7 +67,6 @@ class main_layout:
             event, valuer = window.read(timeout=100)
             
             if event == sg.WINDOW_CLOSED or event == 'Exit':
-                del self._class_registration
                 close = sg.popup_ok_cancel('Deseja realizar o backup antes de fechar?')
                 
                 if close == 'OK':
@@ -90,7 +89,7 @@ class main_layout:
             if event == 'Configurações':
                 self.__class_Settings.exec_class()
             if event == 'Lista de Contratos':
-                self._class_inport_contract.exec_classes()
+                self._class_inport_contract.exec_class()
             if event == 'Gerar Tegs para contratos':
                 self.__class_generate_pdf.exec_class()
             if event == 'Gerar contrato':
@@ -98,4 +97,4 @@ class main_layout:
 if __name__ == '__main__':
     
     app = main_layout()
-    app.exec_classes()
+    app.exec_class()

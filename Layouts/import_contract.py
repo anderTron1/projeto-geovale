@@ -159,7 +159,6 @@ class Import_contract:
         if platform == "linux" or platform == "linux2":
             #os.system('libreoffice --writer '+ "'"+arq+"'")
             pid = subprocess.Popen(["libreoffice", file_path]).pid
-            print(pid)
             
         elif platform == "win32":
             path = 'C:/Program Files (x86)/Microsoft Office/'
@@ -174,11 +173,10 @@ class Import_contract:
                     break
             try:
                 pid = subprocess.Popen([path_office_to_exec_file_word+ "/WINWORD.EXE", file_path]).pid
-            except:
-                sg.popup_error('Erro na hora de abrir o contrato', keep_on_top=True, modal=True)
-            print(pid)
+            except Exception as inst:
+                sg.popup_error('Erro na hora de abrir o contrato'+str(inst.args), keep_on_top=True, modal=True)
     
-    def exec_classes(self):
+    def exec_class(self):
         window_input_layout = sg.Window('Modelos de Contratos', self.layout(),icon=r'image/iconLogo.ico', keep_on_top=True, modal=True)
         closed = False
         path_file = None
