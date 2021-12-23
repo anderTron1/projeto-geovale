@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(['layouts.py'],
-             pathex=[],
+             pathex=['C:\\Users\\andre\\Documents\\projeto\\projeto-geovale'],
              binaries=[],
              datas=[],
              hiddenimports=[],

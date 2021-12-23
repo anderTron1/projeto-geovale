@@ -9,8 +9,10 @@ from pathlib import Path
 import PySimpleGUI as sg
 import time
 
+import psutil
+import subprocess
 class Backup_mega:
-    def __init__(self):
+    def __init__(self,):
         self.__folder_database = 'database'
         self.__folder_save_database = 'backup_database'
         self.__folder_database_pull = 'backup_database/pull'
@@ -18,6 +20,8 @@ class Backup_mega:
         self.mega = Mega() 
         self.m = None
         #mega = Mega({'verbose': True})  # verbose option for print output
+
+        #self.conn = database
         
     def compact(self):
         date = '_'+datetime.today().strftime('%Y_%m_%d %He%M hs')
@@ -31,6 +35,7 @@ class Backup_mega:
     def __desconpacta(self, window, progress_bar):
         arq = None
         for _,_, file in os.walk(self.__folder_save_database):
+            print(file)
             arq = file[0]
         
         print(arq)
@@ -48,23 +53,27 @@ class Backup_mega:
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Extraindo registros do backup\n ['+arq+']...')
         progress_bar.UpdateBar(3,5)
         time.sleep(.6)
+
+        #try:
         for src_dir, dirs, files in os.walk(root_src_dir):
-            dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
-            if not os.path.exists(dst_dir):
-                os.makedirs(dst_dir)
-            for file_ in files:
-                src_file = os.path.join(src_dir, file_)
-                dst_file = os.path.join(dst_dir, file_)
-                if os.path.exists(dst_file):
-                    # in case of the src and dst are the same file
-                    if os.path.samefile(src_file, dst_file):
-                        continue
-                    os.remove(dst_file)
-                shutil.move(src_file, dst_dir)
-        
+                dst_dir = src_dir.replace(root_src_dir, root_dst_dir, 1)
+                if not os.path.exists(dst_dir):
+                    os.makedirs(dst_dir)
+                for file_ in files:
+                    src_file = os.path.join(src_dir, file_)
+                    dst_file = os.path.join(dst_dir, file_)
+                    if os.path.exists(dst_file):
+                        # in case of the src and dst are the same file
+                        if os.path.samefile(src_file, dst_file):
+                            continue
+                        os.remove(dst_file)
+                    shutil.move(src_file, dst_dir)
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Substituindo registros pelo backup...')
         progress_bar.UpdateBar(4,5)
         time.sleep(.6)
+        #except:
+        #    sg.popup_error('Um erro ocorreu ao tenta substituir os arquivos', keep_on_top=True, modal=True)
+
         try:
             shutil.rmtree('backup_database/pull/database')
             os.remove('backup_database/pull/'+arq)
@@ -123,9 +132,23 @@ class Backup_mega:
             window.Element(DEFAULT_KEY_PROCESS_UPLOAD).update("Erro de conexão com o mega ocorreu!")
             
     def download(self,window, progress_bar, link):
+        PROCNAME  = 'Database.sqlite3'
+        '''for proc in psutil.process_iter():
+            print('process: ' + proc.name())
+            if proc.name() == PROCNAME:
+                print('achou?')
+                proc.kill()'''
+        os.system('taskkill /f /im database/sqlite_database\\Database.sqlite3')
+            
         window.Element(DEFAULT_KEY_TXT_PROCESS_DOWNLOAD).update('Iniciando download...')
         progress_bar.UpdateBar(1,5)
         time.sleep(.6)
+        try:
+            if  os.path.isdir(self.__folder_database_pull):
+                shutil.rmtree(self.__folder_database_pull )
+            os.makedirs(self.__folder_database_pull)
+        except OSError as e:
+            print(f"Error:{ e.strerror}")   
         
         try:
             self.m.download_url(link, self.__folder_database_pull)
@@ -152,15 +175,15 @@ DEFAULT_KEY_BTN_DOWNLOAD = '<<BTN_DOWNLOAD>>'
 DEFAULT_KEY_TXT_PROCESS_DOWNLOAD = '<<TXT_PROCESSO_DE_DOWNLOAD>>'
 
 class Backup_database:
-    def __init__(self):
+    def __init__(self,):
+        #self.conn = database
         self.backup_mega = Backup_mega()
-        
         
     def layout(self):
         
         login = [
-                [sg.T('Email'), sg.Input(size=45, key=DEFAULT_KEY_EMAIL)],
-                [sg.T('Senha'), sg.Input(size=20, password_char='*', key=DEFAULT_KEY_PASSWORD)],
+                [sg.T('Email'), sg.Input('andre-luizpiresguimaraes@outlook.com',size=45, key=DEFAULT_KEY_EMAIL)],
+                [sg.T('Senha'), sg.Input('andertron123',size=20, password_char='*', key=DEFAULT_KEY_PASSWORD)],
                 [sg.Button('loga', key=DEFAULT_KEY_LOGAR), sg.T('', key=DEFAULT_KEY_LOGADO)]
                 ]
         
@@ -188,7 +211,8 @@ class Backup_database:
         
         return layout
     
-    def exec_class(self):
+    def exec_class(self, window_layouts):
+        window_layouts.close()
         window = sg.Window('Gerenciamento de backup da base de dados', self.layout(), icon=r'image/iconLogo.ico', modal=True)
         
         while(True):
@@ -213,7 +237,9 @@ class Backup_database:
                 
                 if result != False:
                     window.Element(DEFAULT_KEY_LINK_DOWNLOAD).update('')
-                
+                else:
+                    print('conectado novamente')
+                    #self.conn=Database()
         window.close()
         
 '''if __name__ == '__main__':

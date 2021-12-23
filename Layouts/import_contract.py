@@ -175,7 +175,7 @@ class Import_contract:
             try:
                 pid = subprocess.Popen([path_office_to_exec_file_word+ "/WINWORD.EXE", file_path]).pid
             except:
-                sg.popup_error('Erro na hora de abrir o contrato')
+                sg.popup_error('Erro na hora de abrir o contrato', keep_on_top=True, modal=True)
             print(pid)
     
     def exec_classes(self):
@@ -211,20 +211,22 @@ class Import_contract:
                     self.import_file(window_input_layout, event,  DEFAULT_KEY_TABLE_INPORT_CONTRACT, value[DEFAULT_KEY_INP_PATH])
                     window_input_layout.Element(DEFAULT_KEY_INP_PATH).update('')
                 else:
-                    sg.popup('Selecione um arquivo para importar', keep_on_top=True)
+                    sg.popup('Selecione um arquivo para importar', keep_on_top=True,modal=True)
                                    
             if event == DEFAULT_KEY_BTN_SELECT:
                 id_regist_table = self._search_register(window_input_layout, value[DEFAULT_KEY_INPUT_SEARCH_SELECT])
                 try:
                     window_input_layout.Element(DEFAULT_KEY_TABLE_INPORT_CONTRACT).TKTreeview.selection_set(id_regist_table)
                 except sg.ttk.tkinter.TclError as err:
-                    sg.popup(f'Registro não existe na base de dados\n{err}', keep_on_top=True)
+                    sg.popup_error(f'Registro não existe na base de dados\n{err}', keep_on_top=True, modal=True)
             
             if event == DEFAULT_KEY_BTN_OPEN:
                 name, _ =self._selected_element_table(window_input_layout)
                 arq = self.path_docs + '/' + name[0]
-                
-                self.exec_file_word(arq)
+                try:
+                    self.exec_file_word(arq)
+                except:
+                    sg.popup_error('ERRO! Não foi possivel abrir o programa word', keep_on_top=True, modal=True)
                 
             if event == DEFAULT_KEY_BTN_DELET:
                 element_selection, id_selection_table = self._selected_element_table(window_input_layout)

@@ -73,7 +73,7 @@ class main_layout:
             if event == 'Configurações':
                 self.__class_Settings.exec_class()
             if event == 'Backup':
-                 self.__class_backup.exec_class()
+                 self.__class_backup.exec_class(window)
             if event == 'Lista de Contratos':
                 self._class_inport_contract.exec_classes()
             if event == 'Gerar Tegs para contratos':
