@@ -48,7 +48,9 @@ Nesta pagina é possivel exportar os registros em excel de acordo com as configu
 
 ### PAGINA PARA CONFIGURAÇÃO
 Nesta pagina fica as configurações que serão necessarias quando for cadastra algum cliente, dessa forma o tipo de cliente será cadastrado de agordo com as configurações desta pagina.
+
 ![Alt text](image_system/configurações_basicas.PNG?raw=true "Title")
+
 ![Alt text](image_system/configurações_basicas_projeto.PNG?raw=true "Title")
 
 
