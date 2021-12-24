@@ -32,24 +32,24 @@ Nesta pagina possui as principais funcionalidades
 #### Sobre
  * Dados do desenvolvedor
 
-![Alt text](sistema/pagina_principal.PNG?raw=true "Title")
+![Alt text](image_system/pagina_principal.PNG?raw=true "Title")
 
 ### PAGINA DE CADASTRO
 Nesta pagina seram feitos os cadastros de todos os clientes
 e também onde são feitas as auterações necessarias no mesmo. Para consultar novos clientes, no canto inferior esquerto tem a opção [procurar]
-![Alt text](sistema/cadastro.PNG?raw=true "Title")
+![Alt text](image_system/cadastro.PNG?raw=true "Title")
 
 #### PAGINA PARA CONSULTAR CLIENTES
-![Alt text](sistema/clientes.PNG?raw=true "Title")
+![Alt text](image_system/clientes.PNG?raw=true "Title")
 
 ### PAGINA PARA EXPORTAR DADOS
 Nesta pagina é possivel exportar os registros em excel de acordo com as configurações que for preenchidas. 
-![Alt text](sistema/exportar_dados.PNG?raw=true "Title")
+![Alt text](image_system/exportar_dados.PNG?raw=true "Title")
 
 ### PAGINA PARA CONFIGURAÇÃO
 Nesta pagina fica as configurações que serão necessarias quando for cadastra algum cliente, dessa forma o tipo de cliente será cadastrado de agordo com as configurações desta pagina.
-![Alt text](sistema/configurações_basicas.PNG?raw=true "Title")
-![Alt text](sistema/configurações_basicas_projeto.PNG?raw=true "Title")
+![Alt text](image_system/configurações_basicas.PNG?raw=true "Title")
+![Alt text](image_system/configurações_basicas_projeto.PNG?raw=true "Title")
 
 
 

@@ -36,6 +36,7 @@ class Generate:
         
         for i in range(len(inline)):
             paragr = inline[i].text
+            #print(paragr)
             for text in dict_sub.keys():
                 if paragr.find(text) != -1:
                     
@@ -43,6 +44,9 @@ class Generate:
                     texto = paragr.replace(text, str(dict_sub[text]))
                     inline[i].text = texto
                     paragr = texto
+    #def lines1(self,inline, dict_sub):
+        
+        
     
     def update_docx(self, name, datas=None, is_table=False, progress_bar=None):
 
@@ -52,7 +56,13 @@ class Generate:
             if is_table==False:
                 #update  paragraph                
                 for paragraph in self.document.paragraphs:
-                      self.lines(paragraph.runs, datas)
+                    for key in datas.keys():
+                        if paragraph.text.find(key) != -1:
+                            print(paragraph.text)
+                            text_paragraph = paragraph.text.replace(key, str(datas[key]))
+                            paragraph.text = text_paragraph
+                            
+                    #self.lines(paragraph.runs, datas)
                 
             if is_table==True and progress_bar != None:
                 cont = 0
@@ -152,7 +162,7 @@ class Generate_contract:
             window.Element(DEFAULT_KEY_INPUT_CPF).update(self.elemAdditional.valid_cpf(str(register_database[0][KEY_CPF])))
         
     def __contract_files(self, window, value):
-        path = self._class_import_contract.exec_classes()
+        path = self._class_import_contract.exec_class()
         
         if path != -1:
             self._path_contract = path
