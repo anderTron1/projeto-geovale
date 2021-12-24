@@ -2,6 +2,8 @@
 Created on Fri Oct  8 11:38:16 2021
 
 @author: andre Luiz Pires Guimarães
+@cell: (66)984185015
+@email: andreluizpires1507@gmail.com
 """
 
 # projeto-geovale
