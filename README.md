@@ -9,7 +9,7 @@ Created on Fri Oct  8 11:38:16 2021
 # projeto-geovale
 
 Para executar as funcionalidades instala os requisitos do arquivo requirements.txt
-O arquivo layouts.py é onde se encontra o mean de execução do sistema.
+O arquivo layouts.py é onde se encontra o metodo '__main__' de execução do sistema.
 O banco de dados utilizado é o sqlite3 chamado database.sqlite3, juntamente com outras bases de dados que se encontram na pasta chamada database
 
 ### PROBLEMA DE NEGÓCIO
