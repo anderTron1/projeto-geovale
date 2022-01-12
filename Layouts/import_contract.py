@@ -161,15 +161,20 @@ class Import_contract:
             pid = subprocess.Popen(["libreoffice", file_path]).pid
             
         elif platform == "win32":
-            path = 'C:/Program Files (x86)/Microsoft Office/'
+            paths_executable =['C:/Program Files/Microsoft Office/', 'C:/Program Files (x86)/Microsoft Office/']
             path_office_to_exec_file_word = None
+            executable_found = False
+            
             '''
                 search among the office versions for the folder containing the word execution file
             '''
-            for root, dirs, files in os.walk(path, topdown=True):
-                #print(root)
-                if root[len(path):].find('Office') != -1:
-                    path_office_to_exec_file_word = root
+            for path in paths_executable:
+                for root, dirs, files in os.walk(path, topdown=True):
+                    if os.path.isfile(root+'/WINWORD.EXE'):
+                        path_office_to_exec_file_word = root
+                        executable_found = True
+                        break
+                if executable_found == True:
                     break
             try:
                 pid = subprocess.Popen([path_office_to_exec_file_word+ "/WINWORD.EXE", file_path]).pid
