@@ -56,7 +56,7 @@ class Database:
             del self._conection
             return True
         except:
-            return false
+            return False
         
 
     #function to get the fields from the names of each column in the database
@@ -65,9 +65,8 @@ class Database:
         
         cont = 0
         self._cur.execute(f'PRAGMA table_info({name_table})')
-        
         for row in self._cur:
-            
+            print(row)
             if is_pass_to_id != None:
                 if 'id_' not in row[1] or row[1] == is_pass_to_id:
                     if register_layout[cont] != None:

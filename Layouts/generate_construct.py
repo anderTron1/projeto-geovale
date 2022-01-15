@@ -46,7 +46,16 @@ class Generate:
                     paragr = texto
     #def lines1(self,inline, dict_sub):
         
-        
+    '''
+    Clear document keys that have no values
+    '''
+    def clear_keys_docx(self, keys):
+        for paragraph in self.document.paragraphs:
+            for key in keys:
+                if paragraph.text.find(key) != -1:
+                    text_paragraph = paragraph.text.replace(key,' ')
+                    paragraph.text = text_paragraph
+                    print('limpando chave: ', key, ' da qual não existe informação disponivel neste registro')
     
     def update_docx(self, name, datas=None, is_table=False, progress_bar=None):
 
@@ -58,7 +67,7 @@ class Generate:
                 for paragraph in self.document.paragraphs:
                     for key in datas.keys():
                         if paragraph.text.find(key) != -1:
-                            print(paragraph.text)
+                            #print(paragraph.text)
                             text_paragraph = paragraph.text.replace(key, str(datas[key]))
                             paragraph.text = text_paragraph
                             
@@ -70,7 +79,7 @@ class Generate:
                 icome = 0
                 
                 progress_bar.UpdateBar(0, size_data+1)
-                time.sleep(.2)
+                time.sleep(.01)
                 #update table
                 for table in self.document.tables:
                     cont_rows = len(datas) / (len(table.columns)-1)
@@ -97,14 +106,14 @@ class Generate:
                                     cont += 1
                                     
                                     progress_bar.UpdateBar(cont, size_data)
-                                    time.sleep(.2)
+                                    time.sleep(.01)
                 #update icome table
                 dic_icome = {DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID: self.elements.money_validation(str(icome))}
                 for paragraph in self.document.paragraphs:
                     self.lines(paragraph.runs, dic_icome)
                 
                 progress_bar.UpdateBar(cont+1, size_data+1)
-                time.sleep(.2)
+                time.sleep(.01)
                                    
     def save(self,dict_save, save_as): 
         save = True
@@ -206,7 +215,7 @@ class Generate_contract:
             
                 self.__generate.update_docx(self._path_contract, key_value, is_table)
                 progress_bar.UpdateBar(cont, size_list)
-                time.sleep(.2)
+                time.sleep(.01)
             #print(key_value)
             
     def get_datas_db(self,window, value):
@@ -221,6 +230,7 @@ class Generate_contract:
 
         window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Inserindo registros dos dados pessoais...')
         self.get_db(window,value, keys_fields(), name_register, name_id_register, id_register)
+        self.__generate.clear_keys_docx(keys_fields())
         
         #everyting register spouse
         name_spouse = self._conn.register_spouse
@@ -231,7 +241,8 @@ class Generate_contract:
         if register_spouse_exist:
             window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Inserindo registros do cônjuge...')
             self.get_db(window,value, keys_fields_spouse(), name_spouse, name_id_to_register, id_register)
-        
+        self.__generate.clear_keys_docx(keys_fields_spouse())
+            
         #everyting register residents
         name_register_residents = self._conn.register_residents
         
@@ -241,7 +252,9 @@ class Generate_contract:
             
             window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Inserindo registros nas tabelas...')
             self.get_db(window,value, key_fields_residents().pop(0), name_register_residents, name_id_to_register, id_register, is_table=True)
-        
+        self.__generate.clear_keys_docx(key_fields_residents())
+        self.__generate.clear_keys_docx([DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID])
+            
         #generate and save changes to the Word file 
         save = self.__generate.save(save_in_directory, value[DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE])
         if save:

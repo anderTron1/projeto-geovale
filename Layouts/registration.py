@@ -161,7 +161,7 @@ class register_personal_data:
 
         frameCondImoveis = [
             [sg.T('Tem outro dono?', size=(32)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_ONLY_OWNER, readonly=True), sg.T('Nome do outro Dono:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_OWNER)],
-            [sg.T('A quanto tempo spossui o Imóvel?'), sg.Input(size=(15,1), disabled=True,  key=DEFAULT_KEY_TXT_STILL_TIME)],
+            [sg.T('O imóvel é quitado?'),sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_TXT_PROPERTY_IS_PAID_OFF, readonly=True), sg.T('A quanto tempo spossui o Imóvel?'), sg.Input(size=(15,1), disabled=True,  key=DEFAULT_KEY_TXT_HOW_LONG_HAS_THE_PROPERTY)],
             [sg.T('Possui Outro Imóvel Urbano?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY, readonly=True), sg.T('Quantos?'), 
              sg.Spin(rangeArray(0, 11), disabled=True,  key=DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY, initial_value=(''), readonly=True), sg.T('Onde?'), sg.Input(size=(20,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE)],
             [sg.T('Tem Edificação no Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC, readonly=True), sg.T('Utiliza o imóvel para:'), 
@@ -649,7 +649,6 @@ class Registration:
     
     def _loard_records_into_fields(self,window, name_table, keys_fields, name_id_table, id_register, is_table = False, key_table = None, get_new_id=None):
         fileds_and_field_db = self._conn._take_fields_records(name_table, keys_fields, is_pass_to_id = get_new_id)
-        
         if is_table:
             keys_new = []
             keys_new.append(self._conn.id_register_residents)
@@ -661,7 +660,6 @@ class Registration:
             self._class_register.datas_register_residents = self._conn.select_register(fileds_and_field_db.keys(), name_table, name_id_table, id_register)[0]
             
         datas = np.array(self._class_register.datas_register_residents)
-        
         if key_table == None:
             for cont, key in enumerate(fileds_and_field_db.values()):
                 if datas[cont] != None:

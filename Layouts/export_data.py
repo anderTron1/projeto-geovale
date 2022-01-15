@@ -56,41 +56,76 @@ class Export_data:
     def event_disable(self,window, btn_export):
         window.Element(DEFAULT_KEY_BTN_EXPORT).update(disabled=btn_export)
     
+    def get_income_residents(self,name_db_people, name_db_residents, list_data):
+        '''
+        search for income and create a new list of records
+        '''
+        fields_db_residents = 'income'
+        datas_income_residents = None
+        datas_regist_new = []
+        if list_data != '':
+            for rows in list_data: 
+                new_elements = []
+                for cont, elem in enumerate(rows):
+                    new_elements.append(elem)
+                    if cont == 9:#index for the list cpf 
+                    
+                        sql = name_db_people + " WHERE cpf = '" + elem + "'"
+                        id_register = self.__conn.select_register(['id_register_people'], sql)
+                        
+                        if len(id_register) != 0:
+                            #search current record id
+                            sql = name_db_residents + " WHERE " + self.__conn.name_id_to_table_register + ' = ' + str(id_register[0][0])
+
+                            #search all income values
+                            incomes_residents = self.__conn.select_register([fields_db_residents], sql)
+                            
+                            if incomes_residents != '':
+                                datas_income_residents = 0
+                                for values in incomes_residents:
+                                    datas_income_residents += values[0]
+                                datas_income_residents = str(datas_income_residents).replace('.', ',')
+                                
+                            new_elements.append(datas_income_residents)
+                            
+            datas_regist_new.append(new_elements)
+        return datas_regist_new
+    
     def get_datas(self,window, value):
         progress_bar = window.Element('progress')
 
         name_db_people = self.__conn.register_people
         name_db_spouse = self.__conn.register_spouse
+        name_db_residents = self.__conn.register_residents
         
         spouse = ['NOME DO CONJUGE', 'CPF - CONJUGE', 'RG - CONJUGE',
                    'TITULO DE ELEITOR - CONJUGE','REGIME DE UNIÃO']
         
-        columns = ['NOME', 'ENQUADRAMENTO','RENDA R$',
+        columns = ['NOME', 'ENQUADRAMENTO',
                    'IMÓVEL  RURAL', 
                    'LOTE', 'QUADRA', 'BAIRRO DO IMOVÉL', 
                    'RUA', 'NÚMERO', 'BAIRRO', 
-                   'CPF /CNPJ','RG', 'ORGÃO EMISSOR', 
+                   'CPF /CNPJ','RENDA R$','RG', 'ORGÃO EMISSOR', 
                    'TITULO DE ELEITOR', 'IDADE', 'PROFISÃO',
                    'ESTADO  CIVIL', 'FILHOS', 'ESCOLARIDADE'
                    ]
         for i in spouse:
             columns.append(i)
         
-        fields_db = ['name', 'type_reurb', 'income_between', 'has_rural_property', 
+        fields_db = ['name', 'type_reurb', 'has_rural_property', 
                      'num_bach_regu', 'num_block_regu', 'district_regu', 'address', 
                      'address_number', 'district', 'cpf', 'rg', 'issuing_agency', 
                      'voter_title', 'age', 'profession', 'marital_status', 'how_many_children', 'schooling', 'name_spouse', 'cpf_spouse','rg_spouse', 'issuing_agency_spouse', 'union_regime_spouse']
         
-        
-
         value_project = value[DEFAULT_KEY_PROJECT]
         value_framework = value[DEFAULT_KEY_FRAMEWORK]
+        
         if value_project == 'Todos' and value_framework == 'Todos':
             search_all = name_db_people  +", " + name_db_spouse+ " WHERE (" + name_db_people + '.id_register_people = ' + name_db_spouse + '.id_to_register_people)'
             
             search_singles = name_db_people +" WHERE marital_status <> 'Casado'"
             
-            datas_regist_singles = self.__conn.select_register(fields_db[0:19], search_singles)
+            datas_regist_singles = self.__conn.select_register(fields_db[0:18], search_singles)
             datas_regist_all = self.__conn.select_register(fields_db, search_all)
             
         else:
@@ -116,16 +151,25 @@ class Export_data:
                 search_singles = name_db_people +" WHERE marital_status <> 'Casado' AND " +name_db_people+'.id_to_projects_service = ' + str(value_project) + ' AND '+name_db_people + ".type_reurb = '" + value_framework+"'"
                 
             datas_regist_all = self.__conn.select_register(fields_db, search_all)
-            datas_regist_singles = self.__conn.select_register(fields_db[0:19], search_singles)
+            datas_regist_singles = self.__conn.select_register(fields_db[0:18], search_singles)
+
+        '''
+        search for income and create a new list of records to datas_regist_new
+        '''
+        datas_regist_new = self.get_income_residents(name_db_people, name_db_residents, datas_regist_all)
+        
+        '''
+        search for income and create a new list of records to datas_regist_singles
+        '''
+        datas_regist_singles = self.get_income_residents(name_db_people, name_db_residents, datas_regist_singles)
 
         progress_bar.UpdateBar(0,4)
         time.sleep(.5)
         
         new_datas = []
-        
-        if datas_regist_all != '':
-            for rows in datas_regist_all:
-                new_datas.append(list(rows))
+        if datas_regist_new != '':
+            for rows in datas_regist_new:
+                new_datas.append(rows)
                 
         progress_bar.UpdateBar(1,4)
         time.sleep(.5)

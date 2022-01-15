@@ -21,6 +21,7 @@ import PySimpleGUI as sg
 import sys
 import ctypes
 
+sg.ChangeLookAndFeel('DarkTeal11')
 
 class main_layout: 
     def __init__(self):
