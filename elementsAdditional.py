@@ -41,7 +41,7 @@ class ElementsAdditional:
         return 'R$: {}'.format(str(round(float(nume), 2)).replace('.', ','))
 
     
-    def valid_birth(self,sg, num):
+    def valid_birth(self,num):
         num = re.sub('[^0-9]', '', num)
         if len(num) == 8:
             default = "([0-9]{2})([0-9]{2})([0-9]{4})"
@@ -52,7 +52,7 @@ class ElementsAdditional:
         elif len(num) > 8:
             return -1
         
-    def valid_cell_number(self,sg, num):
+    def valid_cell_number(self,num):
         num = re.sub('[^0-9]', '', num)
         if len(num) == 11:
             default = "([0-9]{2})([0-9]{5})([0-9]{4})"
@@ -84,7 +84,7 @@ class ElementsAdditional:
             #val = sg.popup('Número com menos digitos que o necéssario!')
             return -1
         
-    def valid_titulo_eleitor(self,sg, num):
+    def valid_titulo_eleitor(self,num):
         num = re.sub('[^0-9]', '', num)
         if len(num) == 12:
             default = '([0-9]{4})([0-9]{4})([0-9]{4})'
@@ -94,7 +94,7 @@ class ElementsAdditional:
         elif len(num) > 0 and len(num) < 12:
             #val = sg.popup('Número com menos digitos que o necéssario!')
             return -1
-    def valid_email(self,sg, email):
+    def valid_email(self,email):
         default = '(^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+\.[a-zA-Z\.a-zA-Z]{1,3}$)'
         if len(email) > 0:
             if re.match(default, email):
@@ -102,9 +102,10 @@ class ElementsAdditional:
             else:
                 return -1
     
-    def valid_rg(self,sg, num):
+    def valid_rg(self, num):
         num = re.sub('[^0-9]','', num)
         return num
+    
     def valid_just_number(self,sg, num):
         stringNumber = re.sub('[^[a-zA-Z]]', '', num)
 

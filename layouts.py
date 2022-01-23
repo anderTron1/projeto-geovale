@@ -21,7 +21,7 @@ import PySimpleGUI as sg
 import sys
 import ctypes
 
-sg.ChangeLookAndFeel('DarkTeal11')
+#sg.ChangeLookAndFeel('DarkTeal11')
 
 class main_layout: 
     def __init__(self):
@@ -52,7 +52,7 @@ class main_layout:
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
                 [   ['&Menu', ['&Cadastros', '&Exportar dados', 'Co&nfigurações', 'E&xit']],
-                    ['C&ontratos', ['&Gerar Tegs para contratos', '&Lista de Contratos', 'G&erar contrato']],
+                    ['D&ocumento', ['&Gerar Tegs para contratos', '&Lista de Contratos', 'G&erar Documento']],
                     ['Sobre', ['Dados desenvolvedor']]
                 ])]]#, background_color='#176d81')]]
         layout = [menu,
@@ -93,7 +93,7 @@ class main_layout:
                 self._class_inport_contract.exec_class()
             if event == 'Gerar Tegs para contratos':
                 self.__class_generate_pdf.exec_class()
-            if event == 'Gerar contrato':
+            if event == 'Gerar Documento':
                 self._class_generate_constract.exec_class()
 if __name__ == '__main__':
     

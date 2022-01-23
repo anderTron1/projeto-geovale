@@ -12,6 +12,12 @@ import PySimpleGUI as sg
 import os
 import time
 
+import re
+
+from decimal import Decimal
+import locale
+locale.setlocale(locale.LC_ALL, 'pt_BR')
+
 from docx import Document
 
 DEFAULT_KEY_INPUT_ID = '-ID_DO_REGISTRO_DA_BASE_DE_DADOS-'
@@ -55,9 +61,8 @@ class Generate:
                 if paragraph.text.find(key) != -1:
                     text_paragraph = paragraph.text.replace(key,' ')
                     paragraph.text = text_paragraph
-                    print('limpando chave: ', key, ' da qual não existe informação disponivel neste registro')
     
-    def update_docx(self, name, datas=None, is_table=False, progress_bar=None):
+    def update_docx(self, name, datas=None, is_table=False, progress_bar=None, income = 0):
 
         if name.find('.docx') == -1:
             sg.popup_error('O arquivo não é um formato docx')
@@ -66,8 +71,7 @@ class Generate:
                 #update  paragraph                
                 for paragraph in self.document.paragraphs:
                     for key in datas.keys():
-                        if paragraph.text.find(key) != -1:
-                            #print(paragraph.text)
+                        if paragraph.text.find(key) != -1 and str(datas[key]) != '--':
                             text_paragraph = paragraph.text.replace(key, str(datas[key]))
                             paragraph.text = text_paragraph
                             
@@ -76,7 +80,6 @@ class Generate:
             if is_table==True and progress_bar != None:
                 cont = 0
                 size_data = len(datas)
-                icome = 0
                 
                 progress_bar.UpdateBar(0, size_data+1)
                 time.sleep(.01)
@@ -98,17 +101,23 @@ class Generate:
                                 if cont == size_data:
                                     break
                                 if cell.text == '':
-                                    if type(datas[cont]) == float:
-                                        icome += datas[cont]
-                                        cell.text = self.elements.money_validation(str(datas[cont]))
+                                    if str(datas[cont]).find('R$') != -1:
+                                        income += float(re.sub('([^0-9].[^0-9]{1,2})', '', str(datas[cont]).replace('.', '').replace(',','.')))
+                                        cell.text = datas[cont]
                                     else:
                                         cell.text = str(datas[cont])
                                     cont += 1
                                     
                                     progress_bar.UpdateBar(cont, size_data)
                                     time.sleep(.01)
+               
+                try:
+                    income = locale.currency(income, grouping=True)
+                except:
+                    sg.popup_error('ERRO para converter o valor da renda familiar')
+                
                 #update icome table
-                dic_icome = {DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID: self.elements.money_validation(str(icome))}
+                dic_icome = {DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID: income}
                 for paragraph in self.document.paragraphs:
                     self.lines(paragraph.runs, dic_icome)
                 
@@ -195,12 +204,17 @@ class Generate_contract:
         
         if is_table:
             values = []
+            sql = self._conn.register_people + ' WHERE ' + self._conn.id_register_people + ' = ' + str(id_register)
+            income_people = self._conn.select_register(['income_between'], sql)
+            income_people = float(re.sub('([^0-9].[^0-9]{1,2})', '', income_people[0][0].replace('.', '').replace(',','.')))
+            
             register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)
             if register_db != None:
                 for val_tuple in register_db:
                     for value in val_tuple:
                         values.append(value)
-            self.__generate.update_docx(self._path_contract, values, is_table, progress_bar)
+                        
+            self.__generate.update_docx(self._path_contract, values, is_table, progress_bar, income_people)
         else:
             key_value = dict()
             register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)[0]

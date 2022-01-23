@@ -16,6 +16,12 @@ from elementsAdditional import ElementsAdditional
 from Layouts.search_register_person import Search_register_person
 from Layouts.keys_names.keys_to_registration import *
 
+import time
+
+from decimal import Decimal
+import locale
+locale.setlocale(locale.LC_ALL, 'pt_BR')
+
 #--------------------------key to buttons personal data-------------------
 DEFAULT_KEY_BTN_NEW = '-BUTTONNEW-'
 DEFAULT_KEY_BTN_CANCEL = '-BUTONCANCEL-'
@@ -32,6 +38,7 @@ DEFAULT_KEY_BTN_CANCEL_REGIST_RESID = '-BTN_CANCELAR_CADASTRO_MORADORES-'
 DEFAULT_KEY_BTN_SAVE_REGIST_RESID = '-BTN_SALVAR_CADASTRO_MORADORES-'
 DEFAULT_KEY_BTN_EDIT_REGIST_RESID = '-BTN_EDITAR_CADASTRO_MORADORES-'
 DEFAULT_KEY_BTN_DEL_REGIST_RESID = '-BTN_EXCLUIR_CADASTRO_MORADORES-'
+DEFAULT_BTN_VALIDATE_INCOME = '-VALIDATE_INCOME-'
 
 DEFAULT_KEY_BTN_UPDATE_TYPE = '<<BTN_ATUALIZAR_TIPO_REURB>>'
 
@@ -182,7 +189,7 @@ class register_personal_data:
             [sg.T('Trabalha?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_WORKS, readonly=True),sg.T('Onde:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_INP_WHERE),
              sg.T('Profissão:'), sg.Input(size=(25,1), disabled=True,   key=DEFAULT_KEY_TXT_PROFESSION), sg.T('É aposentado?'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_RETIREE, readonly=True)],
             [sg.T('Beneficiário de algum programa social?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_BENEF_CAMB_SOCI_PROG, readonly=True),
-             sg.T('Renda:'), sg.Combo(['Até 1 Salário Mínimo', 'De 1 a 3 Salários mínimos', 'De 3 a 5 Salários Mínimos', 'Mais de 5 Salários mínimos'],  key=DEFAULT_KEY_INCOME_COMB_INCOME, readonly=True),
+             sg.T('Renda:'), sg.Input(size=(15,1),  key=DEFAULT_KEY_INCOME_COMB_INCOME),
              sg.T('Tem Filhos?'), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_CHILDREM, readonly=True), 
              sg.T('Quantos?'), sg.Spin(values=(rangeArray(0,20)), disabled=True, key=DEFAULT_KEY_HOW_MANY_CHILDREM, initial_value=(''), readonly=True)],
             [sg.T('Mora Algum deficiente ou idoso?', size=(38)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_LIVES_DISABLED_OR_ELDERLY, readonly=True), 
@@ -213,16 +220,17 @@ class register_personal_data:
             [sg.Frame('Informações', [
                 [sg.T('ID:', size=(15,1)), sg.Input(size=(20,1), key=DEFAULT_KEY_INPUT_ID_REGIST_RESID, disabled=True)],
                 [sg.T('Nome:', size=(15,1)), sg.Input(size=(25,1), disabled=True, key=DEFAULT_KEY_TXT_NOME_REGIST_RESID)],
-                [sg.T('Parentesco',size=(15,1)), sg.Spin(rangeArray(0, 120), disabled=True,initial_value='', key=DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID, readonly=True), sg.T('Sexo'), 
+                [sg.T('Parentesco',size=(15,1)), sg.Input(size=(20,1),disabled=True, key=DEFAULT_KEY_SPIN_KINSHIP_REGIST_RESID), sg.T('Sexo'), 
                  sg.Combo(['M', 'F'], disabled=True, key=DEFAULT_KEY_COMB_SEX_REGIST_RESID, readonly=True), sg.T('Idade'), sg.Spin(rangeArray(0, 120), disabled=True,initial_value='', key=DEFAULT_KEY_SPIN_AGE, readonly=True)],
                 [sg.T('Estado Civil:', size=(15,1)),sg.Combo(['Casado', 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo'], disabled=True,  key=DEFAULT_KEY_COMB_MARITAL_STATUS_REGIST_RESID, readonly=True)],
-                [sg.T('Ocupação:', size=(15,1)), sg.Input(size=(20,1),disabled=True, key=DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID), sg.T('Renda:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_TXT_INCOME_REGIST_RESID)],
+                [sg.T('Ocupação:', size=(15,1)), sg.Input(size=(20,1),disabled=True, key=DEFAULT_KEY_TXT_OCCUPATION_REGIST_RESID)],
+                [sg.T('Renda:', size=(15,1)), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_TXT_INCOME_REGIST_RESID), sg.Button('Validar', disabled=True, key=DEFAULT_BTN_VALIDATE_INCOME)],
                 [sg.Button('Novo', disabled=True, key=DEFAULT_KEY_BTN_NEW_REGIST_RESID), sg.Button('Cancelar', disabled=True, key=DEFAULT_KEY_BTN_CANCEL_REGIST_RESID),
                  sg.T(' '*5), sg.Button('Salvar', disabled=True, key=DEFAULT_KEY_BTN_SAVE_REGIST_RESID), 
                  sg.Button('Editar', disabled=True, key=DEFAULT_KEY_BTN_EDIT_REGIST_RESID), sg.Button('Excluir',disabled=True, key=DEFAULT_KEY_BTN_DEL_REGIST_RESID)]
                 ])],
             [sg.Column([table])],
-            [sg.T('Renda Familiar Total:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID)]
+            [sg.T('Renda Familiar Total:'), sg.Input(size=(25,1), disabled=True, key=DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID)]
             ]
 
         layout = [
@@ -230,7 +238,7 @@ class register_personal_data:
                 [sg.Tab('Dados Pessoais', personal_data_tab, key=DEFAULT_KEY_PERSONAL_DATA_TABGROUP)],
                 [sg.Tab('Outras Inforamções', tab_other_infor, key=DEFAULT_KEY_OTHER_INFOR_TABGROUP)],
                 [sg.Tab('Cadastro de Moradores', tab_residents, element_justification='center', key=DEFAULT_KEY_RESIDENTS_REGIST_TABGROUP)]
-                ], key=DEFAULT_KEY_TABGROUP)],
+                ], key=DEFAULT_KEY_TABGROUP, enable_events=True)],
             ]
 
         return layout
@@ -395,13 +403,14 @@ class register_personal_data:
                         window.Element(key_disabled).update(disabled=False)
                     elif value[keys_itens] == KEY_NOT:
                         if window.Element(key_disabled).Type == 'spind':
-                            window.Element(key_disabled).update(value = '0',disabled=True)
+                            window.Element(key_disabled).update(value = '--',disabled=True)
                         elif window.Element(key_disabled).Type == 'input':
                             window.Element(key_disabled).update(value = '--',disabled=True)
                     elif value[keys_itens] == '':
                         window.Element(key_disabled).update(value = '',disabled=True)
    
-    def event_buttons_residents(self,window, btnNew,btnCancel, btnSave, btnEdit, btnDel):
+    def event_buttons_residents(self,window, btnValid, btnNew,btnCancel, btnSave, btnEdit, btnDel):
+        window.Element(DEFAULT_BTN_VALIDATE_INCOME).update(disabled=btnValid)
         window.Element(DEFAULT_KEY_BTN_NEW_REGIST_RESID).update(disabled=btnNew)
         window.Element(DEFAULT_KEY_BTN_CANCEL_REGIST_RESID).update(disabled=btnCancel)    
         window.Element(DEFAULT_KEY_BTN_SAVE_REGIST_RESID).update(disabled=btnSave)
@@ -427,7 +436,7 @@ class register_personal_data:
             
     def _edit_table(self, window, value, data, keys, indice_table):
         data_new = data[indice_table] = [value[keys[indice]] for indice in range(len(keys))]
-        data_new.append(self.update_register_txt_income(window))
+        data_new.append(self.update_register_txt_income(window, value))
         
         window.Element(DEFAULT_KEY_TABLE_RESIDENTS).update(values=data, num_rows=20,select_rows=[indice_table])
     
@@ -470,48 +479,69 @@ class register_personal_data:
                 
         self.__save_regist_table(window, count_rows, datas, alternating_row_color, background_color)
     
-    def update_register_txt_income(self, window):
-        if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()) > 0:
+    def update_register_txt_income(self, window, value):
+        #if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()) > 0:
             datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
             #update valuer to family income
-            total_income = [sum(float(str(i[7]).replace(',', '.')) for i in datas)][0]
-            
-            income = self.elemAdditional.money_validation(str(total_income))
+            total_income = 0
+            if value[DEFAULT_KEY_INCOME_COMB_INCOME] != '':
+                try:
+                    total_income = value[DEFAULT_KEY_INCOME_COMB_INCOME].replace('.', '')
+                    total_income = float(re.sub('([^0-9].[^0-9]{1,2})', '',total_income.replace(',','.')))
+                except:
+                    print('ERRO para alterar a renda total familiar')
+                
+            if len(datas) != 0:
+                total_income += [sum(float(re.sub('([^0-9].[^0-9]{1,2})', '', str(i[7]).replace('.', '').replace(',','.'))) for i in datas)][0]
+            income = Decimal(total_income)
+            income = locale.currency(income, grouping=True)
             
             window.Element(DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID).update(income)
             return income
     
-    def _event_table_regist_resid(self, window, event, valuer):
+    def _event_table_regist_resid(self, window, event, velue):
         if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()) > 0:
             dados = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
-                
+            
         if event == DEFAULT_KEY_TABLE_RESIDENTS:
             if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()) > 0 and window.Element(DEFAULT_KEY_BTN_CANCEL).TKButton['state'] != 'disabled':
                 self._select_rows_table_residents(window)
                 self.disable_objts(key_fields_residents(), window,True,closeValue=False)
-                self.event_buttons_residents(window, False,True, True, False, False)
-                     
+                self.event_buttons_residents(window,True, False,True, True, False, False)
+        
+        if event == DEFAULT_BTN_VALIDATE_INCOME:
+            try:
+                money = velue[DEFAULT_KEY_TXT_INCOME_REGIST_RESID].replace('.', '')
+                money = re.sub('([^0-9].[^0-9]{1,2})', '',money.replace(',','.'))
+                income = Decimal(money)
+                income = locale.currency(income, grouping=True)
+                window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update(income)
+                
+                window.Element(DEFAULT_KEY_BTN_SAVE_REGIST_RESID).update(disabled=False)
+            except:
+                sg.popup_error('Erro\n, O tipo de texto deve ser numérico',keep_on_top=True)
+                
         if event == DEFAULT_KEY_BTN_NEW_REGIST_RESID:
             self.disable_objts(key_fields_residents(), window,False,closeValue=True)
-            self.event_buttons_residents(window=window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True)
+            self.event_buttons_residents(window=window, btnValid=False, btnNew=True, btnCancel=False, btnSave=True, btnEdit=True, btnDel=True)
             #window.Element(DEFAULT_KEY_TABLE_RESIDENTS).focus()
             
         if event == DEFAULT_KEY_BTN_CANCEL_REGIST_RESID:
             self.disable_objts(key_fields_residents(), window,True,closeValue=True)
-            self.event_buttons_residents(window, True, True, True, True, True)
+            self.event_buttons_residents(window, True, True, True, True, True, True)
             
-        if event == DEFAULT_KEY_BTN_SAVE_REGIST_RESID:
-
+        if event == DEFAULT_KEY_BTN_SAVE_REGIST_RESID:            
             element_nane = False
             for key in key_fields_residents():
                 if key != DEFAULT_KEY_INPUT_ID_REGIST_RESID:
-                    if valuer[key] == '':
+                    if velue[key] == '':
                         element_nane = True
                     
             if element_nane == False:
-                if valuer[DEFAULT_KEY_INPUT_ID_REGIST_RESID] != '':
+                
+                if velue[DEFAULT_KEY_INPUT_ID_REGIST_RESID] != '' or window.Element(DEFAULT_KEY_BTN_EDIT_REGIST_RESID).TKButton['state'] != 'disabled':
                     print('Salvar Ediãço')
-                    regist = self._edit_table(window, valuer, dados, key_fields_residents(), window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0])
+                    regist = self._edit_table(window, velue, dados, key_fields_residents(), window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0])
                     
                     regist_exist = False
                     for cont in range(len(self.datas_register_residents_edit)):
@@ -525,50 +555,43 @@ class register_personal_data:
                         
                 else:
                     print('Salvar Novo registro')
-                    regist = self.save_record_regist_resid(window, valuer,key_fields_residents()) 
+                    regist = self.save_record_regist_resid(window, velue,key_fields_residents()) 
                     self.datas_register_residents_new.append(regist)
     
-                self.update_register_txt_income(window)
+                self.update_register_txt_income(window, velue)
                 
                 self.disable_objts(key_fields_residents(),window,True,closeValue=False)
-                self.event_buttons_residents(window, False, True, True, True, True)
+                self.event_buttons_residents(window, True, False, True, True, True, True)
             else:
                 sg.popup('ERRO!\nTodos os campos devem ser preenchidos', keep_on_top=True)
             
         if event == DEFAULT_KEY_BTN_EDIT_REGIST_RESID:
             self.disable_objts(key_fields_residents(),window,False,closeValue=False)
-            self.event_buttons_residents(window=window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True)
+            self.event_buttons_residents(window=window, btnValid=False, btnNew=True, btnCancel=False, btnSave=True, btnEdit=False, btnDel=True)
                 
         if event == DEFAULT_KEY_BTN_DEL_REGIST_RESID:
             id = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()[0]
             self.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS, int(id))
             self.disable_objts(key_fields_residents(),window,True,closeValue=True)
-            
-            
-        if valuer[DEFAULT_KEY_TXT_INCOME_REGIST_RESID] != '' and window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).TKEntry['state'] == 'normal': 
-            try:
-                float(valuer[DEFAULT_KEY_TXT_INCOME_REGIST_RESID].replace(',', '.'))
-            except ValueError:
-                window.Element(DEFAULT_KEY_TXT_INCOME_REGIST_RESID).update('')
-            
+                        
     def event_inputs(self,sg, window, event, velue):
         elemAdditional = ElementsAdditional()
         #----------------------------EVENTOS DO CAMPO DE tabDadosPessoal-------------------------
                
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA):
-            result = elemAdditional.valid_birth(sg, velue[DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA])
+            result = elemAdditional.valid_birth( velue[DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, 'Data incorreta!')
                 
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_TEL_PERSONAL_DATA):
-            result = elemAdditional.valid_cell_number(sg, velue[DEFAULT_KEY_TEL_PERSONAL_DATA])
+            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_TEL_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_TEL_PERSONAL_DATA, 'quantidade de digitos incorreta!')
             
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_CEL_PERSONAL_DATA):
-            result = elemAdditional.valid_cell_number(sg, velue[DEFAULT_KEY_CEL_PERSONAL_DATA])
+            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_CEL_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_CEL_PERSONAL_DATA, 'quantidade de digitos incorreta!')
         
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_EMAIL_PERSONAL_DATA):
-            result = elemAdditional.valid_email(sg, velue[DEFAULT_KEY_EMAIL_PERSONAL_DATA])
+            result = elemAdditional.valid_email( velue[DEFAULT_KEY_EMAIL_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_EMAIL_PERSONAL_DATA, 'formato do email incorreta!')
                 
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA):
@@ -579,39 +602,51 @@ class register_personal_data:
             result = elemAdditional.valid_cpf(velue[DEFAULT_KEY_CPF_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_CPF_PERSONAL_DATA, 'quantidades de digítos do CPF incorreta!')
             
-        if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA):
-            result = elemAdditional.valid_titulo_eleitor(sg, velue[DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA])
-            self._event_have_information(window, result, DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA, 'quantidade de digitos incorreta!')
+        '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA):
+            result = elemAdditional.valid_titulo_eleitor(velue[DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA])
+            self._event_have_information(window, result, DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA, 'quantidade de digitos incorreta!')'''
                 
-        if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_RG_PERSONAL_DATA):
-            result = elemAdditional.valid_rg(sg, velue[DEFAULT_KEY_RG_PERSONAL_DATA])
-            self._event_have_information(window, result, DEFAULT_KEY_RG_PERSONAL_DATA, 'Quantidade de digitos incorreta!')
-        
+        '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_RG_PERSONAL_DATA):
+            result = elemAdditional.valid_rg( velue[DEFAULT_KEY_RG_PERSONAL_DATA])
+            self._event_have_information(window, result, DEFAULT_KEY_RG_PERSONAL_DATA, 'Número de RG incorreto!')'''
+            
+        if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_INCOME_COMB_INCOME):
+            try:
+                money = velue[DEFAULT_KEY_INCOME_COMB_INCOME].replace('.', '')
+                money = re.sub('([^0-9].[^0-9]{1,2})', '',money.replace(',','.'))
+                income = Decimal(money)
+                income = locale.currency(income, grouping=True)
+                window.Element(DEFAULT_KEY_INCOME_COMB_INCOME).update(income)
+                
+                self.update_register_txt_income(window, velue)
+            except:
+                window.Element(DEFAULT_KEY_INCOME_COMB_INCOME).update('')
+
         #----------------------------EVENTOS DO CAMPO DE frameConjuge-------------------------
 
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_BIRTHDATE_SPOUSE):
-            result = elemAdditional.valid_birth(sg, velue[DEFAULT_KEY_BIRTHDATE_SPOUSE])
+            result = elemAdditional.valid_birth( velue[DEFAULT_KEY_BIRTHDATE_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_BIRTHDATE_SPOUSE, 'Data incorreta!')
                 
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_TEL_SPOUSE):
-            result = elemAdditional.valid_cell_number(sg, velue[DEFAULT_KEY_TEL_SPOUSE])
+            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_TEL_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_TEL_SPOUSE, 'Número de telefone incorreto!')
                 
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_CEL_SPOUSE):
-            result = elemAdditional.valid_cell_number(sg, velue[DEFAULT_KEY_CEL_SPOUSE])
+            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_CEL_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_CEL_SPOUSE, 'Número de celular incorreto!')
                 
-        if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_RG_SPOUSE):
-            result = elemAdditional.valid_rg(sg, velue[DEFAULT_KEY_RG_SPOUSE])
-            self._event_have_information(window, result, DEFAULT_KEY_RG_SPOUSE, 'Número de RG incorreto!')
+        '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_RG_SPOUSE):
+            result = elemAdditional.valid_rg( velue[DEFAULT_KEY_RG_SPOUSE])
+            self._event_have_information(window, result, DEFAULT_KEY_RG_SPOUSE, 'Número de RG incorreto!')'''
         
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_CPF_SPOUSE):
             result = elemAdditional.valid_cpf(velue[DEFAULT_KEY_CPF_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_CPF_SPOUSE, 'Número de CPF incorreto!')
                 
-        if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_SPOUSE):
-            result = elemAdditional.valid_titulo_eleitor(sg, velue[DEFAULT_KEY_VOTER_TITLE_SPOUSE])
-            self._event_have_information(window, result, DEFAULT_KEY_VOTER_TITLE_SPOUSE, 'Número do Titulo de Eleitor incorreto!')
+        '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_SPOUSE):
+            result = elemAdditional.valid_titulo_eleitor( velue[DEFAULT_KEY_VOTER_TITLE_SPOUSE])
+            self._event_have_information(window, result, DEFAULT_KEY_VOTER_TITLE_SPOUSE, 'Número do Titulo de Eleitor incorreto!')'''
         del elemAdditional
         
     def exec_layout(self, window, event, value):
@@ -678,6 +713,7 @@ class Registration:
             for row in datas:
                 val = [i for i in row]
                 self._class_register.save_regist_table(window, val)
+        
         if len(datas) > 0:
             return True
         return False
@@ -706,9 +742,10 @@ class Registration:
         how_many_urban_property = None
         own_rural_property = None
         
-        family_income = value[DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID].replace('R$: ', '')
+        family_income = value[DEFAULT_KEY_INCOME_COMB_INCOME].replace('.', '')
+        family_income = re.sub('([^0-9].[^0-9]{1,2})', '',family_income.replace(',','.'))
         if family_income != '':
-            family_income = float(family_income.replace(',', '.'))
+            family_income = float(family_income)
         if value[DEFAULT_KEY_BATCH_REGU_AREA] != '':
             lot_area = float(value[DEFAULT_KEY_BATCH_REGU_AREA])
         if value[DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY] != '':
@@ -754,33 +791,65 @@ class Registration:
                         
         return fits_how
         
+    def fill_records_in_fields(self, window, window_button_search, id_register):
+        if window_button_search != None or id_register != None:
+            #remove data if any existing
+            window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values = []
+                    
+            #event to residents
+            self._class_register.disable_objts(key_fields_residents(), window,True,closeValue=True)
+            self._class_register.event_buttons_residents(window,True, True, True, True, True, True)
+            self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
+                    
+            self._class_register.disable_objts(keys_fields(), window, True,True)
+            self._class_register.disable_objts(keys_fields_spouse(), window, True)
+                
+            register_ok = self._loard_records_into_fields(window, self._conn.register_people, keys_fields(), self._conn.id_register_people, id_register, get_new_id=self._conn.id_to_projects_service)
+            register_spouse_exist = self._conn.query_record(self._conn.register_spouse, self._conn.name_id_to_table_register, id_register)
+            register_residents_exist = self._conn.query_record(self._conn.register_residents, self._conn.name_id_to_table_register, id_register)
+                    
+            if register_spouse_exist is True:
+                self._loard_records_into_fields(window, self._conn.register_spouse, keys_fields_spouse(), self._conn.name_id_to_table_register, id_register)
+                
+            if register_residents_exist is True:
+                self._loard_records_into_fields(window, self._conn.register_residents, key_fields_residents(),  self._conn.name_id_to_table_register, 
+                                                id_register, is_table=True, key_table=DEFAULT_KEY_TABLE_RESIDENTS)
+                                    
+            if register_ok:
+                self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False,btnUpdataType=True)
     
     def _input_event_buttons(self, window, event, value):
 
         if event == DEFAULT_KEY_BTN_NEW:
+            self._id_register_db = None
+            window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values = []
+            
+            self._class_register.disable_objts(key_fields_residents(), window, True, closeValue=True)
             self._class_register.disable_objts(keys_fields(),window, False, True)
+            
             self._activate_registration_buttons(window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True, btnUpdataType=False)
             self._activate_search_buttons(window, buttons=True)
             #event buttons registration residents
-            self._class_register.event_buttons_residents(window, False, True, True, True, True)
+            self._class_register.event_buttons_residents(window, True, False, True, True, True, True)
             
             self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
             
         elif event == DEFAULT_KEY_BTN_CANCEL:
             self._btn_edit_clicked = False
                         
-            if value[DEFAULT_KEY_NOME_PERSONAL_DATA] != '':
+            if self._id_register_db != None:
+                self.fill_records_in_fields(window, self._window_button_search, self._id_register_db)
                 self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False, btnUpdataType=True)
             else:
                 self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=True, btnDel=True, btnUpdataType=True)
                 
             self._activate_search_buttons(window, buttons=False)
             #event buttons registration residents
-            self._class_register.event_buttons_residents(window, True, True, True, True, False)
+            #self._class_register.event_buttons_residents(window, True, True, True, True, True, False)
             
             #disable functions to register residents tab
             self._class_register.disable_objts(key_fields_residents(), window,True,True)
-            self._class_register.event_buttons_residents(window, True, True, True, True, True)
+            self._class_register.event_buttons_residents(window, True, True, True, True, True, True)
             
             #for item in window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children():
             #    window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.delete(item)
@@ -802,9 +871,10 @@ class Registration:
             '''
             field_name = value[DEFAULT_KEY_NOME_PERSONAL_DATA]
             field_cpf = value[DEFAULT_KEY_CPF_PERSONAL_DATA]
+            combo_project_services = value[DEFAULT_KEY_PROJECT_SERVICES]
             
             if value[DEFAULT_KEY_TYPE_FRAMEWORK] != '':
-                if field_name != '' and field_cpf != '':
+                if field_name != '' and field_cpf != '' and combo_project_services != '':
                     #keys_numeric_fields = [DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, DEFAULT_KEY_TEL_PERSONAL_DATA, DEFAULT_KEY_CEL_PERSONAL_DATA,
                     #                       DEFAULT_KEY_RG_PERSONAL_DATA, DEFAULT_KEY_CPF_PERSONAL_DATA]
                     #keys_numeric = [DEFAULT_KEY_BIRTHDATE_SPOUSE, DEFAULT_KEY_CEL_SPOUSE, DEFAULT_KEY_TEL_SPOUSE, DEFAULT_KEY_RG_SPOUSE, DEFAULT_KEY_CPF_SPOUSE]
@@ -882,9 +952,9 @@ class Registration:
                         self._activate_search_buttons(window, buttons=False)
                         #event buttons registration residents
                         self._class_register.event_buttons_residents(
-                            window, False, True, True, True, False)
+                            window, True, False, True, True, True, False)
                 else:
-                    sg.popup_error('ERRO!\nCampos Nome e CPF dos dados pessoais são obrigatorios!', keep_on_top=True)
+                    sg.popup_error('ERRO!\nCampos Nome, CPF e Projetos/serviços são campos obrigatorios!', keep_on_top=True)
             else:
                 sg.popup_error('Clique no botão [Atualizar REURB] antes de salvar!', keep_on_top=True)
 
@@ -894,7 +964,7 @@ class Registration:
             self._activate_registration_buttons(window, btnNew=True, btnCancel=False, btnSave=False, btnEdit=True, btnDel=True,btnUpdataType=False)
             self._activate_search_buttons(window, buttons=True)
             #event buttons registration residents
-            self._class_register.event_buttons_residents(window, False, True, True, True, True)
+            self._class_register.event_buttons_residents(window, True, False, True, True, True, True)
         
         elif event == DEFAULT_KEY_BTN_DELETE:              
             deleta = sg.popup_ok_cancel('Deseja realmente Excluir esse registro ?\n\nOK=SIM\nCancel=Não', keep_on_top=True)
@@ -907,38 +977,17 @@ class Registration:
                 self._class_register.disable_objts(keys_fields(), window, True,True)
                 self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=True, btnDel=True,btnUpdataType=True)
                 self._activate_search_buttons(window, buttons=False)
-                self._class_register.event_buttons_residents(window, True, True, True, True, True)
+                self._class_register.event_buttons_residents(window, True, True, True, True, True, True)
                 
         if event == DEFAULT_KEY_BTN_UPDATE_TYPE:
             window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(self.if_framing_as(value))
         
         if event == DEFAULT_KEY_BTN_SEARCH:
+            
             search = Search_register_person(self._conn)
             self._window_button_search, self._id_register_db = search.window_button_search()
-            print('Procurando id: ',self._id_register_db )
-            if self._window_button_search != None or self._id_register_db != None:
-                #event to residents
-                self._class_register.disable_objts(key_fields_residents(), window,True,closeValue=True)
-                self._class_register.event_buttons_residents(window, True, True, True, True, True)
-                self._class_register.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS)
-                
-                self._class_register.disable_objts(keys_fields(), window, True,True)
-                self._class_register.disable_objts(keys_fields_spouse(), window, True)
             
-                register_ok = self._loard_records_into_fields(window, self._conn.register_people, keys_fields(), self._conn.id_register_people, self._id_register_db, get_new_id=self._conn.id_to_projects_service)
-                register_spouse_exist = self._conn.query_record(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
-                register_residents_exist = self._conn.query_record(self._conn.register_residents, self._conn.name_id_to_table_register, self._id_register_db)
-                
-                if register_spouse_exist is True:
-                    self._loard_records_into_fields(window, self._conn.register_spouse, keys_fields_spouse(), self._conn.name_id_to_table_register, self._id_register_db)
-            
-                if register_residents_exist is True:
-                    self._loard_records_into_fields(window, self._conn.register_residents, key_fields_residents(),  self._conn.name_id_to_table_register, 
-                                                    self._id_register_db, is_table=True, key_table=DEFAULT_KEY_TABLE_RESIDENTS)
-                    self._class_register.update_register_txt_income(window)
-            
-                if register_ok:
-                    self._activate_registration_buttons(window, btnNew=False, btnCancel=True, btnSave=True, btnEdit=False, btnDel=False,btnUpdataType=True)
+            self.fill_records_in_fields(window, self._window_button_search, self._id_register_db)
                     
                     
         if event == DEFAULT_KEY_EDIT_TYPE_FRAMEWORK:
@@ -949,6 +998,10 @@ class Registration:
             self._conn.update_record_by(registers = dict_regist, name_table=self._conn.register_people , name_id = self._conn.id_register_people, id_register = self._id_register_db)
             
             window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(disabled=True)
+            
+        #if event == DEFAULT_KEY_TABGROUP:
+        if value[DEFAULT_KEY_TABGROUP] == DEFAULT_KEY_RESIDENTS_REGIST_TABGROUP:
+                self._class_register.update_register_txt_income(window, value)
             
     def exec_class(self):
         self.window_regitration = sg.Window('Cadastro', self._load_layout(),icon=r'image/iconLogo.ico',keep_on_top=True, modal=True)

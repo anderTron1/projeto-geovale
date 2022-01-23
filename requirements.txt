@@ -1,6 +1,6 @@
-pip install PySimpleGUI==4.55.1
-pip install python-docx==0.8.11
-pip install canvas==0.3
-pip install reportlab==3.6.3 
-pip install screeninfo==0.8
-pip install mega.py==1.0.8
+PySimpleGUI==4.56.0
+python-docx==0.8.11
+canvas==0.3
+reportlab==3.6.3 
+screeninfo==0.8
+mega.py==1.0.8
