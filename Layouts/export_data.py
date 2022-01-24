@@ -17,6 +17,10 @@ import openpyxl
 from string import ascii_uppercase
 
 from Layouts.registration import Get_projects
+import re
+from decimal import Decimal
+import locale
+locale.setlocale(locale.LC_ALL, 'pt_BR')
 
 import threading
 
@@ -56,13 +60,24 @@ class Export_data:
     def event_disable(self,window, btn_export):
         window.Element(DEFAULT_KEY_BTN_EXPORT).update(disabled=btn_export)
     
+    def format_income(self, income):
+        total_income = 0
+        try:
+            total_income = income.replace('.', '')
+            total_income = float(re.sub('([^0-9].[^0-9]{1,2})', '',total_income.replace(',','.')))
+        except Exception as err:
+            total_income = -1
+            sg.popup_error('ERRO para inserir a renda familiar\n' + str(err))
+        return total_income
+            
+    
     def get_income_residents(self,name_db_people, name_db_residents, list_data):
         '''
         search for income and create a new list of records
         '''
         fields_db_residents = 'income'
-        datas_income_residents = None
         datas_regist_new = []
+        
         if list_data != '':
             for rows in list_data: 
                 new_elements = []
@@ -71,20 +86,33 @@ class Export_data:
                     if cont == 9:#index for the list cpf 
                     
                         sql = name_db_people + " WHERE cpf = '" + elem + "'"
-                        id_register = self.__conn.select_register(['id_register_people'], sql)
+                        register = self.__conn.select_register([self.__conn.id_register_people, 'income_between'], sql)
                         
-                        if len(id_register) != 0:
+                        '''
+                        if there is an income in the personal record, start the data_income_residents with it
+                        '''
+                        if register[0][1] != None:
+                            datas_income_residents = self.format_income(register[0][1])
+                        else:
+                            datas_income_residents = 0
+                        
+                        if len(register) != 0:
                             #search current record id
-                            sql = name_db_residents + " WHERE " + self.__conn.name_id_to_table_register + ' = ' + str(id_register[0][0])
+                            sql = name_db_residents + " WHERE " + self.__conn.name_id_to_table_register + ' = ' + str(register[0][0])
 
                             #search all income values
                             incomes_residents = self.__conn.select_register([fields_db_residents], sql)
                             
                             if incomes_residents != '':
-                                datas_income_residents = 0
                                 for values in incomes_residents:
-                                    datas_income_residents += values[0]
-                                datas_income_residents = str(datas_income_residents).replace('.', ',')
+                                    income = self.format_income(values[0])
+                                    if income != -1:
+                                        datas_income_residents += income
+                                    else:
+                                        break
+                                    
+                                datas_income_residents = Decimal(datas_income_residents)
+                                datas_income_residents = locale.currency(datas_income_residents, grouping=True)
                                 
                             new_elements.append(datas_income_residents)
                             

@@ -52,7 +52,7 @@ class main_layout:
         image = 'image/temaLogo.png'
         menu = [ [sg.Menu(
                 [   ['&Menu', ['&Cadastros', '&Exportar dados', 'Co&nfigurações', 'E&xit']],
-                    ['D&ocumento', ['&Gerar Tegs para contratos', '&Lista de Contratos', 'G&erar Documento']],
+                    ['D&ocumento', ['&Gerar Tegs para documento', '&Lista de Documentos', 'G&erar Documento']],
                     ['Sobre', ['Dados desenvolvedor']]
                 ])]]#, background_color='#176d81')]]
         layout = [menu,
@@ -63,7 +63,7 @@ class main_layout:
     def exec_class(self):
         window = sg.Window('Janela Principal', self.layout(),icon=r'image/iconLogo.ico',
                            default_button_element_size=(25,1), background_color='white', disable_close=True,
-                           resizable=True, size=(self._current_screen.width, self._current_screen.height))
+                           resizable=True, size=(self._current_screen.width, self._current_screen.height)) 
         while(True):
             event, valuer = window.read(timeout=100)
             
@@ -89,9 +89,9 @@ class main_layout:
                 self.__class_export_data.exec_class()
             if event == 'Configurações':
                 self.__class_Settings.exec_class()
-            if event == 'Lista de Contratos':
+            if event == 'Lista de Documentos':
                 self._class_inport_contract.exec_class()
-            if event == 'Gerar Tegs para contratos':
+            if event == 'Gerar Tegs para documento':
                 self.__class_generate_pdf.exec_class()
             if event == 'Gerar Documento':
                 self._class_generate_constract.exec_class()

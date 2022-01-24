@@ -81,8 +81,8 @@ class Import_contract:
                         [self._table_search()],
                             
                         [sg.Button('Abrir', key=DEFAULT_KEY_BTN_OPEN, disabled=True), sg.Button('Excluir', key=DEFAULT_KEY_BTN_DELET, disabled=True)],
-                        [sg.Input(key=DEFAULT_KEY_INP_PATH, disabled=True, size=55), sg.Button('Importar', key=DEFAULT_KEY_BTN_IMPORT)],
-                        [sg.FileBrowse(button_text= 'Importar Contrato', target=DEFAULT_KEY_INP_PATH,tooltip='Importar novo contrato para o sistema', file_types=(('Arquivo no Formato', "*.docx"),))]
+                        [sg.Input(key=DEFAULT_KEY_INP_PATH, disabled=True, size=55), sg.Button('Importar',tooltip='Importar documento para a base de dados do sistema', key=DEFAULT_KEY_BTN_IMPORT)],
+                        [sg.FileBrowse(button_text= 'Novo documento', target=DEFAULT_KEY_INP_PATH,tooltip='Procurar novo documento', file_types=(('Arquivo no Formato', "*.docx"),))]
                       ]
         else:
             layout = [
