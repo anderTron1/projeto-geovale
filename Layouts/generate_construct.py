@@ -58,24 +58,26 @@ class Generate:
     def clear_keys_docx(self, keys):
         for paragraph in self.document.paragraphs:
             for key in keys:
-                if paragraph.text.find(key) != -1:
-                    text_paragraph = paragraph.text.replace(key,' ')
-                    paragraph.text = text_paragraph
+                for textParag in paragraph.runs:
+                    if key in textParag.text:
+                    	textParag.text = textParag.text.replace(key,' ')
+                    	print('limpando chave: ', key, ' da qual não existe informação disponivel neste registro')
     
     def update_docx(self, name, datas=None, is_table=False, progress_bar=None, income = 0):
 
-        if name.find('.docx') == -1:
-            sg.popup_error('O arquivo não é um formato docx')
-        else:
-            if is_table==False:
-                #update  paragraph                
+    	if name.find('.docx') == -1:
+        	sg.popup_error('O arquivo não é um formato docx')
+    	else:
+            if is_table==False:  
+                #update  paragraph
                 for paragraph in self.document.paragraphs:
                     for key in datas.keys():
-                        if paragraph.text.find(key) != -1 and str(datas[key]) != '--':
-                            text_paragraph = paragraph.text.replace(key, str(datas[key]))
-                            paragraph.text = text_paragraph
-                            
-                    #self.lines(paragraph.runs, datas)
+                        for textParag in paragraph.runs:
+                            if key in textParag.text and str(datas[key]) != '--':
+                            	textParag.text = textParag.text.replace(key, str(datas[key]))
+                            	#break
+                       	 
+                	#self.lines(paragraph.runs, datas)
                 
             if is_table==True and progress_bar != None:
                 cont = 0
