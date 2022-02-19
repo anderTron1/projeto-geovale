@@ -20,7 +20,7 @@ from Layouts.registration import Get_projects
 import re
 from decimal import Decimal
 import locale
-locale.setlocale(locale.LC_ALL, 'pt_BR')
+locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
 
 import threading
 

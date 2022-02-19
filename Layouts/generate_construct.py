@@ -16,7 +16,7 @@ import re
 
 from decimal import Decimal
 import locale
-locale.setlocale(locale.LC_ALL, 'pt_BR')
+locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
 
 from docx import Document
 
@@ -74,8 +74,8 @@ class Generate:
                     for key in datas.keys():
                         for textParag in paragraph.runs:
                             if key in textParag.text and str(datas[key]) != '--':
-                            	textParag.text = textParag.text.replace(key, str(datas[key]))
-                            	#break
+                                	textParag.text = textParag.text.replace(key, str(datas[key]))
+                                	#break
                        	 
                 	#self.lines(paragraph.runs, datas)
                 

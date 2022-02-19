@@ -190,7 +190,6 @@ class Generate_pdf:
     def GeneratePDF(self, list_tags):
         path_file = self.__tags.path_file
         
-        print(path_file)
         try:
             nome_pdf = self.__tags.name_file
             pdf = canvas.Canvas(path_file)

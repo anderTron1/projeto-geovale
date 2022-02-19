@@ -60,12 +60,10 @@ class Import_contract:
                 #del(self.rows_table[id_selection])
                 os.remove(arq)
                 
-                print(self.table_elements)
                 for key, value in self.table_elements.items():
                     if value[0] == name[0]:
                         self.table_elements.pop(key)
                         break
-                print('Depois: ',self.table_elements)
                 sg.popup('Arquivo deletado', keep_on_top=True)
     
     def _search_register(self, window, record_to_select):

@@ -20,7 +20,7 @@ import time
 
 from decimal import Decimal
 import locale
-locale.setlocale(locale.LC_ALL, 'pt_BR')
+locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
 
 #--------------------------key to buttons personal data-------------------
 DEFAULT_KEY_BTN_NEW = '-BUTTONNEW-'
@@ -286,7 +286,6 @@ class register_personal_data:
 
                 if key == DEFAULT_KEY_PROJECT_SERVICES:
                         register.append(self.projetcs.get_id(valuer[key]))
-                        print(valuer[key])
                 else:
                     register.append(valuer[key])
         
@@ -906,8 +905,6 @@ class Registration:
     
                     else:  # save edition register
                         change_events_fields = True
-    
-                        print(self._class_register.get_key_values(value, keys_fields()))
     
                         self._conn.update_register(self._class_register.get_key_values(value, keys_fields()),
                                                    self._conn.register_people, self._conn.id_register_people, self._id_register_db, self._conn.id_to_projects_service)
