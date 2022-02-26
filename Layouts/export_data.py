@@ -115,8 +115,8 @@ class Export_data:
                                 datas_income_residents = locale.currency(datas_income_residents, grouping=True)
                                 
                             new_elements.append(datas_income_residents)
-                            
-            datas_regist_new.append(new_elements)
+            
+                datas_regist_new.append(new_elements)
         return datas_regist_new
     
     def get_datas(self,window, value):
@@ -127,7 +127,7 @@ class Export_data:
         name_db_residents = self.__conn.register_residents
         
         spouse = ['NOME DO CONJUGE', 'CPF - CONJUGE', 'RG - CONJUGE',
-                   'TITULO DE ELEITOR - CONJUGE','REGIME DE UNIÃO']
+                   'TITULO DE ELEITOR - CONJUGE', 'RENDA DO CONJUGE', 'PROFISSÃO DO CONJUGE','REGIME DE UNIÃO']
         
         columns = ['NOME', 'ENQUADRAMENTO',
                    'IMÓVEL  RURAL', 
@@ -143,7 +143,9 @@ class Export_data:
         fields_db = ['name', 'type_reurb', 'has_rural_property', 
                      'num_bach_regu', 'num_block_regu', 'district_regu', 'address', 
                      'address_number', 'district', 'cpf', 'rg', 'issuing_agency', 
-                     'voter_title', 'age', 'profession', 'marital_status', 'how_many_children', 'schooling', 'name_spouse', 'cpf_spouse','rg_spouse', 'issuing_agency_spouse', 'union_regime_spouse']
+                     'voter_title', 'age', 'profession', 'marital_status', 
+                     'how_many_children', 'schooling', 'name_spouse', 'cpf_spouse',
+                     'rg_spouse', 'issuing_agency_spouse', 'income_spouse','profession_spouse', 'union_regime_spouse']
         
         value_project = value[DEFAULT_KEY_PROJECT]
         value_framework = value[DEFAULT_KEY_FRAMEWORK]
@@ -177,7 +179,7 @@ class Export_data:
                     str(value_project) + ' AND '+name_db_people + ".type_reurb = '" + value_framework+"'"
                 
                 search_singles = name_db_people +" WHERE marital_status <> 'Casado' AND " +name_db_people+'.id_to_projects_service = ' + str(value_project) + ' AND '+name_db_people + ".type_reurb = '" + value_framework+"'"
-                
+
             datas_regist_all = self.__conn.select_register(fields_db, search_all)
             datas_regist_singles = self.__conn.select_register(fields_db[0:18], search_singles)
 
