@@ -122,7 +122,7 @@ class register_personal_data:
             [sg.T('RG:', size=(10, 1)), sg.Input(size=(15,1),  key=DEFAULT_KEY_RG_SPOUSE), sg.T('órgão Emissor:'), sg.Input(size=(5,1), key=DEFAULT_KEY_ISSUING_BODY_SPOUSE), 
              sg.T('CPF:',), sg.Input(size=(15,1), key=DEFAULT_KEY_CPF_SPOUSE),
              sg.T('CNH'), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_CNH_SPOUSE, readonly=True)],
-            [sg.T('Titulo de Eleitor:', size=(18)), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE)],
+            [sg.T('Titulo de Eleitor:', size=(18)), sg.Input(size=(20,1), key=DEFAULT_KEY_VOTER_TITLE_SPOUSE), sg.T('Renda:'),sg.Input(size=(15,1), key=DEFAULT_KEY_INCOME_SPOUSE), sg.T('Profissão:'), sg.Input(size=(25,1), key=DEFAULT_KEY_PROFESSION_SPOUSE)],
             [sg.T('Escolaridade:', size=(18)), sg.Combo(['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
                                              'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior'], key=DEFAULT_KEY_SCHOOLING_SPOUSE, readonly=True),
              sg.T('Regime de União'), sg.Combo(['Comunhão parcial de bens','Comunhão Universal de Bens','Separação de bens', 'Participação final nos Aquestos'],key=DEFAULT_KEY_UNION_REGIME, readonly=True)]   
@@ -255,8 +255,8 @@ class register_personal_data:
         #window.Element(DEFAULT_KEY_TYPE_FRAMEWORK).update(disabled=True)
 
         
-    def disable_input_conjuge(self,window, velue, keys, estadCivil):
-        if velue[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == estadCivil and window.Element(DEFAULT_KEY_BTN_NEW).TKButton['state'] == 'disabled':# and velue[DEFAULT_KEY_NAME_SPOUSE] != '':# and window.Element(DEFAULT_KEY_BTN_SAVE).TKButton['state'] == 'normal':
+    def disable_input_conjuge(self,window, value, keys, estadCivil):
+        if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == estadCivil and window.Element(DEFAULT_KEY_BTN_NEW).TKButton['state'] == 'disabled':# and value[DEFAULT_KEY_NAME_SPOUSE] != '':# and window.Element(DEFAULT_KEY_BTN_SAVE).TKButton['state'] == 'normal':
             if window.Element(DEFAULT_KEY_NAME_SPOUSE).TKEntry['state'] == 'readonly':
                 self.disable_objts(keys,window, False, False)
                                 
@@ -310,7 +310,7 @@ class register_personal_data:
                 
             window.Element(key).Widget.configure(style='TCombobox')
     
-    def required_fields(self,window,event, velue):
+    def required_fields(self,window,event, value):
         filled_fields = True        
         key_to_check = [DEFAULT_KEY_NOME_PERSONAL_DATA,           DEFAULT_KEY_SEX_PERSONAL_DATA,
                         DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA,      DEFAULT_KEY_AGE_PERSONAL_DATA,
@@ -361,7 +361,7 @@ class register_personal_data:
                         }
         
         for key_check in key_to_check:
-            if velue[key_check] == '':
+            if value[key_check] == '':
                 if window.find_element(key_check).Widget['state'] != 'disabled' and window.find_element(key_check).Widget['state'] != 'readonly':
                     self._change_fields_color(window,key_check, 'red')
                     filled_fields = False
@@ -371,8 +371,8 @@ class register_personal_data:
                 self._change_fields_color(window, key_check, "white")
                 
         for key_check in key_to_check_spouse:
-            if velue[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._marital_status:
-                if velue[key_check] == '':
+            if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._marital_status:
+                if value[key_check] == '':
                     self._change_fields_color(window,key_check, 'red')
                     filled_fields = False
                 else: 
@@ -483,13 +483,23 @@ class register_personal_data:
             datas = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
             #update valuer to family income
             total_income = 0
+            income = 0
+            income_spouse = 0
             if value[DEFAULT_KEY_INCOME_COMB_INCOME] != '':
                 try:
-                    total_income = value[DEFAULT_KEY_INCOME_COMB_INCOME].replace('.', '')
-                    total_income = float(re.sub('([^0-9].[^0-9]{1,2})', '',total_income.replace(',','.')))
+                    income = value[DEFAULT_KEY_INCOME_COMB_INCOME].replace('.', '')
+                    income = float(re.sub('([^0-9].[^0-9]{1,2})', '',income.replace(',','.')))
                 except:
-                    print('ERRO para alterar a renda total familiar')
+                    print('ERRO para alterar a renda total familiar com o valor da renda pessoal')
+            
+            if value[DEFAULT_KEY_INCOME_SPOUSE] != '':
+                try:
+                    income_spouse = value[DEFAULT_KEY_INCOME_SPOUSE].replace('.', '')
+                    income_spouse = float(re.sub('([^0-9].[^0-9]{1,2})', '',income_spouse.replace(',','.')))
+                except:
+                    print('ERRO para alterar a renda total familiar com o valor da renda do cônjuge')
                 
+            total_income = (income+income_spouse)
             if len(datas) != 0:
                 total_income += [sum(float(re.sub('([^0-9].[^0-9]{1,2})', '', str(i[7]).replace('.', '').replace(',','.'))) for i in datas)][0]
             income = Decimal(total_income)
@@ -498,7 +508,7 @@ class register_personal_data:
             window.Element(DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID).update(income)
             return income
     
-    def _event_table_regist_resid(self, window, event, velue):
+    def _event_table_regist_resid(self, window, event, value):
         if len(window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.get_children()) > 0:
             dados = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).Values
             
@@ -510,7 +520,7 @@ class register_personal_data:
         
         if event == DEFAULT_BTN_VALIDATE_INCOME:
             try:
-                money = velue[DEFAULT_KEY_TXT_INCOME_REGIST_RESID].replace('.', '')
+                money = value[DEFAULT_KEY_TXT_INCOME_REGIST_RESID].replace('.', '')
                 money = re.sub('([^0-9].[^0-9]{1,2})', '',money.replace(',','.'))
                 income = Decimal(money)
                 income = locale.currency(income, grouping=True)
@@ -533,14 +543,14 @@ class register_personal_data:
             element_nane = False
             for key in key_fields_residents():
                 if key != DEFAULT_KEY_INPUT_ID_REGIST_RESID:
-                    if velue[key] == '':
+                    if value[key] == '':
                         element_nane = True
                     
             if element_nane == False:
                 
-                if velue[DEFAULT_KEY_INPUT_ID_REGIST_RESID] != '' or window.Element(DEFAULT_KEY_BTN_EDIT_REGIST_RESID).TKButton['state'] != 'disabled':
+                if value[DEFAULT_KEY_INPUT_ID_REGIST_RESID] != '' or window.Element(DEFAULT_KEY_BTN_EDIT_REGIST_RESID).TKButton['state'] != 'disabled':
                     print('Salvar Ediãço')
-                    regist = self._edit_table(window, velue, dados, key_fields_residents(), window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0])
+                    regist = self._edit_table(window, value, dados, key_fields_residents(), window.Element(DEFAULT_KEY_TABLE_RESIDENTS).SelectedRows[0])
                     
                     regist_exist = False
                     for cont in range(len(self.datas_register_residents_edit)):
@@ -554,10 +564,10 @@ class register_personal_data:
                         
                 else:
                     print('Salvar Novo registro')
-                    regist = self.save_record_regist_resid(window, velue,key_fields_residents()) 
+                    regist = self.save_record_regist_resid(window, value,key_fields_residents()) 
                     self.datas_register_residents_new.append(regist)
     
-                self.update_register_txt_income(window, velue)
+                self.update_register_txt_income(window, value)
                 
                 self.disable_objts(key_fields_residents(),window,True,closeValue=False)
                 self.event_buttons_residents(window, True, False, True, True, True, True)
@@ -572,79 +582,96 @@ class register_personal_data:
             id = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()[0]
             self.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS, int(id))
             self.disable_objts(key_fields_residents(),window,True,closeValue=True)
-                        
-    def event_inputs(self,sg, window, event, velue):
+                  
+    def update_income(self,element_event, window, event,value, key):
+        if element_event.event_keyboard_enter(window, event, key):
+            try:
+                money = value[key].replace('.', '')
+                money = re.sub('([^0-9].[^0-9]{1,2})', '',money.replace(',','.'))
+                income = Decimal(money)
+                income = locale.currency(income, grouping=True)
+                window.Element(key).update(income)
+                
+                self.update_register_txt_income(window, value)
+            except:
+                window.Element(key).update('')
+        
+    def event_inputs(self,sg, window, event, value):
         elemAdditional = ElementsAdditional()
         #----------------------------EVENTOS DO CAMPO DE tabDadosPessoal-------------------------
                
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA):
-            result = elemAdditional.valid_birth( velue[DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA])
+            result = elemAdditional.valid_birth( value[DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, 'Data incorreta!')
                 
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_TEL_PERSONAL_DATA):
-            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_TEL_PERSONAL_DATA])
+            result = elemAdditional.valid_cell_number( value[DEFAULT_KEY_TEL_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_TEL_PERSONAL_DATA, 'quantidade de digitos incorreta!')
             
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_CEL_PERSONAL_DATA):
-            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_CEL_PERSONAL_DATA])
+            result = elemAdditional.valid_cell_number( value[DEFAULT_KEY_CEL_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_CEL_PERSONAL_DATA, 'quantidade de digitos incorreta!')
         
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_EMAIL_PERSONAL_DATA):
-            result = elemAdditional.valid_email( velue[DEFAULT_KEY_EMAIL_PERSONAL_DATA])
+            result = elemAdditional.valid_email( value[DEFAULT_KEY_EMAIL_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_EMAIL_PERSONAL_DATA, 'formato do email incorreta!')
                 
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA):
-            result = elemAdditional.valid_just_number(sg, velue[DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA])
+            result = elemAdditional.valid_just_number(sg, value[DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_HOUSE_NUMBER_PERSONAL_DATA, 'Apenas valor númerico!')
                 
         if elemAdditional.event_keyboard_enter(window, event,DEFAULT_KEY_CPF_PERSONAL_DATA):
-            result = elemAdditional.valid_cpf(velue[DEFAULT_KEY_CPF_PERSONAL_DATA])
+            result = elemAdditional.valid_cpf(value[DEFAULT_KEY_CPF_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_CPF_PERSONAL_DATA, 'quantidades de digítos do CPF incorreta!')
             
         '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA):
-            result = elemAdditional.valid_titulo_eleitor(velue[DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA])
+            result = elemAdditional.valid_titulo_eleitor(value[DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_VOTER_TITLE_PERSONAL_DATA, 'quantidade de digitos incorreta!')'''
                 
         '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_RG_PERSONAL_DATA):
-            result = elemAdditional.valid_rg( velue[DEFAULT_KEY_RG_PERSONAL_DATA])
+            result = elemAdditional.valid_rg( value[DEFAULT_KEY_RG_PERSONAL_DATA])
             self._event_have_information(window, result, DEFAULT_KEY_RG_PERSONAL_DATA, 'Número de RG incorreto!')'''
             
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_INCOME_COMB_INCOME):
             try:
-                money = velue[DEFAULT_KEY_INCOME_COMB_INCOME].replace('.', '')
+                money = value[DEFAULT_KEY_INCOME_COMB_INCOME].replace('.', '')
                 money = re.sub('([^0-9].[^0-9]{1,2})', '',money.replace(',','.'))
                 income = Decimal(money)
                 income = locale.currency(income, grouping=True)
                 window.Element(DEFAULT_KEY_INCOME_COMB_INCOME).update(income)
                 
-                self.update_register_txt_income(window, velue)
+                self.update_register_txt_income(window, value)
             except:
                 window.Element(DEFAULT_KEY_INCOME_COMB_INCOME).update('')
+        
+        self.update_income(elemAdditional, window, event,value, DEFAULT_KEY_INCOME_SPOUSE)
+                
+            
 
         #----------------------------EVENTOS DO CAMPO DE frameConjuge-------------------------
 
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_BIRTHDATE_SPOUSE):
-            result = elemAdditional.valid_birth( velue[DEFAULT_KEY_BIRTHDATE_SPOUSE])
+            result = elemAdditional.valid_birth( value[DEFAULT_KEY_BIRTHDATE_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_BIRTHDATE_SPOUSE, 'Data incorreta!')
                 
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_TEL_SPOUSE):
-            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_TEL_SPOUSE])
+            result = elemAdditional.valid_cell_number( value[DEFAULT_KEY_TEL_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_TEL_SPOUSE, 'Número de telefone incorreto!')
                 
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_CEL_SPOUSE):
-            result = elemAdditional.valid_cell_number( velue[DEFAULT_KEY_CEL_SPOUSE])
+            result = elemAdditional.valid_cell_number( value[DEFAULT_KEY_CEL_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_CEL_SPOUSE, 'Número de celular incorreto!')
                 
         '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_RG_SPOUSE):
-            result = elemAdditional.valid_rg( velue[DEFAULT_KEY_RG_SPOUSE])
+            result = elemAdditional.valid_rg( value[DEFAULT_KEY_RG_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_RG_SPOUSE, 'Número de RG incorreto!')'''
         
         if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_CPF_SPOUSE):
-            result = elemAdditional.valid_cpf(velue[DEFAULT_KEY_CPF_SPOUSE])
+            result = elemAdditional.valid_cpf(value[DEFAULT_KEY_CPF_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_CPF_SPOUSE, 'Número de CPF incorreto!')
                 
         '''if elemAdditional.event_keyboard_enter(window, event, DEFAULT_KEY_VOTER_TITLE_SPOUSE):
-            result = elemAdditional.valid_titulo_eleitor( velue[DEFAULT_KEY_VOTER_TITLE_SPOUSE])
+            result = elemAdditional.valid_titulo_eleitor( value[DEFAULT_KEY_VOTER_TITLE_SPOUSE])
             self._event_have_information(window, result, DEFAULT_KEY_VOTER_TITLE_SPOUSE, 'Número do Titulo de Eleitor incorreto!')'''
         del elemAdditional
         
