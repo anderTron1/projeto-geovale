@@ -70,12 +70,23 @@ class Generate:
     	else:
             if is_table==False:  
                 #update  paragraph
+                #Verificar texto...
                 for paragraph in self.document.paragraphs:
                     for key in datas.keys():
                         for textParag in paragraph.runs:
                             if key in textParag.text and str(datas[key]) != '--':
                                 	textParag.text = textParag.text.replace(key, str(datas[key]))
                                 	#break
+                                    
+                #Verificar tabelas...
+                for table in self.document.tables:
+                    for line in table.rows:
+                        for cell in line.cells:
+                            for textParag in cell.paragraphs:
+                                for key in datas.keys():
+                                    for textTable in textParag.runs:
+                                        if key in textTable.text and str(datas[key]) != '--':
+                                            textTable.text = textTable.text.replace(key, str(datas[key]))
                        	 
                 	#self.lines(paragraph.runs, datas)
                 
