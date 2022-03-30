@@ -60,6 +60,7 @@ class main_layout:
                   ]
         return layout
     
+    
     def exec_class(self):
         window = sg.Window('Janela Principal', self.layout(),icon=r'image/iconLogo.ico',
                            default_button_element_size=(25,1), background_color='white', disable_close=True,
