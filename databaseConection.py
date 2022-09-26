@@ -36,7 +36,6 @@ class Database:
         
         self.id_to_projects_service = 'id_to_projects_service'
         
-                
         try:
             with sqlite3.Connection(path_file) as conection:
                 self._conection = conection  
@@ -64,7 +63,11 @@ class Database:
         list_fields = dict()
         
         cont = 0
-        self._cur.execute(f'PRAGMA table_info({name_table})')
+        
+        sql = f'PRAGMA table_info({name_table})'
+        if not self._cur.execute(sql):
+                raise AttributeError(f'{sql} does not exist.')
+                
         for row in self._cur:
             if is_pass_to_id != None:
                 if 'id_' not in row[1] or row[1] == is_pass_to_id:
@@ -74,6 +77,7 @@ class Database:
             
             elif 'id_' not in row[1]:
                 if register_layout[cont] != None:
+                    print(register_layout[cont])
                     list_fields[row[1]] = register_layout[cont]
                 cont += 1
                 
@@ -90,12 +94,15 @@ class Database:
         if insert_id == None:
             sql = "INSERT INTO {0} ({1}) VALUES ({2});".format(name_table, ', '.join([str(_) for _ in dic_datas.keys()]), ', '.join(['"' +str(_)+'"' for _ in dic_datas.values()]))
             
-            self._cur.execute(sql)
+            if not self._cur.execute(sql):
+                raise AttributeError(f'{sql} does not exist.')
             #self._conection.commit()
             
             sql_last_id = f'SELECT {name_id_table} FROM {name_table} ORDER BY {name_id_table} DESC LIMIT 1;'
-            self._cur.execute(sql_last_id)
             
+            if not self._cur.execute(sql_last_id):
+                raise AttributeError(f'{sql_last_id} does not exist.')
+                
             id = [row[0] for row in  self._cur]
             
             self._conection.commit()
@@ -103,7 +110,8 @@ class Database:
         else:
             sql = "INSERT INTO {0} ({1}, {3}) VALUES ({2},{4});".format(name_table, ', '.join([str(_) for _ in dic_datas.keys()]), ', '.join(['"' +str(_)+'"' for _ in dic_datas.values()]),
                                                                        self.name_id_to_table_register, insert_id)
-            self._cur.execute(sql)
+            if not self._cur.execute(sql):
+                raise AttributeError(f'{sql} does not exist.')
             self._conection.commit()
 
        
@@ -153,27 +161,33 @@ class Database:
         
         sql = f'UPDATE {name_table} SET {valuers} WHERE {name_id_table} = {id_register};'
         
-        self._cur.execute(sql)
+        if not self._cur.execute(sql):
+            raise AttributeError(f'{sql} does not exist.')
         self._conection.commit()
         
     def update_record_by(self, registers, name_table, name_id, id_register):
         sql = None
         if len(registers) > 0:
             sql = 'UPDATE {0} SET {1} WHERE {2} = {3}'.format(name_table, ','.join([str(key+"='"+value+"'") for key, value in registers.items()]), name_id, id_register)
-            self._cur.execute(sql)
+            if not self._cur.execute(sql):
+                raise AttributeError(f'{sql} does not exist.')
             self._conection.commit()
             
     def delete_register(self, name_table, name_id_table, id_register):
         sql = f'DELETE FROM {name_table} WHERE {name_id_table} = {id_register}'
-        self._cur.execute(sql)
+
+        if not self._cur.execute(sql):
+            raise AttributeError(f'{sql} does not exist.')
         self._conection.commit()
 
     def query_record(self, name_table, name_id_table, id_register):
-        sql = f'SELECT COUNT(*) FROM {name_table} WHERE {name_id_table} = {id_register};'
+        sql = f'SELECT COUNT(1) FROM {name_table} WHERE {name_id_table} = {id_register};'
         
         register_exist = None
         
-        self._cur.execute(sql)
+        if not self._cur.execute(sql):
+            raise AttributeError(f'{sql} does not exist.')
+            
         for row in self._cur:
             register_exist = row[0]
                 

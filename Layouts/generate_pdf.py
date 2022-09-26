@@ -84,6 +84,8 @@ class Tags:
         'CPF Conjuge':DEFAULT_KEY_CPF_SPOUSE,
         'CNH Conjuge':DEFAULT_KEY_CNH_SPOUSE,
         'Titulo de eleitor Conjuge':DEFAULT_KEY_VOTER_TITLE_SPOUSE,
+        'Renda do Cônjuge': DEFAULT_KEY_INCOME_SPOUSE,
+        'Profissão do Conjuge':DEFAULT_KEY_PROFESSION_SPOUSE,
         'Escolaridade Conjuge':DEFAULT_KEY_SCHOOLING_SPOUSE,
         'Regime de União':DEFAULT_KEY_UNION_REGIME,
         

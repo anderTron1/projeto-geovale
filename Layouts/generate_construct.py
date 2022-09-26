@@ -68,16 +68,17 @@ class Generate:
     	if name.find('.docx') == -1:
         	sg.popup_error('O arquivo não é um formato docx')
     	else:
-            if is_table==False:  
+            if is_table == False:
                 #update  paragraph
                 #Verificar texto...
                 for paragraph in self.document.paragraphs:
                     for key in datas.keys():
                         for textParag in paragraph.runs:
                             if key in textParag.text and str(datas[key]) != '--':
-                                	textParag.text = textParag.text.replace(key, str(datas[key]))
+                                	textParag.text = textParag.text.replace(
+                                	    key, str(datas[key]))
                                 	#break
-                                    
+
                 #Verificar tabelas...
                 for table in self.document.tables:
                     for line in table.rows:
@@ -86,56 +87,45 @@ class Generate:
                                 for key in datas.keys():
                                     for textTable in textParag.runs:
                                         if key in textTable.text and str(datas[key]) != '--':
-                                            textTable.text = textTable.text.replace(key, str(datas[key]))
-                       	 
-                	#self.lines(paragraph.runs, datas)
-                
-            if is_table==True and progress_bar != None:
+                                            textTable.text = textTable.text.replace(
+                                                key, str(datas[key]))
+                return income
+            if is_table == True and progress_bar != None:
                 cont = 0
                 size_data = len(datas)
-                
                 progress_bar.UpdateBar(0, size_data+1)
                 time.sleep(.01)
                 #update table
                 for table in self.document.tables:
                     cont_rows = len(datas) / (len(table.columns)-1)
-                    
+
                     if table.rows[0].cells[0].text == DEFAULT_KEY_TABLE_RESIDENTS:
-                        table.rows[0].cells[0].text='Cadastro de Moradores'
-                        
+                        table.rows[0].cells[0].text = 'Cadastro de Moradores'
+
                         if len(table.rows) < cont_rows:
                             difference = cont_rows - len(table.rows)
-                            
+
                             for div in range(difference):
                                 table.add_row().cells
-                        
+
                         for line in table.rows:
                             for cell in line.cells:
                                 if cont == size_data:
                                     break
                                 if cell.text == '':
                                     if str(datas[cont]).find('R$') != -1:
-                                        income += float(re.sub('([^0-9].[^0-9]{1,2})', '', str(datas[cont]).replace('.', '').replace(',','.')))
+                                        income += float(re.sub('([^0-9].[^0-9]{1,2})', '', str(
+                                            datas[cont]).replace('.', '').replace(',', '.')))
                                         cell.text = datas[cont]
                                     else:
                                         cell.text = str(datas[cont])
                                     cont += 1
-                                    
+
                                     progress_bar.UpdateBar(cont, size_data)
                                     time.sleep(.01)
-               
-                try:
-                    income = locale.currency(income, grouping=True)
-                except:
-                    sg.popup_error('ERRO para converter o valor da renda familiar')
+                #print(income)
+                return income
                 
-                #update icome table
-                dic_icome = {DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID: income}
-                for paragraph in self.document.paragraphs:
-                    self.lines(paragraph.runs, dic_icome)
-                
-                progress_bar.UpdateBar(cont+1, size_data+1)
-                time.sleep(.01)
                                    
     def save(self,dict_save, save_as): 
         save = True
@@ -211,23 +201,36 @@ class Generate_contract:
         window.Element(DEFAULT_KEY_INPUT_CONTRACT).update('')
         window.Element(DEFAULT_KEY_INPUT_NAME_FILE_TO_SAVE).update('')
     
+    def get_incomes(self, id_register):
+        sql = self._conn.register_people + ' WHERE ' + self._conn.id_register_people + ' = ' + str(id_register)
+        sql_spouse = self._conn.register_spouse + ' WHERE ' + self._conn.name_id_to_table_register + ' = ' + str(id_register)
+            
+        income_people = self._conn.select_register(['income_between'], sql)
+        income_people = float(re.sub('([^0-9].[^0-9]{1,2})', '', income_people[0][0].replace('.', '').replace(',','.')))
+            
+        try:
+            income_spouse = self._conn.select_register(['income_spouse'], sql_spouse)
+            income_spouse = float(re.sub('([^0-9].[^0-9]{1,2})', '', income_spouse[0][0].replace('.', '').replace(',','.')))
+        except:
+            income_spouse = 0
+        
+        return income_people, income_spouse
+    
     def get_db(self,window, value,keys_fields, name_register, name_id_register, id_register, is_table=False):
         fileds_and_field_db = self._conn._take_fields_records(name_register, keys_fields)
         progress_bar = window.Element(DEFAULT_KEY_PROGRESS_BAR_GENERATE_CONSTRUCT)
         
         if is_table:
-            values = []
-            sql = self._conn.register_people + ' WHERE ' + self._conn.id_register_people + ' = ' + str(id_register)
-            income_people = self._conn.select_register(['income_between'], sql)
-            income_people = float(re.sub('([^0-9].[^0-9]{1,2})', '', income_people[0][0].replace('.', '').replace(',','.')))
-            
+            values = []            
             register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)
             if register_db != None:
                 for val_tuple in register_db:
                     for value in val_tuple:
                         values.append(value)
                         
-            self.__generate.update_docx(self._path_contract, values, is_table, progress_bar, income_people)
+            new_income = self.__generate.update_docx(self._path_contract, values, is_table, progress_bar)
+            #print('dadosss: ', new_income)
+            return new_income
         else:
             key_value = dict()
             register_db = self._conn.select_register(fileds_and_field_db.keys(), name_register,name_id_register, id_register)[0]
@@ -235,7 +238,6 @@ class Generate_contract:
             #print(register_db, '\n\n')
             size_list = len(fileds_and_field_db.values())
             progress_bar.UpdateBar(0, size_list)
-            
             for cont, key in enumerate(fileds_and_field_db.values()):
                 if register_db[cont] != None:
                     key_value[key] = register_db[cont]
@@ -246,6 +248,7 @@ class Generate_contract:
             #print(key_value)
             
     def get_datas_db(self,window, value):
+        
         self.__generate = Generate(self._path_contract)
         
         save_in_directory = sg.tk.filedialog.askdirectory(initialdir=os.path.abspath(os.sep))
@@ -275,10 +278,27 @@ class Generate_contract:
         
         register_residents_exist = self._conn.query_record(name_register_residents, name_id_to_register, id_register)
         
+        income_total = 0
         if register_residents_exist:
             
             window.Element(DEFAULT_KEY_PROCESSTO_CREATE_A_CONTRACT).update('Inserindo registros nas tabelas...')
-            self.get_db(window,value, key_fields_residents().pop(0), name_register_residents, name_id_to_register, id_register, is_table=True)
+            income_total = self.get_db(window,value, key_fields_residents().pop(0), name_register_residents, name_id_to_register, id_register, is_table=True)
+            
+        try:
+            income_people, income_spouse = self.get_incomes(id_register)
+            #print('renda pessoa: ',income_people, 'renda spouse: ', income_spouse, 'renda total: ', income_total)
+            income_total += income_people
+            income_total += income_spouse
+            income_total = locale.currency(income_total, grouping=True)
+        except:
+            sg.popup_error('ERRO para converter o valor da renda familiar')
+                
+        #update icome table
+        #print(income_total)
+        dic_icome = {DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID: income_total}
+        for paragraph in self.__generate.document.paragraphs:
+            self.__generate.lines(paragraph.runs, dic_icome)
+        
         self.__generate.clear_keys_docx(key_fields_residents())
         self.__generate.clear_keys_docx([DEFAULT_KEY_TXT_FAMILY_INCOME_REGIST_RESID])
             

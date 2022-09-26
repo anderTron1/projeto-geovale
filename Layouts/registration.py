@@ -93,10 +93,13 @@ class register_personal_data:
     def __init__(self, database):
         self.__conn = database
         self._marital_status = 'Casado'
+        self._cohabitant = 'Amasiado/Convivente'
         self.elemAdditional = ElementsAdditional()
         self.datas_register_residents_new = []
         self.datas_register_residents = []
         self.datas_register_residents_edit = []
+        
+        self.table_index_deleted = []
         
         self.projetcs = None
         self.list_datas_projetcs = None
@@ -107,7 +110,7 @@ class register_personal_data:
         self.projetcs = Get_projects(self.__conn)
         self.list_datas_projetcs = np.array(self.projetcs.get_list())        
         
-        listEstadoCivil = [self._marital_status, 'Solteiro', 'Divorciado', 'Amasiado/Convivente', 'Viúvo']
+        listEstadoCivil = [self._marital_status, 'Solteiro', 'Divorciado', self._cohabitant, 'Viúvo']
         
         schooling_list = ['Não Alfabetizado', 'Ensino Fundamental Incompleto', 'Ensino Fundamental Completo', 'Ensino Médio Incompleto', 
                                      'Ensino Médio Completo', 'Ensino Técnico', 'Ensino Superior']
@@ -115,7 +118,7 @@ class register_personal_data:
         spouse_frame = [
             [sg.T('Nome:',size=(5)), sg.Input(size=(60,1), key=DEFAULT_KEY_NAME_SPOUSE)],
             [sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_SPOUSE, readonly=True),
-             sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), key=DEFAULT_KEY_BIRTHDATE_SPOUSE), sg.Text('Idade'), sg.Spin(rangeArray(0, 120), initial_value='', key=DEFAULT_KEY_AGE_SPOUSE, readonly=True),
+             sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), key=DEFAULT_KEY_BIRTHDATE_SPOUSE), sg.Text('Idade'), sg.Spin(rangeArray(0, 120), initial_value='', key=DEFAULT_KEY_AGE_SPOUSE),
              sg.T('Naturalidade:'), sg.Input(size=(20,1), key=DEFAULT_KEY_NATURALNESS_SPOUSE)],
             [sg.T('Tel.:', size=(10, 1)), sg.Input(size=(20,1), key=DEFAULT_KEY_TEL_SPOUSE), 
              sg.T('Cel.:'), sg.Input(size=(20,1),  key=DEFAULT_KEY_CEL_SPOUSE)],
@@ -138,7 +141,7 @@ class register_personal_data:
             [sg.Text('Nome:',size=(5)), sg.Input(size=(60,1), disabled=True, key=DEFAULT_KEY_NOME_PERSONAL_DATA),
              sg.Text('Sexo:',size=(5)), sg.Combo(['F', 'M'], key=DEFAULT_KEY_SEX_PERSONAL_DATA, readonly=True),
              sg.Text('Data de Nascimento:'), sg.Input(size=(12,1), disabled=True, key=DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA)], 
-            [sg.Text('Idade',size=(5)), sg.Spin(rangeArray(0, 120),initial_value='', disabled=True, key=DEFAULT_KEY_AGE_PERSONAL_DATA, readonly=True),
+            [sg.Text('Idade',size=(5)), sg.Spin(rangeArray(0, 120),initial_value='', disabled=True, key=DEFAULT_KEY_AGE_PERSONAL_DATA),
              sg.Text('Naturalidade'), sg.Input(size=(30,1), disabled=True,key=DEFAULT_KEY_NATURALNESS_PERSONAL_DATA), sg.Text('UF:'), sg.Input(size=(15,1), disabled=True, key=DEFAULT_KEY_UF_PERSONAL_DATA)],
             [sg.Text('Tel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_TEL_PERSONAL_DATA), 
              sg.Text('Cel.:',size=(5)), sg.Input(size=(20,1), disabled=True,key=DEFAULT_KEY_CEL_PERSONAL_DATA)],
@@ -168,7 +171,7 @@ class register_personal_data:
 
         frameCondImoveis = [
             [sg.T('Tem outro dono?', size=(32)), sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_COMB_ONLY_OWNER, readonly=True), sg.T('Nome do outro Dono:'), sg.Input(size=(25,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_OWNER)],
-            [sg.T('O imóvel é quitado?'),sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_TXT_PROPERTY_IS_PAID_OFF, readonly=True), sg.T('A quanto tempo spossui o Imóvel?'), sg.Input(size=(15,1), disabled=True,  key=DEFAULT_KEY_TXT_HOW_LONG_HAS_THE_PROPERTY)],
+            [sg.T('O imóvel é quitado?'),sg.Combo([KEY_YES, KEY_NOT], key=DEFAULT_KEY_TXT_PROPERTY_IS_PAID_OFF, readonly=True), sg.T('A quanto tempo possui o Imóvel?'), sg.Input(size=(15,1), disabled=True,  key=DEFAULT_KEY_TXT_HOW_LONG_HAS_THE_PROPERTY)],
             [sg.T('Possui Outro Imóvel Urbano?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_HAVE_ANOTHER_URBAN_PROPERTY, readonly=True), sg.T('Quantos?'), 
              sg.Spin(rangeArray(0, 11), disabled=True,  key=DEFAULT_KEY_ANOTHER_PROPERTY_HOW_MANY, initial_value=(''), readonly=True), sg.T('Onde?'), sg.Input(size=(20,1), disabled=True,  key=DEFAULT_KEY_TXT_ANOTHER_PROPERTY_WHERE)],
             [sg.T('Tem Edificação no Imóvel?', size=(32)), sg.Combo([KEY_YES, KEY_NOT],  key=DEFAULT_KEY_COMB_REAL_ESTATE_CONSTRUC, readonly=True), sg.T('Utiliza o imóvel para:'), 
@@ -256,7 +259,7 @@ class register_personal_data:
 
         
     def disable_input_conjuge(self,window, value, keys, estadCivil):
-        if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == estadCivil and window.Element(DEFAULT_KEY_BTN_NEW).TKButton['state'] == 'disabled':# and value[DEFAULT_KEY_NAME_SPOUSE] != '':# and window.Element(DEFAULT_KEY_BTN_SAVE).TKButton['state'] == 'normal':
+        if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == estadCivil or value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._cohabitant and window.Element(DEFAULT_KEY_BTN_NEW).TKButton['state'] == 'disabled':# and value[DEFAULT_KEY_NAME_SPOUSE] != '':# and window.Element(DEFAULT_KEY_BTN_SAVE).TKButton['state'] == 'normal':
             if window.Element(DEFAULT_KEY_NAME_SPOUSE).TKEntry['state'] == 'readonly':
                 self.disable_objts(keys,window, False, False)
                                 
@@ -580,6 +583,7 @@ class register_personal_data:
                 
         if event == DEFAULT_KEY_BTN_DEL_REGIST_RESID:
             id = window.Element(DEFAULT_KEY_TABLE_RESIDENTS).TKTreeview.selection()[0]
+            self.table_index_deleted.append(value[DEFAULT_KEY_INPUT_ID_REGIST_RESID])
             self.delete_table(window, DEFAULT_KEY_TABLE_RESIDENTS, int(id))
             self.disable_objts(key_fields_residents(),window,True,closeValue=True)
                   
@@ -791,27 +795,15 @@ class Registration:
         for cont in range(len(keys)):
             dict_value[keys[cont]] = database[cont]
             
-        
+        income_family_total = dict_value['family_income'] * dict_value['minimum_wage']
         reurb = 'REURB-S'  if dict_value['REURB'] == 'REURB-S' else 'REURB-E'
         fits_how = ''
         
-        if family_income != '' and family_income != None:
-            family_income = family_income / dict_value['minimum_wage']
-            if family_income < dict_value['family_income']:
-                fits_how = reurb
-                
-        if lot_area != '' and lot_area != None:
-            if lot_area <= dict_value['lot_area']:
-                fits_how = reurb
-        
-        if how_many_urban_property != '' and how_many_urban_property != None:
-            if how_many_urban_property == dict_value['how_many_urban_property']:
-                fits_how = reurb
-                
-        if own_rural_property != '' and own_rural_property != None:
-            if own_rural_property == dict_value['own_rural_property']:
-                fits_how = reurb
-                
+        if family_income != '' and lot_area != '' and how_many_urban_property != '' and own_rural_property != '':
+            if family_income < income_family_total and lot_area <= dict_value['lot_area'] and how_many_urban_property == dict_value['how_many_urban_property'] \
+                and own_rural_property == dict_value['own_rural_property']:
+                    fits_how = reurb
+
         if fits_how == '':
             fits_how = 'REURB-E' if reurb == 'REURB-S' else 'REURB-S'
                         
@@ -899,8 +891,18 @@ class Registration:
             field_cpf = value[DEFAULT_KEY_CPF_PERSONAL_DATA]
             combo_project_services = value[DEFAULT_KEY_PROJECT_SERVICES]
             
+            find_name_spouse = value[DEFAULT_KEY_NAME_SPOUSE]
+            find_cpf_spouse = value[DEFAULT_KEY_CPF_SPOUSE]
+            
             if value[DEFAULT_KEY_TYPE_FRAMEWORK] != '':
-                if field_name != '' and field_cpf != '' and combo_project_services != '':
+                mandatory_spouse_fields_has_been_filled = True
+                if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status or value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._cohabitant:
+                    if find_name_spouse != '' and find_cpf_spouse != '':
+                        mandatory_spouse_fields_has_been_filled = True
+                    else:
+                        mandatory_spouse_fields_has_been_filled = False                     
+                
+                if field_name != '' and field_cpf != '' and combo_project_services != '' and mandatory_spouse_fields_has_been_filled != False:
                     #keys_numeric_fields = [DEFAULT_KEY_BIRTHDATE_PERSONAL_DATA, DEFAULT_KEY_TEL_PERSONAL_DATA, DEFAULT_KEY_CEL_PERSONAL_DATA,
                     #                       DEFAULT_KEY_RG_PERSONAL_DATA, DEFAULT_KEY_CPF_PERSONAL_DATA]
                     #keys_numeric = [DEFAULT_KEY_BIRTHDATE_SPOUSE, DEFAULT_KEY_CEL_SPOUSE, DEFAULT_KEY_TEL_SPOUSE, DEFAULT_KEY_RG_SPOUSE, DEFAULT_KEY_CPF_SPOUSE]
@@ -915,7 +917,7 @@ class Registration:
                             self._id_register_db = self._conn.insert_register(self._class_register.get_key_values(value, keys_fields()), 
                                                                               self._conn.register_people, self._conn.id_register_people, self._conn.id_to_projects_service)
     
-                            if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
+                            if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status or value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._cohabitant:
                                 self._conn.insert_register(self._class_register.get_key_values(value, keys_fields_spouse()),
                                                            self._conn.register_spouse, self._conn.id_register_spouse, insert_id=self._id_register_db)
     
@@ -939,14 +941,17 @@ class Registration:
                         register_exist = self._conn.query_record(
                             self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                         
-                        if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status:
+                        if value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._marital_status or value[DEFAULT_KEY_MARITAL_STATUS_PERSONAL_DATA] == self._class_register._cohabitant:
+                            
                             if register_exist:
                                 self._conn.update_register(self._class_register.get_key_values(value, keys_fields_spouse()), 
                                                            self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
                             else:
                                 self._conn.insert_register(self._class_register.get_key_values(value, keys_fields_spouse()),
                                                            self._conn.register_spouse, self._conn.id_register_people, insert_id=self._id_register_db)
-    
+                        else:
+                            self._conn.delete_register(self._conn.register_spouse, self._conn.name_id_to_table_register, self._id_register_db)
+                            
                         if len(value[DEFAULT_KEY_TABLE_RESIDENTS]) > 0:
                             index_column_name_table = 1
                             index_column_income_table = 8
@@ -966,7 +971,12 @@ class Registration:
                                     self._conn.update_register(register[index_column_name_table:index_column_income_table],
                                                                self._conn.register_residents, self._conn.id_register_residents, register[0:1][0])
                                 self._class_register.datas_register_residents_edit = []
-    
+                                
+                        #Delete Elements database
+                        if len(self._class_register.table_index_deleted) > 0:
+                            for id_register in self._class_register.table_index_deleted:
+                                self._conn.delete_register(self._conn.register_residents, self._conn.id_register_residents, id_register)
+                                
                     if register_exist_db != True or change_events_fields:
                         self._class_register.disable_objts(keys_fields(), window, True, False)
                         self._class_register.disable_objts(keys_fields_spouse(), window, True, False)
@@ -978,7 +988,7 @@ class Registration:
                         self._class_register.event_buttons_residents(
                             window, True, False, True, True, True, False)
                 else:
-                    sg.popup_error('ERRO!\nCampos Nome, CPF e Projetos/serviços são campos obrigatorios!', keep_on_top=True)
+                    sg.popup_error('ERRO!\nCampos Nome, CPF e Projetos/serviços são campos obrigatorios!\nSe a opção [Casado] ou [amasiado] foi selecionada da opeção [Estado Civil] os campos:\n Nome e CPF do cônjuge são obrigatorios  ', keep_on_top=True)
             else:
                 sg.popup_error('Clique no botão [Atualizar REURB] antes de salvar!', keep_on_top=True)
 

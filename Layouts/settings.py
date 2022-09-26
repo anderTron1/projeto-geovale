@@ -6,6 +6,11 @@ import numpy as np
 
 import PySimpleGUI as sg
 
+import re
+from decimal import Decimal
+import locale
+locale.setlocale(locale.LC_ALL, 'pt_BR.utf8')
+
 DEFAULT_KEY_BTN_EDIT_REURB = '<<-EDIT_REURB->>'
 DEFAULT_KEY_BTN_SAVE_REURB = '<<-SAVE_REURB->>'
 
@@ -79,7 +84,21 @@ class Framework_reurb:
                     self.__id_db = datas[0][count]
                     break
                 if window.Element(key).Type == 'input':
-                    window.Element(key).Update(datas[0][count])
+                    if key == DEFAULT_KEY_MINIMUM_WAGE:
+                        try:
+                            money = datas[0][count]
+                            money = re.sub('([^0-9].[^0-9]{1,2})', '',money.replace(',','.'))
+                            income = Decimal(money)
+                            income = locale.currency(income, grouping=True)
+                            window.Element(key).update(income)
+                        except:
+                            window.Element(key).update('')
+                    elif key == DEFAULT_KEY_OWN_BATCH_OF_UP_TO:
+                        batch = datas[0][count]
+                        batch = str(round(float(batch), 2)).replace('.', ',')
+                        window.Element(key).update(batch)
+                    else:
+                        window.Element(key).update(datas[0][count])
                    
                 elif window.Element(key).Type == 'combo':
                     window.Element(key).TKCombo.set(datas[0][count])
@@ -100,7 +119,18 @@ class Framework_reurb:
         keys_fields = self.__keys_fileds_framework()
 
         for key in keys_fields:
-            value_field = value[key]
+            if key == DEFAULT_KEY_MINIMUM_WAGE:
+                try:
+                    income = value[key].replace('.', '')
+                    income = float(re.sub('([^0-9].[^0-9]{1,2})', '',income.replace(',','.')))
+                    value_field = income
+                except:
+                    print('ERRO para alterar a renda')
+            elif key == DEFAULT_KEY_OWN_BATCH_OF_UP_TO:
+                batch = value[key].replace(',', '.')
+                value_field = batch
+            else:
+                value_field = value[key]
             
             if  value_field == '' or value_field == ' ':
                 all_fields_are_filled = False
@@ -313,14 +343,18 @@ class Project:
         
     def __id_is_being_used(self, window):
         name_db_register_people = self.__conn_db_to_project.register_people
-        name_id_register_people = self.__conn_db_to_project.id_register_people
+        name_id_register_people = self.__conn_db_to_project.id_to_projects_service
         
         index_list_ID = 0
         index = window.Element(DEFAULT_KEY_TABLE_SETTINGS).SelectedRows[0]
         datas = window.Element(DEFAULT_KEY_TABLE_SETTINGS).Values 
-        print('IDA: ', datas[index][index_list_ID])
+        #print('IDA: ', datas[index][index_list_ID])
         
-        return self.__conn_db_to_project.query_record(name_db_register_people, name_id_register_people, datas[index][index_list_ID])
+        #print('Nome: ', name_db_register_people)
+        #print('Nome id: ', name_id_register_people)
+        #print('ID: ', datas[index][index_list_ID])
+        regist = self.__conn_db_to_project.query_record(name_db_register_people, name_id_register_people, datas[index][index_list_ID])
+        return regist
         
     def event_btns_project(self,window, event, value):
         if event == DEFAULT_KEY_BTN_NEW_PROJECT:
@@ -356,7 +390,7 @@ class Project:
             indice_id = 0
             if delete == "OK":
                 
-                if self.__id_is_being_used(window):
+                if self.__id_is_being_used(window) == False:
                     self.disabled_fields_project(window,True, clear_field=True)
                     self.__disabled_btns_project(window, btn_new=False, btn_edit=True, btn_save=True, btn_del=True, btn_cancel=True)
                     id = window.Element(DEFAULT_KEY_TABLE_SETTINGS).TKTreeview.selection()[0]
